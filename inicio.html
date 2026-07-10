@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0f0d">
+<title>Quinielas El Wero | Inicio</title>
+<link rel="stylesheet" href="inicio-styles.css">
+<link rel="stylesheet" href="administrador-styles.css">
+</head>
+<body>
+<!-- Esto de abajo trabaja con el Header de nuestra pagina Inicio -->                            <!-- Esto de abajo trabaja con el Header de nuestra pagina Inicio -->
+<header class="app-header" id="appHeader">
+<div class="header-inner">
+<div class="header-top">
+<div class="brand-block" id="brandBlockInicio">
+<span class="brand-icon">⚽</span>
+<div class="brand-text">
+<h1 class="brand-title">Quinielas <span class="brand-highlight">El Wero</span></h1>
+<p class="brand-subtitle">Demuestra cuánto sabes de futbol. Predice los resultados, compite contra otros y gana premios increíbles.</p>
+</div>
+</div>
+</div>
+<div class="header-bottom">
+<div class="stats-row">
+<div class="stat-chip stat-pending">
+<span class="stat-number" id="statPending">0</span>
+<span class="stat-label">Quinielas no jugando</span>
+</div>
+<div class="stat-chip stat-active">
+<span class="stat-number" id="statActive">0</span>
+<span class="stat-label">Quinielas jugando</span>
+</div>
+</div>
+<div class="timer-card" id="timerCard" data-close-date="2026-07-13T20:00:00">
+<div class="timer-header">
+<span class="timer-title" id="timerStatus">Cierra en :</span>
+<span class="timer-icon">⏱️</span>
+</div>
+<div class="timer-bar-track">
+<div class="timer-bar-fill" id="timerBarFill"></div>
+<div class="timer-bar-glow" id="timerBarGlow"></div>
+</div>
+<div class="timer-countdown" id="timerCountdown">-- d -- h -- m</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Esto de abajo trabaja en nuestra activacion del administrador -->                     <!-- Esto de abajo trabaja en nuestra activacion del administrador -->  
+<div class="adm-pin-overlay" id="pinOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="pinTitle">
+<div class="adm-pin-box">
+<button class="adm-pin-close" id="btnCerrarPin" aria-label="Cerrar">✕</button>
+<div class="adm-pin-icon">🔒</div>
+<h2 class="adm-pin-title" id="pinTitle">Panel del vendedor</h2>
+<p class="adm-pin-subtitle">Ingresa tu PIN para continuar</p>
+<p class="adm-pin-vendedor">Vendedor: <strong>El Wero</strong></p>
+<div class="adm-pin-dots" id="pinDots" aria-hidden="true">
+<span class="adm-pin-dot"></span>
+<span class="adm-pin-dot"></span>
+<span class="adm-pin-dot"></span>
+<span class="adm-pin-dot"></span>
+</div>
+<p class="adm-pin-error" id="pinError" hidden>PIN incorrecto, intenta de nuevo.</p>
+<div class="adm-pin-keypad" id="pinKeypad" aria-hidden="true">
+<button class="adm-pin-key" data-key="1">1</button>
+<button class="adm-pin-key" data-key="2">2</button>
+<button class="adm-pin-key" data-key="3">3</button>
+<button class="adm-pin-key" data-key="4">4</button>
+<button class="adm-pin-key" data-key="5">5</button>
+<button class="adm-pin-key" data-key="6">6</button>
+<button class="adm-pin-key" data-key="7">7</button>
+<button class="adm-pin-key" data-key="8">8</button>
+<button class="adm-pin-key" data-key="9">9</button>
+<span class="adm-pin-key adm-pin-key--empty"></span>
+<button class="adm-pin-key" data-key="0">0</button>
+<button class="adm-pin-key adm-pin-key--borrar" data-key="borrar" aria-label="Borrar">⌫</button>
+</div>
+</div>
+</div>
+<!-- Esto de abajo trabaja en nuestro Hero -->                                                                        <!-- Esto de abajo trabaja en nuestro Hero -->
+<section class="hero">
+<div class="hero-media">
+<img src="https://images.unsplash.com/photo-1661632359980-9896d88b9b7b?auto=format&fit=crop&w=1600&q=80" alt="Estadio de futbol iluminado" class="hero-img">
+<div class="hero-overlay"></div>
+</div>
+<div class="hero-content hero-content--centered">
+<span class="hero-eyebrow">Jornada 1 - Liga MX</span>
+<div class="hero-country">
+<img src="logos/mexico.png" alt="Selección Mexicana de Futbol" class="hero-country-logo">
+</div>
+<span class="hero-slogan">Prueba tu suerte y gana</span>
+<a href="realizarlaquiniela.html" class="btn-participa btn-participa--hero">
+<span>Participa ya</span>
+<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+<path d="M5 12h14M13 6l6 6-6 6"/>
+</svg>
+</a>
+<div class="hero-highlights">
+<div class="hero-highlight-item">
+<span class="hero-highlight-icon">👥</span>
+<span class="hero-highlight-text">4 K<br>Jugadores</span>
+</div>
+<div class="hero-highlight-item">
+<span class="hero-highlight-icon">🏆</span>
+<span class="hero-highlight-text">80 K<br>Premios</span>
+</div>
+<div class="hero-highlight-item">
+<span class="hero-highlight-icon">✅</span>
+<span class="hero-highlight-text">100 %<br>Confiable</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Esto de abajo trabaja en nuestra seccion Explora -->                                                         <!-- Esto de abajo trabaja en nuestra seccion Explora -->
+<section class="explora" id="explora">
+<div class="explora-heading">
+<h3 class="explora-title">Explora</h3>
+<p class="explora-subtitle">Todo lo que necesitas para estar informado.</p>
+</div>
+<div class="cards-grid">
+<article class="card" data-target="guiarapidayredes.html" tabindex="0">
+<img src="https://images.unsplash.com/photo-1689004624325-6edf074228dd?auto=format&fit=crop&w=600&q=80" alt="Grupo de WhatsApp y redes sociales en celular" loading="lazy">
+<div class="card-overlay"><span class="card-title">Guia rapida y redes</span></div>
+</article>
+<article class="card" data-target="horarios.html" tabindex="0">
+<img src="https://images.unsplash.com/photo-1781931298345-4a736a26109c?auto=format&fit=crop&w=600&q=80" alt="Camiseta de la selección mexicana de futbol" loading="lazy">
+<div class="card-overlay"><span class="card-title">Horarios</span></div>
+</article>
+<article class="card" data-target="porcentajes.html" tabindex="0">
+<img src="https://images.unsplash.com/photo-1750279520851-48717cd1a779?auto=format&fit=crop&w=600&q=80" alt="Balón de fútbol sobre camiseta en el césped" loading="lazy">
+<div class="card-overlay"><span class="card-title">Porcentajes</span></div>
+</article>
+<article class="card" data-target="realizarlaquiniela.html" tabindex="0">
+<img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=600&q=80" alt="Persona llenando su quiniela de futbol" loading="lazy">
+<div class="card-overlay"><span class="card-title">Realizar la quiniela</span></div>
+</article>
+<article class="card" data-target="misquinielas.html" tabindex="0">
+<img src="https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?auto=format&fit=crop&w=600&q=80" alt="Lista personal de quinielas guardadas" loading="lazy">
+<div class="card-overlay"><span class="card-title">Mis quinielas</span></div>
+</article>
+<article class="card" data-target="listaoficial.html" tabindex="0">
+<img src="https://images.unsplash.com/photo-1642743327320-bd2a66c422c8?auto=format&fit=crop&w=600&q=80" alt="Lista oficial de resultados de futbol" loading="lazy">
+<div class="card-overlay"><span class="card-title">Lista Oficial</span></div>
+</article>
+<article class="card" data-target="simularlosresultados.html" tabindex="0">
+<img src="https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?auto=format&fit=crop&w=600&q=80" alt="Tactica y simulacion de futbol en pizarra" loading="lazy">
+<div class="card-overlay"><span class="card-title">Simular los resultados</span></div>
+</article>
+<article class="card" data-target="ayuda.html" tabindex="0">
+<img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=80" alt="Soporte y ayuda al usuario en celular" loading="lazy">
+<div class="card-overlay"><span class="card-title">Ayuda</span></div>
+</article>
+</div>
+</section>
+<!-- Esto de abajo trabaja con el final de todas las paginas-->                                          <!-- Esto de abajo trabaja con el final de todas las paginas-->
+<footer class="footer">
+<p class="footer-brand">Quinielas "El Wero" © 2026</p>
+<div class="footer-links">
+<a href="inicio.html">Inicio</a>
+<a href="guiarapidayredes.html">Guia rapida y redes</a>
+<a href="horarios.html">Horarios</a>
+<a href="porcentajes.html">Porcentajes</a>
+<a href="realizarlaquiniela.html">Realizar la quiniela</a>
+<a href="misquinielas.html">Mis quinielas</a>
+<a href="listaoficial.html">Lista Oficial</a>
+<a href="simularlosresultados.html">Simular los resultados</a>
+<a href="ayuda.html">Ayuda</a>
+</div>
+</footer>
+<!-- Esto de abajo trabaja con los enlaces -->                                                                         <!-- Esto de abajo trabaja con los enlaces --> 
+<script src="inicio-script.js"></script>
+<script src="administrador-script.js"></script>
+</body>
+</html>

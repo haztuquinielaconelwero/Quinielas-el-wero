@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0f0d">
+<title>Quinielas El Wero — Mis Quinielas</title>
+<link rel="stylesheet" href="inicio-styles.css">
+<link rel="stylesheet" href="misquinielas-styles.css">
+</head>
+<body>
+<!-- Esto de abajo trabaja con el Header de nuestra pagina para Mis Quinielas --> <!-- Esto de abajo trabaja con el Header de nuestra pagina para Mis Quinielas -->
+<header class="app-header mq-header" id="appHeader">
+<div class="header-inner">
+<div class="header-top">
+<div class="brand-block">
+<span class="brand-icon">⚽</span>
+<div class="brand-text">
+<h1 class="brand-title">Quinielas <span class="brand-highlight">El Wero</span></h1>
+<p class="brand-subtitle">Consulta tus quinielas jugadas.</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Esto de abajo trabaja con el hero de la pagina de Mis Quinielas --> <!-- Esto de abajo trabaja con el hero de la pagina de Mis Quinielas -->
+<section class="mq-hero" aria-label="Sección informativa">
+<div class="mq-hero-inner">
+<span class="mq-hero-badge">Mis quinielas</span>
+</div>
+</section>
+<!-- Esto de abajo trabaja para mostrar el historial de quinielas enviadas --> <!-- Esto de abajo trabaja para mostrar el historial de quinielas enviadas -->
+<main class="mq-main" id="misQuinielasCard" aria-label="Historial de quinielas enviadas">
+<div class="mq-card">
+<div class="mq-top-bar">
+<h2 class="mq-titulo">Mis quinielas</h2>
+<button id="btnFiltro" class="mq-btn-filtro" aria-label="Filtrar quinielas" aria-haspopup="true" aria-expanded="false" aria-controls="panelFiltro">
+<span class="mq-filtro-icon" aria-hidden="true">☰</span>
+</button>
+</div>
+<div id="listaMisQuinielas" class="mq-lista" role="list" aria-live="polite">
+</div>
+</div>
+</main>
+<!-- Esto de abajo trabaja para mostrar el Panel para las quinielas enviadas --> <!-- Esto de abajo trabaja para mostrar el Panel para las quinielas enviadas -->
+<div id="filtroOverlay" class="mq-filtro-overlay" hidden>
+<aside id="panelFiltro" class="mq-filtro-panel" role="dialog" aria-modal="true" aria-labelledby="filtroPanelTitle">
+<div class="mq-filtro-header">
+<h3 id="filtroPanelTitle">Filtrar quinielas</h3>
+<button class="mq-filtro-close" id="btnCerrarFiltro" aria-label="Cerrar filtro">✕</button>
+</div>
+<div class="mq-filtro-opciones" role="radiogroup" aria-label="Opciones de filtro">
+<button class="mq-filtro-chip activo" data-filtro="todas" role="radio" aria-checked="true">Todas</button>
+<button class="mq-filtro-chip" data-filtro="mayor-puntos" role="radio" aria-checked="false">Mayor cantidad de puntos</button>
+<button class="mq-filtro-chip" data-filtro="menor-puntos" role="radio" aria-checked="false">Menor cantidad de puntos</button>
+<button class="mq-filtro-chip" data-filtro="jugando" role="radio" aria-checked="false">Jugando</button>
+<button class="mq-filtro-chip" data-filtro="no-jugando" role="radio" aria-checked="false">No jugando</button>
+<button class="mq-filtro-chip" data-filtro="espera" role="radio" aria-checked="false">En espera</button>
+</div>
+</aside>
+</div>
+<!-- Esto de abajo trabaja para el footer-->                                                                      <!-- Esto de abajo trabaja para el footer-->
+<footer class="footer">
+<p class="footer-brand">© Quinielas El Wero 2026</p>
+<div class="footer-links">
+<a href="inicio.html">Inicio</a>
+<a href="guiarapidayredes.html">Guía rápida y redes</a>
+<a href="horarios.html">Horarios</a>
+<a href="porcentajes.html">Porcentajes</a>
+<a href="realizarlaquiniela.html">Realizar la quiniela</a>
+<a href="misquinielas.html">Mis quinielas</a>
+<a href="listaoficial.html">Lista Oficial</a>
+<a href="simularlosresultados.html">Simular los resultados</a>
+<a href="ayuda.html">Ayuda</a>
+</div>
+</footer>
+<!-- Esto de abajo trabaja en el contenedor de las notificaciones-->                                  <!-- Esto de abajo trabaja en el contenedor de las notificaciones-->          
+<div id="notifContainer" class="mq-notif-container" aria-live="polite" aria-atomic="false"></div>
+<!-- Esto de abajo trabaja con el boton de regresar al inicio-->                            <!-- Esto de abajo trabaja con el boton de regresar al inicio-->   
+<a href="inicio.html" class="adm-fab-inicio" aria-label="Volver al inicio">
+<span class="adm-fab-label">Inicio</span>
+<span class="adm-fab-icon">🏠</span>
+</a>
+<script src="misquinielas-script.js"></script>
+</body>
+</html>

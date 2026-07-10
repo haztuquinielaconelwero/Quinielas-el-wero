@@ -1,0 +1,921 @@
+/* ====================               Esto de abajo trabaja en el Header de nuestra pagina de administracion                              ==================== */
+.adm-header {
+position: sticky !important;
+top: 0;
+z-index: 100;
+background: linear-gradient(180deg, rgba(10,15,13,0.97) 0%, rgba(10,15,13,0.88) 100%) !important;
+backdrop-filter: blur(14px);
+border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.adm-brand-trigger {
+background: transparent;
+border: none;
+cursor: pointer;
+width: 100%;
+text-align: left;
+padding: 0;
+transition: opacity 0.2s var(--ease);
+}
+.adm-brand-trigger:hover 
+{ opacity: 0.85; }
+.adm-brand-trigger:active 
+{ transform: scale(0.99); }
+.adm-header .header-inner 
+{ padding-bottom: 7px; }
+.adm-header .brand-subtitle 
+{ line-height: 1.45; padding-bottom: 1px; }
+/* ====================          Esto de abajo trabaja en la activacion del Header para seccion administrador para los candaditos            ==================== */
+.tap-candado-badge {
+position: fixed;
+top: 14px;
+left: 50%;
+transform: translateX(-50%) translateY(-20px);
+background: rgba(0,0,0,0.85);
+color: #fff;
+font-size: 0.8rem;
+font-weight: 800;
+padding: 8px 16px;
+border-radius: 999px;
+border: 1px solid rgba(212,175,55,0.4);
+z-index: 9990;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.tap-candado-badge.visible {
+opacity: 1;
+transform: translateX(-50%) translateY(0);
+}
+/* ====================               Esto de abajo trabaja en los estilos para la imagen dentro de nuestro hero                                 ==================== */
+.admin-hero {
+position: relative;
+overflow: hidden;
+}
+.admin-hero .hero-media {
+position: absolute;
+inset: 0;
+z-index: 0;
+}
+.admin-hero .hero-img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+.admin-hero .hero-overlay {
+position: absolute;
+inset: 0;
+background: linear-gradient(180deg, rgba(10,15,13,0.55) 0%, rgba(10,15,13,0.92) 100%);
+}
+.admin-hero .hero-content {
+position: relative;
+z-index: 1;
+}
+/* ====================                  Esto de abajo trabaja en los estilos del Hero                                                        ==================== */
+.admin-hero {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 14px;
+background: radial-gradient(ellipse at 0% 0%, rgba(0,163,108,0.14) 0%, transparent 70%);
+border: 1px solid var(--glass-border);
+border-radius: 22px;
+padding: 22px 22px;
+}
+.hero-title { 
+font-size: 1.6rem; 
+font-weight: 900; 
+color: var(--text-main); 
+}
+.hero-subtitle { 
+font-size: 0.82rem; 
+color: var(--text-muted); 
+margin-top: 3px; }
+.hero-vendor {
+display: inline-flex;
+margin-top: 10px;
+font-size: 0.9rem;
+font-weight: 800;
+color: var(--dorado-premium);
+background: rgba(212,175,55,0.12);
+border: 1px solid rgba(212,175,55,0.3);
+padding: 6px 16px;
+border-radius: 999px;
+}
+/* ====================                  Esto de abajo trabaja con los 3 botones(No jugando - En espera - Jugando)                                  ==================== */
+.admin-alerts {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+.alert {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 14px;
+border-radius: 16px;
+border: 1px solid var(--glass-border);
+background: rgba(255,255,255,0.035);
+transition: transform 0.25s var(--ease), border-color 0.25s var(--ease);
+cursor: pointer;
+animation: admCardIn 0.4s var(--ease) both;
+}
+@keyframes admCardIn { 
+from { 
+opacity: 0; 
+transform: translateY(10px); 
+} 
+to { 
+opacity: 1; 
+transform: translateY(0); 
+}}
+.alert:hover { 
+transform: translateY(-2px); 
+}
+.alert--danger {
+border-color: rgba(206,17,38,0.28); 
+}
+.alert--danger .alert__icon { 
+color: #ff7080; background: rgba(206,17,38,0.14); 
+}
+.alert--success { 
+border-color: rgba(0,163,108,0.28); 
+}
+.alert--success .alert__icon { 
+color: var(--verde-mx-claro); background: rgba(0,163,108,0.14); 
+}
+.alert--info { 
+border-color: rgba(212,175,55,0.28); 
+}
+.alert--info .alert__icon { 
+color: var(--dorado-premium); background: rgba(212,175,55,0.14); 
+}
+.alert__icon { 
+flex-shrink: 0; 
+width: 38px; 
+height: 38px; 
+border-radius: 
+12px; display: 
+flex; align-items: 
+center; justify-content: center; 
+}
+.alert__content { 
+flex: 1; 
+min-width: 0; 
+}
+.alert__title { 
+font-size: 0.95rem; 
+font-weight: 900; 
+color: var(--text-main); 
+}
+.alert__text { 
+font-size: 0.66rem; 
+color: var(--text-muted); 
+margin-top: 1px; 
+}
+.alert__action { 
+flex-shrink: 0; 
+color: var(--text-muted); 
+background: none; 
+border: none; 
+cursor: pointer; 
+}
+/* ====================                  Esto de abajo trabaja con la tarjeta de Jornada actual                                ==================== */
+.section-header.section-header--centrado {
+justify-content: center;
+}
+.section-title.section-title--jornada {
+font-size: 1.3rem;
+text-align: center;
+}
+.week-card {
+background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015));
+border: 1px solid var(--glass-border);
+border-radius: 20px;
+padding: 18px;
+}
+.week-card__header { 
+display: flex; 
+align-items: center; 
+gap: 14px; 
+margin-bottom: 8px; }
+.week-card__jornada {
+width: 46px; height: 46px;
+border-radius: 14px;
+background: linear-gradient(135deg, rgba(0,163,108,0.25), rgba(0,80,54,0.3));
+border: 1px solid rgba(0,163,108,0.3);
+display: flex; align-items: center; justify-content: center;
+font-weight: 900;
+color: var(--verde-mx-claro);
+font-size: 0.9rem;
+flex-shrink: 0;
+}
+.week-card__range { 
+font-size: 0.9rem; 
+font-weight: 800; 
+color: var(--text-main); 
+}
+.week-card__status { 
+font-size: 0.74rem; 
+color: var(--dorado-premium); 
+font-weight: 700; 
+margin-top: 1px; 
+}
+.progress-bar { 
+height: 8px; 
+border-radius: 999px; 
+background: rgba(255,255,255,0.08); 
+overflow: hidden; 
+}
+.progress-bar__fill {
+height: 100%;
+width: var(--progress, 0%);
+background: linear-gradient(90deg, #006341, var(--verde-mx-claro));
+border-radius: 999px;
+transition: width 0.6s var(--ease);
+}
+.progress-labels { 
+display: flex; 
+justify-content: space-between; 
+margin-top: 4px; 
+font-size: 0.65rem; 
+color: var(--text-muted-soft); 
+font-weight: 600; }
+/* ====================                  Esto de abajo trabaja con las Tablas de No jugando , En espera , Jugando                      ==================== */
+.table-container {
+border: 1px solid var(--glass-border);
+border-radius: 0;
+background: rgba(0,0,0,0.18);
+overflow: hidden;
+}
+.table-wrapper { 
+overflow-x: auto; 
+scrollbar-width: thin; 
+scrollbar-color: rgba(0,163,108,0.5) transparent; 
+}
+.table-wrapper::-webkit-scrollbar { 
+height: 6px; 
+}
+.table-wrapper::-webkit-scrollbar-thumb { 
+background: rgba(0,163,108,0.45); 
+border-radius: 999px; 
+}
+.results-table { 
+width: 100%; 
+min-width: 700px; 
+border-collapse: separate; 
+border-spacing: 0; 
+}
+.results-table thead {
+position: sticky;
+top: 0;
+z-index: 5;
+}
+.results-table thead th {
+background: linear-gradient(180deg, rgba(0,163,108,0.2) 0%, rgba(0,80,54,0.26) 100%);
+color: #ffffff;
+font-size: 0.62rem;
+font-weight: 700;
+text-align: center;
+padding: 9px 6px;
+border-bottom: 1px solid rgba(255,255,255,0.12);
+white-space: nowrap;
+}
+.results-table thead th.col-match {
+min-width: 60px;
+}
+.results-table thead th:first-child { 
+border-top-left-radius: 0; 
+}
+.results-table thead th:last-child { 
+border-top-right-radius: 0; 
+}
+.results-table .col-name { 
+text-align: center; 
+}
+.match-header {
+display: flex;
+flex-wrap: nowrap;
+align-items: center;
+justify-content: center;
+gap: 3px;
+white-space: nowrap;
+}
+.match-logo { 
+width: 20px; 
+height: 20px; 
+object-fit: contain; 
+}
+.match-vs { 
+font-size: 0.5rem; 
+color: var(--text-muted-soft); 
+}
+.results-table tbody tr { 
+background: rgba(255,255,255,0.02); 
+transition: background 0.25s var(--ease), 
+transform 0.25s var(--ease), 
+box-shadow 0.25s var(--ease); 
+animation: admRowIn 0.3s 
+var(--ease) both; 
+}
+@keyframes admRowIn {
+from { opacity: 0; }
+to { opacity: 1; }
+}
+.results-table tbody tr:nth-child(even) { 
+background: rgba(255,255,255,0.03); 
+}
+.results-table tbody tr:hover {
+background: rgba(0,163,108,0.1);
+transform: scale(1.004);
+box-shadow: inset 0 0 0 1px rgba(0,163,108,0.25);
+}
+.results-table td {
+padding: 8px 6px;
+text-align: center;
+font-size: 0.76rem;
+color: var(--text-main);
+border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.results-table .col-name { 
+font-weight: 700; 
+}
+.results-table td.col-folio { 
+color: var(--text-main); 
+font-weight: 800; 
+font-size: 0.76rem; 
+}
+.results-table td.col-vendor { 
+color: var(--text-main); 
+font-weight: 700; 
+font-size: 0.76rem; 
+}
+.results-table .col-points { 
+font-weight: 900; 
+}
+.puntos-badge {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+min-width: 40px;
+padding: 6px 12px;
+border-radius: 999px;
+background: rgba(255,255,255,0.08);
+border: 1px solid rgba(255,255,255,0.16);
+color: var(--verde-mx-claro);
+font-size: 0.85rem;
+}
+.result-cell {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+min-width: 30px;
+height: 30px;
+border-radius: 50%;
+border: 1px solid transparent;
+font-size: 0.72rem;
+font-weight: 900;
+background: rgba(255,255,255,0.06);
+color: var(--text-muted);
+transition: transform 0.2s var(--ease);
+}
+.results-table tbody tr:hover .result-cell { 
+transform: scale(1.08); 
+}
+.result-cell.pending { 
+background: rgba(255,255,255,0.06); 
+color: var(--text-muted); 
+}
+.result-cell.correct { 
+background: rgba(0,163,108,0.22); 
+color: #3ddc84; 
+}
+.result-cell.incorrect { 
+background: rgba(206,17,38,0.2); 
+color: #ff7080; 
+}
+.col-actions {
+text-align: center;
+padding: 0;
+}
+.col-actions-inner {
+display: flex;
+width: 100%;
+box-sizing: border-box;
+gap: 6px;
+padding: 6px;
+justify-content: center;
+align-items: center;
+}
+.btn-confirmar, .btn-rechazar {
+padding: 6px 12px;
+border-radius: 9px;
+border: none;
+font-size: 0.7rem;
+font-weight: 800;
+cursor: pointer;
+transition: transform 0.2s var(--ease), filter 0.2s var(--ease);
+}
+.btn-confirmar { 
+background: linear-gradient(135deg, #006341, #00a36c); 
+color: #fff; 
+}
+.btn-rechazar { 
+background: #dc2626; 
+color: #fff; 
+}
+.btn-confirmar:hover, .btn-rechazar:hover { 
+transform: translateY(-1px); 
+filter: brightness(1.1); 
+}
+.admin-espera-badge {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+color: var(--dorado-premium);
+font-size: 0.72rem;
+font-weight: 800;
+white-space: nowrap;
+}
+.admin-tabla-estado {
+width: 100%;
+box-sizing: border-box;
+padding: 0;
+}
+.admin-tabla-estado-inner {
+width: 100%;
+box-sizing: border-box;
+text-align: center;
+padding: 40px 20px;
+font-size: 0.85rem;
+color: var(--text-muted-soft);
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 10px;
+}
+.admin-tabla-estado-inner::before {
+content: "⏳";
+font-size: 2rem;
+opacity: 0.6;
+}
+.admin-tabla-estado--error .admin-tabla-estado-inner {
+color: #ff7080;
+}
+.admin-tabla-estado--error .admin-tabla-estado-inner::before {
+content: "⚠️";
+}
+.admin-tabla-estado--vacio .admin-tabla-estado-inner {
+color: var(--verde-mx-claro);
+}
+.admin-tabla-estado--vacio .admin-tabla-estado-inner::before {
+content: "✅";
+}
+.results-table thead th.col-vendor {
+min-width: 70px;
+}
+.col-actions-inner--espera {
+border-radius: 999px;
+background: rgba(212,175,55,0.12);
+border: 1px solid rgba(212,175,55,0.3);
+}
+/* ====================                        Esto de abajo trabaja con el Pin                                                                ==================== */
+.adm-pin-vendedor {
+font-size: 0.85rem;
+color: rgba(255,255,255,0.7);
+margin-top: -4px;
+margin-bottom: 8px;
+}
+.adm-pin-overlay {
+position: fixed;
+inset: 0;
+z-index: 9999;
+background: rgba(0,0,0,0.7);
+backdrop-filter: blur(8px);
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 20px;
+animation: admFadeIn 0.25s ease both;
+}
+.adm-pin-overlay[hidden] { 
+display: none; }
+@keyframes admFadeIn { from { opacity: 0; } to { opacity: 1; } 
+}
+.adm-pin-box {
+position: relative;
+width: 100%;
+max-width: 340px;
+background: linear-gradient(160deg, rgba(20,28,24,0.98), rgba(12,18,15,0.98));
+border: 1px solid var(--glass-border);
+border-radius: 26px;
+padding: 32px 26px 28px;
+text-align: center;
+box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+animation: admPinIn 0.35s var(--ease) both;
+}
+@keyframes admPinIn { from { opacity: 0; transform: scale(0.92) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } 
+}
+.adm-pin-close {
+position: absolute;
+top: 14px; right: 14px;
+width: 30px; height: 30px;
+border-radius: 50%;
+background: rgba(255,255,255,0.07);
+border: 1px solid rgba(255,255,255,0.1);
+color: var(--text-muted);
+cursor: pointer;
+transition: background 0.2s, color 0.2s;
+}
+.adm-pin-close:hover { 
+background: rgba(255,255,255,0.14); 
+color: var(--text-main); 
+}
+.adm-pin-icon { 
+font-size: 2rem; 
+margin-bottom: 10px; 
+}
+.adm-pin-title { 
+font-size: 1.05rem; 
+font-weight: 800; color: var(--text-main); 
+margin-bottom: 4px; 
+}
+.adm-pin-subtitle { 
+font-size: 0.8rem; 
+color: var(--text-muted); 
+margin-bottom: 22px; 
+}
+
+.adm-pin-dots { 
+display: flex; 
+justify-content: center; 
+gap: 14px; 
+margin-bottom: 8px; 
+}
+.adm-pin-dot {
+width: 16px; height: 16px;
+border-radius: 50%;
+border: 2px solid rgba(255,255,255,0.25);
+background: transparent;
+transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.adm-pin-dot.lleno { 
+background: var(--verde-mx-claro);
+border-color: var(--verde-mx-claro); 
+transform: scale(1.1); 
+}
+.adm-pin-dot.error-shake { 
+animation: admShake 0.4s; 
+}
+@keyframes admShake { 
+0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} 
+}
+.adm-pin-input-hidden { 
+position: absolute; 
+opacity: 0; 
+pointer-events: none; 
+height: 0; width: 0; 
+}
+.adm-pin-error {
+font-size: 0.76rem;
+color: #ff7080;
+font-weight: 700;
+margin: 10px 0 0;
+min-height: 16px;
+}
+.adm-pin-error[hidden] { 
+display: none; 
+}
+.adm-pin-keypad {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 12px;
+margin-top: 22px;
+}
+.adm-pin-key {
+padding: 14px 0;
+border-radius: 14px;
+border: 1px solid var(--glass-border);
+background: rgba(255,255,255,0.04);
+color: var(--text-main);
+font-size: 1.05rem;
+font-weight: 700;
+cursor: pointer;
+transition: background 0.2s var(--ease), transform 0.15s var(--ease), border-color 0.2s var(--ease);
+}
+.adm-pin-key:hover { 
+background: rgba(0,163,108,0.14); 
+border-color: rgba(0,163,108,0.3); 
+}
+.adm-pin-key:active { 
+transform: scale(0.92); 
+}
+.adm-pin-key--empty { 
+background: transparent; border: none; cursor: default; 
+}
+.adm-pin-key--borrar { 
+color: #ff8f9a; font-size: 1rem; 
+}
+/* ====================                        Esto de abajo trabaja con las medidas para la pagina de administrador                       ==================== */
+.adm-page { min-height: 100vh; 
+}
+.admin-root {
+max-width: 900px;
+margin: 0 auto;
+padding: 20px 18px 100px;
+display: flex;
+flex-direction: column;
+gap: 26px;
+}
+.section-header { 
+display: flex; 
+align-items: center; 
+justify-content: space-between; 
+margin-bottom: 12px; 
+}
+.section-title { 
+font-size: 0.95rem; 
+font-weight: 800; 
+color: var(--text-main); 
+}
+.section-count { 
+font-size: 0.72rem; 
+font-weight: 700; 
+color: var(--text-muted); 
+background: rgba(255,255,255,0.05); 
+padding: 4px 10px; 
+border-radius: 999px; 
+}
+/* ====================                        Esto de abajo trabaja con la barra de No jugando , Jugando , En espera                       ==================== */
+.filters-bar { 
+display: flex; 
+}
+.filter-buttons { 
+display: flex; gap: 8px; width: 100%; 
+}
+.filter-btn {
+flex: 1;
+padding: 11px 8px;
+border-radius: 13px;
+border: 1px solid var(--glass-border);
+background: rgba(255,255,255,0.03);
+color: var(--text-muted);
+font-size: 0.76rem;
+font-weight: 700;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+transition: background 0.25s var(--ease), border-color 0.25s var(--ease), color 0.25s var(--ease);
+}
+.filter-btn.active {
+background: linear-gradient(135deg, rgba(0,163,108,0.22), rgba(0,122,77,0.12));
+border-color: rgba(0,163,108,0.5);
+color: #3ddc84;
+}
+.filter-emoji { font-size: 0.85rem; 
+}
+/* ====================                        Esto de abajo trabaja con Rechazar y confirmar                       ==================== */
+.adm-modal-overlay {
+position: fixed;
+inset: 0;
+z-index: 9998;
+background: rgba(0,0,0,0.65);
+backdrop-filter: blur(6px);
+display: none;
+align-items: center;
+justify-content: center;
+padding: 20px;
+}
+.adm-modal-overlay.show { 
+display: flex; 
+animation: admFadeIn 0.2s ease both; 
+}
+.adm-modal-box {
+width: 100%;
+max-width: 340px;
+background: linear-gradient(160deg, rgba(20,28,24,0.98), rgba(12,18,15,0.98));
+border: 1px solid var(--glass-border);
+border-radius: 22px;
+padding: 28px 24px;
+text-align: center;
+box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+animation: admPinIn 0.3s var(--ease) both;
+}
+.adm-modal-icon { 
+font-size: 2.2rem;
+margin-bottom: 10px; 
+}
+.adm-modal-title { 
+font-size: 1.02rem; 
+font-weight: 800; 
+color: var(--text-main); 
+margin-bottom: 8px; 
+}
+.adm-modal-message { 
+font-size: 0.84rem; 
+color: var(--text-muted); 
+line-height: 1.5; 
+margin-bottom: 22px; 
+}
+.adm-modal-actions { 
+display: flex; gap: 10px; 
+}
+.adm-modal-btn { 
+flex: 1; 
+padding: 11px 0; 
+border-radius: 12px; 
+border: none; 
+font-size: 0.82rem; 
+font-weight: 800; 
+cursor: pointer; 
+transition: transform 0.2s var(--ease), filter 0.2s var(--ease); 
+}
+.adm-modal-btn:hover { 
+transform: translateY(-1px); 
+}
+.adm-modal-btn--secundario { 
+background: rgba(255,255,255,0.08); 
+color: var(--text-main); 
+}
+.adm-modal-btn--exito { 
+background: linear-gradient(135deg, #006341, #00a36c); 
+color: #fff; 
+}
+.adm-modal-btn--peligro { 
+background: #dc2626; 
+color: #fff; 
+}
+.adm-modal-overlay.loading .adm-modal-btn { 
+opacity: 0.6; 
+pointer-events: none; 
+}
+/* ====================                               Esto de abajo trabaja con las alertas                                      ==================== */
+.adm-toast-container { 
+position: fixed; 
+bottom: 24px; 
+right: 18px; 
+z-index: 9997;
+display: flex; 
+flex-direction: column; 
+gap: 10px; 
+pointer-events: none; 
+}
+.adm-toast {
+display: flex; 
+align-items: center; 
+gap: 10px;
+padding: 13px 18px; border-radius: 16px;
+backdrop-filter: blur(14px);
+box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+font-size: 0.82rem; font-weight: 700;
+max-width: 300px;
+animation: admToastIn 0.3s var(--ease) both;
+}
+@keyframes admToastIn { 
+from { opacity: 0; 
+transform: translateX(30px); 
+} 
+to { 
+opacity: 1; transform: translateX(0); }}
+.adm-toast--success { 
+background: rgba(0,99,65,0.92); 
+border: 1px solid rgba(0,163,108,0.4); 
+color: #fff; 
+}
+.adm-toast--error { 
+background: rgba(140,20,30,0.92); 
+border: 1px solid rgba(206,17,38,0.4); 
+color: #fff; 
+}
+.adm-toast--warning { 
+background: rgba(150,110,10,0.92); 
+border: 1px solid rgba(212,175,55,0.4); 
+color: #fff; 
+}
+/* ====================                Esto de abajo trabaja con el overlay de acpetar quinielas , rechazar                                     ==================== */
+.loading-modal-overlay { 
+position: fixed; 
+inset: 0; 
+z-index: 10000; 
+background: rgba(0,0,0,0.7); 
+backdrop-filter: blur(8px); 
+display: flex; 
+align-items: center; 
+justify-content: center; 
+}
+.loading-modal-box { 
+text-align: center; 
+}
+.loading-modal-icon { 
+font-size: 2.4rem; 
+margin-bottom: 10px; 
+}
+.loading-modal-title { 
+font-size: 1rem; 
+font-weight: 800; 
+color: var(--text-main); 
+}
+.loading-modal-count { 
+font-size: 0.8rem; 
+color: var(--text-muted); 
+margin: 4px 0 14px; 
+}
+.loading-modal-track { 
+width: 200px; 
+height: 6px; 
+border-radius: 999px; 
+background: rgba(255,255,255,0.1); 
+overflow: hidden; 
+margin: 0 auto; 
+}
+.loading-modal-fill { 
+height: 100%; 
+width: 40%; 
+background: var(--verde-mx-claro); 
+animation: admLoadBar 1.2s ease-in-out infinite; 
+}
+@keyframes admLoadBar { 
+0% { 
+transform: translateX(-100%); 
+} 
+100% { 
+transform: translateX(250%); 
+}}
+/* ====================                      Esto de abajo trabaja con el boton de ir a inicio nuevamente                                     ==================== */
+.adm-fab-inicio {
+position: fixed;
+bottom: 22px;
+left: 50%;
+transform: translateX(-50%);
+z-index: 9500;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+padding: 14px 18px;
+border-radius: 999px;
+background: linear-gradient(135deg, #006341, #00a36c);
+color: #fff;
+text-decoration: none;
+font-size: 0.8rem;
+font-weight: 800;
+box-shadow: 0 10px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,175,55,0.25);
+transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), filter 0.25s var(--ease);
+}
+.adm-fab-inicio:hover {
+transform: translateY(-3px);
+filter: brightness(1.08);
+box-shadow: 0 14px 34px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,175,55,0.4);
+}
+.adm-fab-inicio:active {
+transform: translateX(-50%) scale(0.95);
+}
+.adm-fab-label {
+white-space: nowrap;
+}
+.adm-fab-icon {
+font-size: 1.1rem;
+line-height: 1;
+flex-shrink: 0;
+display: inline-flex;
+align-items: center;
+transform: translateY(-1px);
+}
+@media (max-width: 640px) {
+.adm-fab-inicio {
+bottom: 16px;
+right: 14px;
+padding: 13px;
+gap: 0;
+}}
+/* ====================     Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion en administrador             ==================== */
+@media (max-width: 640px) {
+.admin-root { padding: 14px 10px 100px; gap: 20px; }
+.admin-hero { flex-direction: column; align-items: flex-start; padding: 18px; }
+.adm-btn-salir { align-self: flex-end; }
+.alert { padding: 11px; }
+.alert__icon { width: 32px; height: 32px; }
+.filter-btn { font-size: 0.68rem; padding: 10px 4px; }
+.adm-pin-box { padding: 26px 20px 22px; }
+.results-table {table-layout: fixed;min-width: 100%;width: 100%;}
+.results-table thead th {font-size: 0.5rem;padding: 4px 2px;letter-spacing: 0;line-height: 1.1;white-space: nowrap;}
+.results-table th.col-name,
+.results-table td.col-name {width: 60px;max-width: 60px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;padding-left: 6px;}
+.results-table th.col-vendor,
+.results-table td.col-vendor {width: 70px;max-width: 70px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+.results-table th.col-folio,.results-table td.col-folio {width: 30px;max-width: 30px;}
+.results-table th.col-match,.results-table td.col-match {width: auto;min-width: 0;padding: 3px 1px;}
+.results-table th.col-points,.results-table td.col-points {width: 34px;max-width: 34px;}
+.results-table th.col-actions,.results-table td.col-actions {width: 92px;max-width: 92px;}
+.match-header {flex-direction: column;gap: 0;white-space: normal;}
+.match-logo { width: 14px; height: 14px; }
+.match-vs { display: none; }
+.results-table td {padding: 4px 2px;font-size: 0.58rem;line-height: 1.1;}
+.results-table td.col-actions {padding: 0;}
+.result-cell {min-width: 18px;width: 18px;height: 18px;font-size: 0.52rem;border-radius: 6px;}
+.puntos-badge {min-width: 22px;padding: 2px 6px;font-size: 0.56rem;}
+.admin-espera-badge {padding: 4px 8px;font-size: 0.52rem;gap: 3px;width: 100%;box-sizing: border-box;}
+.col-actions-inner {flex-wrap: wrap;gap: 3px;}
+.btn-confirmar,.btn-rechazar {padding: 3px 6px;font-size: 0.52rem;}}

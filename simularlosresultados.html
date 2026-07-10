@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0f0d">
+<title>Quinielas El Wero | Simular los Resultados</title>
+<link rel="stylesheet" href="inicio-styles.css">
+<link rel="stylesheet" href="realizarlaquiniela-styles.css">
+<link rel="stylesheet" href="listaoficial-styles.css">
+<link rel="stylesheet" href="simularlosresultados-styles.css">
+</head>
+<body>
+<!------------------------------------  Esto de abajo trabaja con el Header de nuestra pagina para simular los resultados        --------------------------->                            
+<header class="app-header sr-header" id="appHeader">
+<div class="header-inner">
+<div class="header-top">
+<div class="brand-block">
+<span class="brand-icon">⚽</span>
+<div class="brand-text">
+<h1 class="brand-title">Quinielas <span class="brand-highlight">El Wero</span></h1>
+<p class="brand-subtitle">Prueba diferentes marcadores y descubre quién se llevaría la victoria.</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!------------------------------------  Esto de abajo trabaja con la capsula de nuestra pagina para simular los resultados      ------------------------------>                            
+<section class="sr-hero" aria-label="Sección Simular los resultados">
+<div class="sr-hero-inner">
+<span class="sr-hero-badge">Simular los resultados 🎮 </span>
+</div>
+</section>
+<main class="sr-main" aria-label="Simulador de resultados">
+<!------------------------------------           Esto de abajo trabaja con las estadisticas                            --------------------->                            
+<section class="sr-stats-panel" aria-label="Estadísticas de la simulación">
+<div class="sr-stat-card sr-stat-oro">
+<span class="sr-stat-icono" aria-hidden="true">🥇</span>
+<span class="sr-stat-label">Primer lugar</span>
+<span class="sr-stat-valor" id="statPrimerLugar">0</span>
+</div>
+<div class="sr-stat-card sr-stat-plata">
+<span class="sr-stat-icono" aria-hidden="true">🥈</span>
+<span class="sr-stat-label">Segundo lugar</span>
+<span class="sr-stat-valor" id="statSegundoLugar">0</span>
+</div>
+<div class="sr-stat-card sr-stat-verde">
+<span class="sr-stat-icono" aria-hidden="true">📋</span>
+<span class="sr-stat-label">Quinielas totales</span>
+<span class="sr-stat-valor" id="statTotalQuinielas">0</span>
+</div>
+</section>
+<!------------------------------------           Esto de abajo trabaja con la quiniela                            --------------------->                            
+<div class="rq-card sr-quiniela-card">
+<section class="rq-partidos" aria-label="Partidos de la jornada">
+<div id="listaPartidosSim" class="rq-partidos-grid" role="list" aria-label="Lista de partidos para simular resultado"></div>
+</section>
+<div class="sr-reset-wrap">
+<button id="btnReiniciarSim" class="sr-btn-reset" aria-label="Reiniciar pronósticos">
+<span>Reiniciar pronósticos</span>
+<span aria-hidden="true">🔁</span>
+</button>
+</div>
+</div>
+<!------------------------------------           Esto de abajo trabaja lista y el buscador , y por ultimo el panel                           --------------------->                            
+<div class="lo-card sr-lista-card">
+<div class="lo-top-bar">
+<div class="lo-buscador-wrap">
+<span class="lo-buscador-icono" aria-hidden="true">🔍</span>
+<input
+type="text"
+id="inputBuscadorSim"
+class="lo-buscador-input"
+placeholder="Buscar participante..."
+autocomplete="off"
+aria-label="Buscar participante por nombre">
+</div>
+<button id="btnFiltroSim" class="lo-btn-filtro" aria-label="Filtrar lista simulada" aria-expanded="false">☰</button>
+</div>
+<div class="lo-tabla-wrap" id="tablaWrapSim">
+<table class="lo-tabla" id="tablaOficialSim">
+<thead>
+<tr id="filaEncabezadoSim">
+<th class="lo-th lo-th-folio">Folio</th>
+<th class="lo-th lo-th-nombre">Nombre</th>
+<th class="lo-th lo-th-vendedor">Vendedor</th>
+<th class="lo-th lo-th-puntos">Puntos</th>
+</tr>
+</thead>
+<tbody id="cuerpoTablaSim">
+</tbody>
+</table>
+</div>
+<div class="lo-empty-msg" id="mensajeVacioSim" hidden>
+<span class="lo-empty-icon">📋</span>
+<span id="mensajeVacioTextoSim">Aún no hay quinielas registradas.</span>
+</div>
+</div>
+</main>
+<!------------------------------------           Esto de abajo trabaja en el panel del filtro                          --------------------->                            
+<div id="filtroSimOverlay" class="lo-filtro-overlay" hidden>
+<div class="lo-filtro-panel" role="dialog" aria-modal="true" aria-labelledby="filtroSimTitle">
+<div class="lo-filtro-header">
+<h3 id="filtroSimTitle">Filtrar lista</h3>
+<button id="btnCerrarFiltroSim" class="lo-filtro-close" aria-label="Cerrar filtro">✕</button>
+</div>
+<div class="lo-filtro-opciones" id="listaFiltrosSim" role="radiogroup" aria-label="Opciones de filtro">
+</div>
+</div>
+</div>
+<!------------------------------------           Esto de abajo trabaja en el cargando de la simulacion                         --------------------->                            
+<div id="srOverlaySimulando" class="sr-overlay" hidden aria-live="assertive" role="status">
+<div class="sr-overlay-box">
+<div class="sr-overlay-spinner" aria-hidden="true"></div>
+<p class="sr-overlay-texto">Actualizando simulación...</p>
+</div>
+</div>
+<!------------------------------------           Esto de abajo trabaja en el footer de simular los resultados                         --------------------->                            
+<footer class="footer">
+<p class="footer-brand">Quinielas El Wero © 2026</p>
+<div class="footer-links">
+<a href="inicio.html">Inicio</a>
+<a href="guiarapidayredes.html">Guía rápida y redes</a>
+<a href="horarios.html">Horarios</a>
+<a href="porcentajes.html">Porcentajes</a>
+<a href="realizarlaquiniela.html">Realizar la quiniela</a>
+<a href="misquinielas.html">Mis quinielas</a>
+<a href="lista-oficial.html">Lista Oficial</a>
+<a href="simularlosresultados.html">Simular los resultados</a>
+<a href="ayuda.html">Ayuda</a>
+</div>
+</footer>
+<div id="notifContainer" class="sr-notif-container" aria-live="polite" aria-atomic="false"></div>
+<!-- Esto de abajo trabaja con el boton de regresar al inicio-->                            <!-- Esto de abajo trabaja con el boton de regresar al inicio-->   
+<a href="inicio.html" class="adm-fab-inicio" aria-label="Volver al inicio">
+<span class="adm-fab-label">Inicio</span>
+<span class="adm-fab-icon">🏠</span>
+</a>
+<script src="simularlosresultados-script.js"></script>
+</body>
+</html>

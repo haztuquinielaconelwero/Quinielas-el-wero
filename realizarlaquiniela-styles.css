@@ -1,0 +1,916 @@
+/* ====================                   Esto de abajo trabaja en el Header de realizar la quiniela de nuestra aplicacion                    ==================== */
+.rq-header {
+position: sticky !important;
+top: 0;
+z-index: 100;
+background: linear-gradient(180deg, rgba(10,15,13,0.97) 0%, rgba(10,15,13,0.88) 100%) !important;
+backdrop-filter: blur(14px);
+-webkit-backdrop-filter: blur(14px);
+border-bottom: 1px solid rgba(255,255,255,0.07);
+padding-bottom: 2px;
+}
+.rq-header .header-inner { 
+padding-bottom: 3px; 
+}
+.rq-header .brand-subtitle { 
+line-height: 1.45; 
+padding-bottom: 1px; 
+}
+/* ====================                   Esto de abajo trabaja en el Hero de realizar la quiniela de nuestra aplicacion                    ==================== */
+.rq-hero {
+padding: 18px 24px 18px;
+text-align: center;
+background: radial-gradient(ellipse at 50% 0%, rgba(0,163,108,0.12) 0%, transparent 70%);
+}
+.rq-hero-inner {
+max-width: 600px;
+margin: 0 auto;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 10px;
+}
+.rq-hero-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+font-size: 0.8rem;
+font-weight: 800;
+letter-spacing: 0.04em;
+color: var(--dorado-premium);
+background: rgba(212,175,55,0.1);
+border: 1px solid rgba(212,175,55,0.28);
+padding: 9px 22px;
+border-radius: 999px;
+box-shadow: 0 4px 16px rgba(212,175,55,0.08);
+}
+.rq-hero-title,.rq-cta-btn,.rq-cta-shine,.rq-cta-icon,.rq-cta-text,.rq-cta-arrow{ 
+display:none !important; 
+}
+/* ====================      Esto de abajo trabaja en el realizar la quiniela de realizar la quiniela(Parte de arriba y partidos)           ==================== */
+.rq-main {
+max-width: 760px;
+margin: 0 auto;
+padding: 0 20px 100px;
+}
+.rq-card {
+background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.01));
+border: 1px solid var(--glass-border);
+border-radius: 28px;
+padding: 28px 24px 16px;
+backdrop-filter: blur(14px);
+-webkit-backdrop-filter: blur(14px);
+box-shadow: 0 20px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.rq-top-bar {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 4px;
+flex-wrap: nowrap;
+width: 100%;
+}
+.rq-nombre-wrap {
+flex: 1 1 auto;
+min-width: 0;
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+.rq-nombre-label, .rq-nombre-icon { 
+display: none !important; 
+}
+.rq-nombre-input {
+background: rgba(255,255,255,0.05);
+border: 1px solid var(--glass-border);
+box-sizing: border-box;
+border-radius: 12px;
+padding: 0 18px;
+height: 44px;
+color: var(--text-main);
+font-size: 0.9rem;
+font-family: inherit;
+outline: none;
+transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+width: 100%;
+min-width: 0;
+}
+.rq-nombre-input::placeholder { 
+color: var(--text-muted-soft); 
+}
+.rq-nombre-input:focus { 
+border-color: rgba(0,163,108,0.6); 
+box-shadow: 0 0 0 3px rgba(0,163,108,0.12); 
+}
+.rq-nombre-input.error { 
+border-color: rgba(206,17,38,0.7); 
+box-shadow: 0 0 0 3px rgba(206,17,38,0.12); 
+}
+.rq-field-error { 
+font-size: 0.68rem; color: #ff5c6e; 
+font-weight: 600; min-height: 0; display: block; 
+}
+.rq-top-actions { 
+display: flex; 
+gap: 8px; 
+flex-shrink: 0; 
+align-items: stretch; 
+}
+.rq-btn {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+padding: 10px 18px;
+height: 44px;
+border-radius: 12px;
+font-size: 0.82rem;
+font-weight: 700;
+border: none;
+cursor: pointer;
+transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease);
+position: relative;
+overflow: hidden;
+white-space: nowrap;
+}
+.rq-btn:active { 
+transform: scale(0.95); 
+}
+.rq-btn-guardar {
+background: linear-gradient(135deg, var(--verde-mx), var(--verde-mx-claro));
+color: #fff;
+box-shadow: 0 6px 18px rgba(0,99,65,0.4);
+padding: 10px 20px;
+}
+.rq-btn-reglamento {
+background: linear-gradient(135deg, #9a0d1e, var(--rojo-mx));
+color: #fff;
+border: none;
+box-shadow: 0 4px 14px rgba(206,17,38,0.35);
+}
+.rq-btn-icon-only { 
+width: 44px; 
+height: 44px; 
+padding: 0; 
+border-radius: 12px; 
+font-size: 1.1rem; 
+flex-shrink: 0; 
+}
+
+.rq-partidos-grid { 
+display: flex; 
+flex-direction: column; 
+gap: 0; 
+margin-bottom: 0; 
+}
+.rq-partido {
+background: rgba(255,255,255,0.03);
+border: 1px solid var(--glass-border);
+border-bottom: none;
+padding: 3px 7px;
+transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+animation: rqPartidoIn 0.45s var(--ease) both;
+}
+.rq-partido:last-child { 
+border-bottom: 1px solid var(--glass-border); 
+}
+.rq-partido.completo { 
+border-color: rgba(0,163,108,0.35); box-shadow: 0 4px 5px rgba(0,163,108,0.1); 
+}
+.rq-partido.es-doble { 
+border-color: rgba(212,175,55,0.35); 
+}
+.rq-partido.es-triple { 
+border-color: rgba(206,17,38,0.4); 
+}
+@keyframes rqPartidoIn { 
+from { 
+opacity: 0; 
+transform: translateY(12px); 
+} to { 
+opacity: 1; 
+transform: translateY(0); 
+}}
+.rq-partido-equipos {
+display: grid;
+grid-template-columns: 40px 34px minmax(56px,1fr) 40px minmax(56px,1fr) 34px 40px;
+align-items: center;
+gap: 5px;
+margin-bottom: 0;
+}
+.rq-equipo { 
+display: contents; 
+}
+.rq-equipo-local-logo, .rq-equipo-visitante-logo { 
+display: flex; 
+align-items: center; 
+justify-content: center; 
+}
+.rq-equipo-logo { 
+width: 28px; 
+height: 28px; 
+object-fit: contain; 
+filter: drop-shadow(0 3px 8px rgba(0,0,0,0.45)); 
+transition: transform 0.3s var(--ease); 
+}
+.rq-partido.completo .rq-equipo-logo { 
+transform: scale(1.05); 
+}
+.rq-equipo-nombre { 
+font-size: 0.76rem; 
+font-weight: 700; 
+color: var(--text-main); 
+line-height: 1; 
+overflow: hidden; 
+text-overflow: ellipsis; 
+white-space: nowrap; }
+.rq-equipo-local-nombre { 
+text-align: left; }
+.rq-equipo-visitante-nombre { 
+text-align: right; 
+}
+.rq-vs { 
+display: none; 
+}
+.rq-opcion {
+position: relative;
+width: 34px; height: 34px; min-width: 34px;
+border-radius: 50%;
+border: 1.5px solid rgba(255,255,255,0.14);
+background: rgba(255,255,255,0.06);
+color: var(--text-muted);
+font-size: 0.76rem; font-weight: 900;
+cursor: pointer;
+transition: transform 0.28s var(--ease), border-color 0.28s var(--ease), background 0.28s var(--ease), box-shadow 0.28s var(--ease), color 0.28s var(--ease);
+display: flex; align-items: center; justify-content: center;
+overflow: hidden; outline: none;
+-webkit-tap-highlight-color: transparent;
+}
+.rq-opcion:focus-visible { 
+outline: 2px solid var(--verde-mx-claro); outline-offset: 3px; 
+}
+.rq-opcion:active { 
+transform: scale(0.92); 
+}
+.rq-opcion.seleccionado {
+transform: scale(1.14);
+color: #fff;
+border-color: rgba(255,255,255,0.25);
+background: linear-gradient(145deg, #007a4d 0%, #009954 55%, #12b06a 100%);
+box-shadow: 0 6px 20px rgba(0,122,77,0.55), 0 0 0 3px rgba(0,163,108,0.18), inset 0 1px 1px rgba(255,255,255,0.35);
+animation: rqOpcionPop 0.35s var(--ease);
+}
+@keyframes rqOpcionPop { 
+0% { 
+transform: scale(1); 
+} 
+50% { 
+transform: scale(1.22); 
+} 
+100% { 
+transform: scale(1.14); 
+}}
+.rq-opcion.seleccionado::after {
+content: "";
+position: absolute; bottom: 1px; right: 1px;
+background: rgba(255,255,255,0.35);
+border-radius: 50%;
+width: 9px; height: 9px;
+}
+.rq-opcion-ripple {
+position: absolute; border-radius: 50%;
+background: rgba(255,255,255,0.25);
+transform: scale(0);
+animation: rqRipple 0.5s linear;
+pointer-events: none;
+}
+@keyframes rqRipple { 
+to { 
+transform: scale(2.4); 
+opacity: 0; 
+}}
+.rq-progreso-wrap,.rq-progreso-label,.rq-progreso-track,.rq-progreso-fill{ 
+display:none !important; 
+}
+/* ====================      Esto de abajo trabaja en el realizar la quiniela de realizar la quiniela(Parte de abajo los botones)          ==================== */
+.rq-actions-bar { 
+display: grid; 
+grid-template-columns: repeat(6, minmax(0,1fr)); 
+gap: 8px; 
+margin-top: 8px; 
+padding: 0 2px; 
+}
+.rq-action-btn { 
+display: flex; 
+flex-direction: column; 
+align-items: center; 
+gap: 4px; 
+background: rgba(255,255,255,0.04); 
+border: 1px solid var(--glass-border); 
+border-radius: 16px; 
+padding: 8px 4px 7px; 
+min-width: 0; cursor: pointer; 
+transition: transform 0.25s var(--ease), background 0.25s var(--ease), border-color 0.25s var(--ease), box-shadow 0.25s var(--ease); 
+position: relative; 
+color: var(--text-main); 
+overflow: visible; 
+-webkit-tap-highlight-color: transparent; 
+}
+.rq-action-btn:active { 
+transform: scale(0.93); 
+}
+.rq-action-btn:focus-visible { 
+outline: 2px solid var(--verde-mx-claro); outline-offset: 3px; 
+}
+.rq-action-icon { 
+font-size: 1.3rem; 
+line-height: 1; 
+}
+.rq-action-label { 
+font-size: 0.58rem; font-weight: 700; color: var(--text-muted); white-space: nowrap; 
+}
+.rq-action-quinielas { 
+cursor: default; 
+justify-content: flex-end; 
+}
+.rq-precio-monto { 
+font-size: 0.95rem; 
+font-weight: 900; 
+color: var(--dorado); 
+letter-spacing: 0.01em; 
+}
+.rq-guardadas-badge {
+position: absolute;
+top: -4px;
+right: 14px;
+min-width: 16px;
+height: 16px;
+padding: 0 4px;
+border-radius: 999px;
+background: var(--rojo-mx);
+color: #fff;
+font-size: 0.62rem;
+font-weight: 900;
+display: flex;
+align-items: center;
+justify-content: center;
+box-shadow: 0 2px 6px rgba(206,17,38,0.5);
+z-index: 1;
+}
+.rq-quinielas-contador {
+font-size: 1.3rem;
+font-weight: 900;
+color: var(--dorado);
+letter-spacing: 0.01em;
+line-height: 1;
+white-space: nowrap;
+}
+.rq-action-aleatoria { 
+border-color: rgba(212,175,55,0.3); 
+}
+.rq-action-enviar { 
+background: linear-gradient(135deg, rgba(0,99,65,0.3), rgba(0,163,108,0.2)); 
+border-color: rgba(0,163,108,0.4); 
+box-shadow: 0 4px 16px rgba(0,99,65,0.2); 
+}
+.rq-action-enviar .rq-action-label { 
+color: var(--verde-mx-claro); 
+}
+/* ====================      Esto de abajo trabaja en el realizar el cuadro de Tienes dudas de como enviar tu quiniela?          ==================== */
+.rq-ayuda-card { 
+margin-top: 10px; 
+background: rgba(255,255,255,0.03); 
+border: 1px solid var(--glass-border); 
+border-radius: 22px; 
+overflow: hidden; 
+transition: border-color 0.3s var(--ease); 
+}
+.rq-ayuda-card:focus-within { 
+border-color: rgba(212,175,55,0.3); 
+}
+.rq-ayuda-trigger { 
+width: 100%; 
+display: flex; 
+align-items: center; 
+gap: 12px; 
+padding: 18px 20px; 
+background: transparent; 
+border: none; 
+cursor: pointer; 
+color: var(--text-main); text-align: left; 
+}
+.rq-ayuda-icono { 
+font-size: 1.4rem; 
+flex-shrink: 0; 
+}
+.rq-ayuda-titulo { 
+flex: 1; 
+font-size: 0.95rem; 
+font-weight: 700; 
+color: var(--text-main); 
+}
+.rq-ayuda-chevron { 
+font-size: 1rem; 
+color: var(--text-muted); 
+transition: transform 0.35s var(--ease); 
+flex-shrink: 0; 
+}
+.rq-ayuda-trigger[aria-expanded="true"] .rq-ayuda-chevron { 
+transform: rotate(180deg); 
+}
+.rq-ayuda-contenido { 
+padding: 0 20px; 
+overflow: hidden; 
+max-height: 0; 
+transition: max-height 0.45s var(--ease), padding 0.35s var(--ease); 
+}
+.rq-ayuda-contenido.open { 
+max-height: 800px; 
+padding: 4px 20px 22px; 
+}
+.rq-ayuda-pasos { 
+list-style: none; 
+display: flex; 
+flex-direction: column; 
+gap: 14px; 
+counter-reset: paso; 
+}
+.rq-paso { 
+display: flex; 
+align-items: flex-start; 
+gap: 14px; }
+.rq-paso-num { 
+width: 30px; 
+height: 30px; 
+min-width: 30px; 
+border-radius: 50%; 
+background: linear-gradient(135deg, var(--verde-mx), var(--verde-mx-claro)); 
+color: #fff; 
+font-size: 0.8rem; 
+font-weight: 900; 
+display: flex; 
+align-items: center;
+justify-content: center; 
+flex-shrink: 0; 
+margin-top: 2px; 
+}
+.rq-paso-body strong { 
+font-size: 0.88rem; 
+color: var(--text-main); 
+display: block; 
+margin-bottom: 3px; 
+}
+.rq-paso-body p { 
+font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; 
+}
+/* ====================                        Esto de abajo trabaja en el las notificaciones                                                ==================== */
+.rq-notif-container { 
+position: fixed; 
+bottom: 90px; 
+right: 18px; 
+z-index: 9999; 
+display: flex; 
+flex-direction: column; 
+gap: 10px; 
+pointer-events: none; 
+}
+.rq-notif { 
+display: flex; 
+align-items: center; 
+gap: 10px; 
+padding: 13px 18px; 
+border-radius: 16px; 
+backdrop-filter: blur(14px); 
+-webkit-backdrop-filter: blur(14px); 
+box-shadow: 0 8px 24px rgba(0,0,0,0.45); 
+font-size: 0.85rem; 
+font-weight: 600; 
+max-width: 300px; 
+pointer-events: all; 
+animation: notifIn 0.35s var(--ease) both; 
+border: 1px solid transparent; 
+}
+.rq-notif.saliendo { 
+animation: notifOut 0.3s var(--ease) both; 
+}
+@keyframes notifIn { 
+from { 
+opacity: 0; 
+transform: translateX(30px) scale(0.9); 
+} 
+to { 
+opacity: 1; 
+transform: translateX(0) scale(1); 
+}}
+@keyframes notifOut { 
+from { 
+opacity: 1; 
+transform: translateX(0) scale(1); 
+} to 
+{ opacity: 0; transform: translateX(30px) scale(0.9); 
+}}
+.rq-notif-exito { 
+background: rgba(0,99,65,0.9); 
+border-color: rgba(0,163,108,0.4); 
+color: #fff; 
+}
+.rq-notif-error { 
+background: rgba(130,0,20,0.92); 
+border-color: rgba(206,17,38,0.5); 
+color: #fff; 
+}
+.rq-notif-aviso { 
+background: rgba(90,70,0,0.92); 
+border-color: rgba(212,175,55,0.5); 
+color: var(--dorado); 
+}
+.rq-notif-info { 
+background: rgba(10,40,60,0.92); 
+border-color: rgba(80,140,200,0.4); 
+color: #a8d4f5; 
+}
+.rq-notif-icono { 
+font-size: 1.1rem; 
+flex-shrink: 0; 
+}
+/* ====================                         Esto de abajo trabaja en el realizar los modales                                             ==================== */
+.rq-modal-overlay { 
+position: fixed; 
+inset: 0; 
+z-index: 9000; 
+background: rgba(0,0,0,0.72);
+backdrop-filter: blur(6px); 
+-webkit-backdrop-filter: blur(6px); 
+display: flex; 
+align-items: center; 
+justify-content: center; 
+padding: 20px; 
+animation: modalBgIn 0.25s ease both; 
+}
+.rq-modal-overlay[hidden] { 
+display: none; 
+}
+@keyframes modalBgIn { 
+from { 
+opacity: 0; 
+} 
+to { 
+opacity: 1; 
+}}
+.rq-modal { 
+background: #141c18; 
+border: 1px solid rgba(255,255,255,0.1); 
+border-radius: 26px; 
+width: 100%; 
+max-width: 520px; 
+max-height: 88vh; 
+overflow-y: auto; 
+position: relative; 
+box-shadow: 0 24px 70px rgba(0,0,0,0.6); 
+animation: modalIn 0.35s var(--ease) both; 
+}
+.rq-modal-sm { 
+max-width: 380px; 
+}
+.rq-modal-guardadas {
+ max-width: 560px; 
+}
+@keyframes modalIn { 
+from { 
+opacity: 0; 
+transform: scale(0.9) translateY(20px); 
+} 
+to { 
+opacity: 1; 
+transform: scale(1) translateY(0); 
+}}
+.rq-modal-close { 
+position: absolute; 
+top: 16px; 
+right: 16px; 
+background: rgba(255,255,255,0.07); 
+border: 1px solid rgba(255,255,255,0.1); 
+border-radius: 50%; 
+width: 34px; 
+height: 34px; 
+display: flex; 
+align-items: center; 
+justify-content: center; 
+cursor: pointer; 
+color: var(--text-muted); 
+font-size: 0.85rem; 
+z-index: 1; 
+}
+.rq-modal-header { 
+display: flex; 
+align-items: center; 
+gap: 12px; 
+padding: 26px 24px 16px; 
+border-bottom: 1px solid var(--glass-border); 
+}
+.rq-modal-icon { 
+font-size: 1.6rem; 
+}
+.rq-modal-title { 
+font-size: 1.15rem; 
+font-weight: 800; 
+color: var(--text-main); 
+}
+.rq-modal-body { 
+padding: 20px 24px; 
+}
+.rq-modal-desc { 
+font-size: 0.88rem; 
+color: var(--text-muted); 
+line-height: 1.6; 
+}
+.rq-modal-footer { 
+padding: 0 24px 22px; 
+display: flex; 
+gap: 10px; 
+justify-content: flex-end; }
+.rq-btn-modal { 
+padding: 11px 22px; 
+border-radius: 12px; 
+font-size: 0.88rem; 
+font-weight: 700; 
+border: none; 
+cursor: pointer; 
+transition: transform 0.2s, box-shadow 0.2s; 
+}
+.rq-btn-modal:active { 
+transform: scale(0.95); 
+}
+.rq-btn-modal-cancel { 
+background: rgba(255,255,255,0.07); 
+color: var(--text-main); 
+border: 1px solid var(--glass-border); 
+}
+.rq-btn-modal-danger { 
+background: linear-gradient(135deg, #9a0d1e, var(--rojo-mx)); 
+color: #fff; 
+box-shadow: 0 4px 14px rgba(206,17,38,0.35); 
+}
+/* ====================                         Esto de abajo trabaja en el el reglamento                                            ==================== */
+.rq-reglamento-body { 
+display: flex; 
+flex-direction: column; 
+gap: 20px; 
+}
+.rq-reg-bloque h3 { 
+font-size: 0.88rem; 
+font-weight: 800; 
+color: var(--dorado-premium); 
+margin-bottom: 8px; 
+}
+.rq-reg-bloque p, .rq-reg-bloque ul { 
+font-size: 0.82rem; 
+color: var(--text-muted); 
+line-height: 1.6; 
+}
+.rq-reg-bloque ul { 
+padding-left: 18px; 
+display: flex; 
+flex-direction: column; 
+gap: 4px; 
+}
+.rq-empty-msg { 
+text-align: center; 
+padding: 40px 20px; 
+color: var(--text-muted-soft); 
+font-size: 0.88rem; }
+/* ====================                         Esto de abajo trabaja en la quiniela que se guarda                                           ==================== */
+.rq-guardadas-resumen {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 12px 24px;
+border-bottom: 1px solid var(--glass-border);
+font-size: 0.82rem;
+font-weight: 700;
+color: var(--verde-mx-claro);
+}
+#precioGuardadasTexto { 
+color: var(--dorado); 
+}
+#listaGuardadasModal { 
+display: flex; 
+flex-direction: column; 
+gap: 14px; 
+}
+.rq-tarjeta-guardada {
+position: relative;
+background: linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+border: 1px solid var(--glass-border);
+border-radius: 20px;
+padding: 16px 16px 14px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+animation: rqTarjetaIn 0.4s var(--ease) both;
+cursor: pointer;
+}
+@keyframes rqTarjetaIn { 
+from { 
+opacity: 0; 
+transform: translateY(10px); } 
+to { 
+opacity: 1; transform: translateY(0); 
+}}
+.rq-tg-eliminar {
+position: absolute;
+top: 12px; right: 12px;
+width: 30px; height: 30px;
+border-radius: 50%;
+border: 1px solid rgba(206,17,38,0.35);
+background: rgba(206,17,38,0.12);
+color: #ff7080;
+font-size: 0.75rem;
+cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+transition: transform 0.2s var(--ease), background 0.2s var(--ease);
+z-index: 2;
+}
+.rq-tg-eliminar:active { 
+transform: scale(0.9); 
+}
+.rq-tg-header { 
+display: flex; 
+flex-direction: column; 
+gap: 4px; 
+margin-bottom: 10px; 
+padding-right: 36px; 
+}
+.rq-tg-nombre, .rq-tg-jornada, .rq-tg-vendedor {
+font-size: 0.8rem;
+font-weight: 700;
+color: var(--text-main);
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.rq-tg-jornada { 
+color: var(--verde-mx-claro); 
+}
+.rq-tg-vendedor { 
+color: var(--text-muted-soft); 
+}
+.rq-tg-mini-quiniela {
+display: flex;
+flex-direction: column;
+gap: 4px;
+background: rgba(0,0,0,0.18);
+border: 1px solid var(--glass-border);
+border-radius: 14px;
+padding: 8px 10px;
+}
+.rq-mini-partido {
+display: grid;
+grid-template-columns: 20px 1fr auto 1fr 20px;
+align-items: center;
+gap: 6px;
+padding: 3px 0;
+}
+.rq-mini-logo { 
+width: 18px; 
+height: 18px; 
+object-fit: contain; 
+}
+.rq-mini-equipo { 
+font-size: 0.62rem; 
+font-weight: 800; 
+color: var(--text-muted); 
+letter-spacing: 0.02em; 
+overflow: hidden; 
+text-overflow: ellipsis; 
+white-space: nowrap; }
+.rq-mini-equipo.visitante { 
+text-align: right; 
+}
+.rq-mini-marcador {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 2px;
+font-size: 0.6rem;
+font-weight: 900;
+min-width: 34px;
+padding: 2px 6px;
+border-radius: 999px;
+background: rgba(0,163,108,0.16);
+color: #3ddc84;
+border: 1px solid rgba(0,163,108,0.3);
+white-space: nowrap;
+}
+.rq-mini-marcador.doble { 
+background: rgba(212,175,55,0.18); 
+color: var(--dorado-premium); 
+border-color: rgba(212,175,55,0.35); 
+}
+.rq-mini-marcador.triple { 
+background: rgba(206,17,38,0.2); 
+color: #ff7080; 
+border-color: rgba(206,17,38,0.4); 
+}
+/* ====================                         Esto de abajo trabaja en la quiniela cuando se envia                                         ==================== */
+.rq-envio-overlay { 
+position: fixed; 
+inset: 0; 
+z-index: 9999; 
+background: rgba(0,0,0,0.8); 
+backdrop-filter: blur(8px); 
+display: flex; 
+align-items: center; 
+justify-content: center; 
+animation: modalBgIn 0.25s ease both; 
+}
+.rq-envio-overlay[hidden] { 
+display: none; 
+}
+.rq-envio-box { 
+display: flex; 
+flex-direction: column; 
+align-items: center; 
+gap: 20px; 
+}
+.rq-envio-spinner { 
+width: 56px; 
+height: 56px; 
+border: 4px solid rgba(255,255,255,0.1); 
+border-top-color: var(--verde-mx-claro); 
+border-radius: 50%; 
+animation: rqSpin 0.8s linear infinite; 
+}
+@keyframes rqSpin { 
+to { 
+transform: rotate(360deg); 
+}}
+.rq-envio-texto { 
+font-size: 1rem; 
+font-weight: 700; 
+color: var(--text-main); 
+}
+/* ====================                      Esto de abajo trabaja con el boton de ir a inicio nuevamente                                     ==================== */
+.adm-fab-inicio {
+position: fixed;
+bottom: 22px;
+left: 50%;
+transform: translateX(-50%);
+z-index: 9500;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+padding: 14px 18px;
+border-radius: 999px;
+background: linear-gradient(135deg, #006341, #00a36c);
+color: #fff;
+text-decoration: none;
+font-size: 0.8rem;
+font-weight: 800;
+box-shadow: 0 10px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,175,55,0.25);
+transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), filter 0.25s var(--ease);
+}
+.adm-fab-inicio:active {
+transform: translateX(-50%) scale(0.95);
+}
+.adm-fab-label {
+white-space: nowrap;
+}
+.adm-fab-icon {
+font-size: 1.1rem;
+line-height: 1;
+flex-shrink: 0;
+display: inline-flex;
+align-items: center;
+transform: translateY(-1px);
+}
+@media (max-width: 640px) {
+.adm-fab-inicio {
+bottom: 16px;
+padding: 13px;
+gap: 0;
+}}
+/* ====================                Esto de abajo trabaja en los tamaños para los celulares                                        ==================== */
+@media (max-width: 640px) {
+.rq-hero { padding: 14px 12px 14px; }
+.rq-main { padding: 0 10px 100px; }
+.rq-card { padding: 16px 10px 16px; border-radius: 20px; }
+.rq-top-bar { gap: 6px; }
+.rq-top-actions { gap: 6px; }
+.rq-nombre-input { height: 42px; font-size: 0.85rem; padding: 0 14px; }
+.rq-btn { height: 42px; padding: 10px 14px; font-size: 0.74rem; }
+.rq-btn-icon-only { width: 42px; height: 42px; }
+.rq-partido { padding: 3px 5px; }
+.rq-partido-equipos { grid-template-columns: 32px 26px minmax(46px,1fr) 32px minmax(46px,1fr) 26px 32px; gap: 4px; }
+.rq-equipo-logo { width: 24px; height: 24px; }
+.rq-equipo-nombre { font-size: 0.62rem; }
+.rq-opcion { width: 30px; height: 30px; min-width: 30px; max-width: 30px; max-height: 30px; padding: 0; font-size: 0.65rem; }
+.rq-actions-bar { gap: 4px; }
+.rq-action-btn { padding: 7px 2px 6px; border-radius: 12px; }
+.rq-action-icon { font-size: 1rem; }
+.rq-action-label { font-size: 0.5rem; }
+.rq-quinielas-contador { font-size: 1rem; }
+.rq-notif-container { bottom: 80px; right: 12px; left: 12px; }
+.rq-notif { max-width: 100%; }
+.rq-mini-partido { grid-template-columns: 16px 1fr auto 1fr 16px; }
+.rq-mini-logo { width: 15px;height: 15px; }
+.rq-tg-nombre { max-width: 70vw; }}

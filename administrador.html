@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0f0d">
+<title>Quinielas El Wero | Administrador</title>
+<link rel="stylesheet" href="inicio-styles.css">
+<link rel="stylesheet" href="administrador-styles.css">
+</head>
+<body>
+<!-- Esto de abajo trabaja con el Header de nuestra pagina de administrador -->            <!-- Esto de abajo trabaja con el Header de nuestra pagina de administrador -->
+<header class="app-header adm-header" id="appHeader">
+<div class="header-inner">
+<div class="header-top">
+<div class="brand-block adm-brand-trigger">
+<span class="brand-icon">⚽</span>
+<div class="brand-text">
+<h1 class="brand-title">Quinielas <span class="brand-highlight">El Wero</span></h1>
+<p class="brand-subtitle">Control total de tus quinielas</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Esto de abajo trabaja con el Panel de administrador -->                                                 <!-- Esto de abajo trabaja con el Panel de administrador -->   
+<main class="page adm-page" id="pageAdmin" hidden>
+<div class="admin-root">
+<section class="admin-hero" id="admin-hero">
+<div class="hero-media">
+<img src="https://images.unsplash.com/photo-1570498839593-e565b39455fc?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Balón de fútbol" class="hero-img">
+<div class="hero-overlay"></div>
+</div>
+<div class="hero-content">
+<h1 class="hero-title">Panel del administrador</h1>
+<p class="hero-vendor" id="heroVendorText">Vendedor</p>
+</div>
+</section>
+<!-- Esto de abajo trabaja con los 3 botones(No jugando - En espera - Jugando) --> <!--  Esto de abajo trabaja con los 3 botones(No jugando - En espera - Jugando)    -->   
+<section class="admin-alerts" id="admin-alerts">
+<div class="alert alert--danger" data-filter-target="nojugando">
+<div class="alert__icon">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+</div>
+<div class="alert__content">
+<p class="alert__title"><span id="pendingCount">0</span> No jugando</p>
+<p class="alert__text">Requieren confirmación</p>
+</div>
+<button class="alert__action" aria-label="Ver pendientes">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+</div>
+<div class="alert alert--info" data-filter-target="espera">
+<div class="alert__icon">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="12" x2="12" y2="16"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+</div>
+<div class="alert__content">
+<p class="alert__title"><span id="waitingCount">0</span> En espera</p>
+<p class="alert__text">Espera a que sean añadidas</p>
+</div>
+<button class="alert__action" aria-label="Ver en espera">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+</div>
+<div class="alert alert--success" data-filter-target="jugando">
+<div class="alert__icon">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+</div>
+<div class="alert__content">
+<p class="alert__title"><span id="playingCount">0</span> Jugando</p>
+<p class="alert__text">Quinielas jugando en la jornada</p>
+</div>
+<button class="alert__action" aria-label="Ver jugando">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+</div>
+</section>
+<!-- Esto de abajo trabaja en la tarjeta de jornada actual-->                                  <!-- Esto de abajo trabaja en la tarjeta de jornada actual-->
+<section class="admin-current-week" id="admin-current-week">
+<div class="section-header section-header--centrado">
+<h2 class="section-title section-title--jornada">Jornada actual</h2>
+</div>
+<div class="week-card" id="weekCard" data-close-date="2026-07-13T20:00:00">
+<div class="week-card__header">
+<div class="week-card__dates">
+<p class="week-card__range" id="jornadaNombre">Jornada 1</p>
+<p class="week-card__status" id="jornadaCierre">Cierra en 6 horas</p>
+</div>
+</div>
+<div class="week-card__progress">
+<div class="progress-bar">
+<div class="progress-bar__fill" id="progressFill" style="--progress: 0%"></div>
+</div>
+<div class="progress-labels">
+<span>Inicio</span>
+<span id="progressLabel">0% completado</span>
+<span>Cierre</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Esto de abajo trabaja en las listas No jugando - En espera , Jugando -->              <!-- Esto de abajo trabaja en las listas No jugando - En espera , Jugando -->   
+<section class="admin-filters" id="admin-filters">
+<div class="filters-bar">
+<div class="filter-buttons">
+<button class="filter-btn active" data-filter="nojugando">No jugando <span class="filter-emoji">📋</span></button>
+<button class="filter-btn" data-filter="espera">En espera <span class="filter-emoji">⏸️</span></button>
+<button class="filter-btn" data-filter="jugando">Jugando <span class="filter-emoji">⚽</span></button>
+</div>
+</div>
+</section>
+<!-- Esto de abajo trabaja en la Tabla de No jugando -->                                                        <!-- Esto de abajo trabaja en la Tabla de No jugando -->   
+<section class="admin-quinielas-list" id="adminNoJugando">
+<div class="section-header">
+<h2 class="section-title">No jugando</h2>
+<span class="section-count" id="totalQuinielasCount">0 En total</span>
+</div>
+<div class="table-container">
+<div class="table-wrapper">
+<table class="results-table">
+<thead>
+<tr>
+<th class="col-name">Nombre</th>
+<th class="col-match" data-match-index="1">P1</th>
+<th class="col-match" data-match-index="2">P2</th>
+<th class="col-match" data-match-index="3">P3</th>
+<th class="col-match" data-match-index="4">P4</th>
+<th class="col-match" data-match-index="5">P5</th>
+<th class="col-match" data-match-index="6">P6</th>
+<th class="col-match" data-match-index="7">P7</th>
+<th class="col-match" data-match-index="8">P8</th>
+<th class="col-match" data-match-index="9">P9</th>
+<th class="col-actions">Acción</th>
+</tr>
+</thead>
+<tbody id="nojugandoTableBody"></tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- Esto de abajo trabaja en la Tabla de Jugando -->                                                        <!-- Esto de abajo trabaja en la Tabla de Jugando -->   
+<section class="admin-quinielas-list" id="adminJugando" style="display:none;">
+<div class="section-header">
+<h2 class="section-title">Jugando</h2>
+<span class="section-count" id="jugandoCount">0 en juego</span>
+</div>
+<div class="table-container">
+<div class="table-wrapper">
+<table class="results-table">
+<thead>
+<tr>
+<th class="col-folio">Folio</th>
+<th class="col-name">Nombre</th>
+<th class="col-vendor">Vendedor</th>
+<th class="col-match" data-match-index="1"></th>
+<th class="col-match" data-match-index="2"></th>
+<th class="col-match" data-match-index="3"></th>
+<th class="col-match" data-match-index="4"></th>
+<th class="col-match" data-match-index="5"></th>
+<th class="col-match" data-match-index="6"></th>
+<th class="col-match" data-match-index="7"></th>
+<th class="col-match" data-match-index="8"></th>
+<th class="col-match" data-match-index="9"></th>
+<th class="col-points">Puntos</th>
+</tr>
+</thead>
+<tbody id="jugandoTableBody"></tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- Esto de abajo trabaja en la Tabla de En espera -->                                                        <!-- Esto de abajo trabaja en la Tabla de En espera -->  
+<section class="admin-quinielas-list" id="adminEspera" style="display:none;">
+<div class="section-header">
+<h2 class="section-title">En espera</h2>
+<span class="section-count" id="esperaCount">0 en espera</span>
+</div>
+<div class="table-container">
+<div class="table-wrapper">
+<table class="results-table">
+<thead>
+<tr>
+<th class="col-name">Nombre</th>
+<th class="col-match" data-match-index="1">P1</th>
+<th class="col-match" data-match-index="2">P2</th>
+<th class="col-match" data-match-index="3">P3</th>
+<th class="col-match" data-match-index="4">P4</th>
+<th class="col-match" data-match-index="5">P5</th>
+<th class="col-match" data-match-index="6">P6</th>
+<th class="col-match" data-match-index="7">P7</th>
+<th class="col-match" data-match-index="8">P8</th>
+<th class="col-match" data-match-index="9">P9</th>
+<th class="col-actions">Esperando</th>
+</tr>
+</thead>
+<tbody id="esperaTableBody"></tbody>
+</table>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Esto de abajo trabaja en el modal para confirmar o rechazar-->                             <!-- Esto de abajo trabaja en el modal para confirmar o rechazar-->
+<div class="adm-modal-overlay" id="modalConfirmar">
+<div class="adm-modal-box">
+<div class="adm-modal-icon adm-modal-icon--success">✅</div>
+<h3 class="adm-modal-title">Confirmar quiniela</h3>
+<p class="adm-modal-message" id="confirmarMessage"></p>
+<div class="adm-modal-actions">
+<button class="adm-modal-btn adm-modal-btn--secundario" onclick="cerrarModalConfirmar()">Cancelar</button>
+<button class="adm-modal-btn adm-modal-btn--exito" onclick="ejecutarConfirmar()">Confirmar</button>
+</div>
+</div>
+</div>
+<div class="adm-modal-overlay" id="modalRechazar">
+<div class="adm-modal-box">
+<div class="adm-modal-icon adm-modal-icon--danger">❌</div>
+<h3 class="adm-modal-title">Rechazar quiniela</h3>
+<p class="adm-modal-message" id="rechazarMessage"></p>
+<div class="adm-modal-actions">
+<button class="adm-modal-btn adm-modal-btn--secundario" onclick="cerrarModalRechazar()">Cancelar</button>
+<button class="adm-modal-btn adm-modal-btn--peligro" onclick="ejecutarRechazo()">Rechazar</button>
+</div>
+</div>
+</div>
+<div id="toastContainer" class="adm-toast-container" aria-live="polite"></div>
+<!-- Esto de abajo trabaja con el boton de regresar al inicio-->                            <!-- Esto de abajo trabaja con el boton de regresar al inicio-->   
+<a href="inicio.html" class="adm-fab-inicio" aria-label="Volver al inicio">
+<span class="adm-fab-label">Inicio</span>
+<span class="adm-fab-icon">🏠</span>
+</a>
+<script src="administrador-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+/* ====================     Esto de abajo trabaja en colores y topografia por defecto para nuestra aplicacion en Guiarapidayredes                    ==================== */
+.app-header{
+position: sticky;
+top: 0;
+z-index: 100;
+background: linear-gradient(180deg, rgba(10,15,13,0.9) 0%, rgba(10,15,13,0.72) 100%);
+padding-bottom: 2px;
+}
+.app-header .header-inner { padding-bottom: 2px; }
+.app-header .brand-subtitle { line-height: 1.45; padding-bottom: 2px; }
+.info-hero{
+padding: 10px 32px 10px;
+max-width: 900px;
+margin: 0 auto;
+text-align: center;
+}
+.info-eyebrow{
+display: inline-block;
+font-size: 0.78rem;
+font-weight: 700;
+letter-spacing: 0.03em;
+color: var(--dorado-premium);
+background: rgba(212,175,55,0.1);
+border: 1px solid rgba(212,175,55,0.3);
+padding: 6px 20px;
+border-radius: 999px;
+margin-top: 10px;
+margin-bottom: 10px;
+}
+.info-hero-title{
+font-size: clamp(1.6rem, 4vw, 2.4rem);
+font-weight: 900;
+color: var(--text-main);
+line-height: 1.2;
+margin-top: 10px;
+margin-bottom: 10px;
+}
+.info-hero-subtitle{
+font-size: 0.95rem;
+color: var(--text-muted-soft);
+max-width: 480px;
+margin: 0 auto;
+line-height: 1.5;
+}
+/* ====================                 Esto de abajo trabaja en las 4 tarjetas para nuestra aplicacion en Guiarapidayredes                            ==================== */
+.steps{
+padding: 10px 32px 10px;
+max-width: 1100px;
+margin: 0 auto;
+}
+.steps-grid{
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+gap: var(--sp-5);
+}
+.steps-grid--four{
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.step-card{
+position: relative;
+background: var(--glass-bg);
+border: 1px solid var(--glass-border);
+border-radius: var(--radius-lg);
+padding: var(--sp-6) var(--sp-5) var(--sp-5);
+text-align: center;
+backdrop-filter: blur(10px);
+}
+.step-number{
+position: absolute;
+top: 14px;
+right: 18px;
+font-size: 0.75rem;
+font-weight: 800;
+color: var(--text-muted);
+opacity: 0.6;
+}
+.step-icon{
+display: block;
+font-size: 2.2rem;
+margin-bottom: 10px;
+}
+.step-title{
+font-size: 1.1rem;
+font-weight: 800;
+color: var(--text-main);
+margin-top: 10px;
+margin-bottom: 10px;
+}
+.step-text{
+font-size: 0.85rem;
+color: var(--text-muted-soft);
+line-height: 1.5;
+margin-top: 0px;
+}
+/* ====================         Esto de abajo trabaja en las comunidad de Whtas app y Facebook nuestra aplicacion en Guiarapidayredes             ==================== */
+.comunidad{
+padding: 10px 32px 0px;
+max-width: 1100px;
+margin: -20px auto 0px;
+}
+.comunidad-card{
+position: relative;
+overflow: hidden;
+border-radius: var(--radius-lg);
+padding: var(--sp-6) var(--sp-6);
+background: linear-gradient(135deg, rgba(0,99,65,0.35), rgba(10,15,13,0.7));
+border: 1px solid var(--glass-border);
+display: flex;
+flex-direction: column;
+align-items: center;
+text-align: center;
+gap: 10px;
+}
+.comunidad-tag{
+display: inline-block;
+font-size: 0.72rem;
+font-weight: 700;
+letter-spacing: 0.06em;
+color: var(--text-muted);
+margin-bottom: 0px;
+}
+.comunidad-title{
+font-size: 1.5rem;
+font-weight: 900;
+color: var(--text-main);
+margin-top: 0px;
+margin-bottom: 0px;
+}
+.comunidad-desc{
+font-size: 0.9rem;
+color: var(--text-muted-soft);
+max-width: 420px;
+margin-top: 0px;
+}
+.btn-whatsapp{
+display: inline-flex;
+align-items: center;
+gap: 10px;
+background: linear-gradient(90deg, #1fae5a, #0aa06a);
+color: #fff;
+text-decoration: none;
+font-weight: 700;
+font-size: 0.9rem;
+padding: 12px 50px;
+border-radius: 999px;
+box-shadow: 0 8px 22px rgba(10,163,106,0.4);
+border: 1px solid rgba(255,255,255,0.15);
+white-space: nowrap;
+}
+.btn-whatsapp-icon{ font-size: 1.1rem; }
+.comunidad-buttons{
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+gap: 10px;
+margin-top: 10px;
+}
+.btn-whatsapp--canal{
+background: linear-gradient(90deg, #0aa06a, #128c56);
+}
+.btn-facebook{
+display: inline-flex;
+align-items: center;
+gap: 10px;
+background: linear-gradient(90deg, #1877f2, #0d5cd6);
+color: #fff;
+text-decoration: none;
+font-weight: 700;
+font-size: 0.9rem;
+padding: 12px 26px;
+border-radius: 999px;
+box-shadow: 0 8px 22px rgba(24,119,242,0.4);
+border: 1px solid rgba(255,255,255,0.15);
+white-space: nowrap;
+}
+/* ====================                  Esto de abajo trabaja en el final de nuestra aplicacion en Guiarapidayredes                                   ==================== */
+.cta-final{
+padding: 10px 32px 0px;
+max-width: 900px;
+margin: -40px auto 0px;
+text-align: center;
+}
+.cta-final-inner{
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 10px;
+}
+.cta-final-title{
+font-size: 1.6rem;
+font-weight: 900;
+color: var(--text-main);
+margin-top: 10px;
+}
+.cta-final-text{
+font-size: 0.9rem;
+color: var(--text-muted-soft);
+margin-bottom: 10px;
+}
+.btn-participa--cta{
+padding: 12px 28px;
+font-size: 0.9rem;
+margin-top: 10px;
+}
+/* ====================                      Esto de abajo trabaja con el boton de ir a inicio nuevamente                                     ==================== */
+.adm-fab-inicio {
+position: fixed;
+bottom: 22px;
+left: 50%;
+transform: translateX(-50%);
+z-index: 9500;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+padding: 14px 18px;
+border-radius: 999px;
+background: linear-gradient(135deg, #006341, #00a36c);
+color: #fff;
+text-decoration: none;
+font-size: 0.8rem;
+font-weight: 800;
+box-shadow: 0 10px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,175,55,0.25);
+transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), filter 0.25s var(--ease);
+}
+.adm-fab-inicio:active {
+transform: translateX(-50%) scale(0.95);
+}
+.adm-fab-label {
+white-space: nowrap;
+}
+.adm-fab-icon {
+font-size: 1.1rem;
+line-height: 1;
+flex-shrink: 0;
+display: inline-flex;
+align-items: center;
+transform: translateY(-1px);
+}
+@media (max-width: 640px) {
+.adm-fab-inicio {
+bottom: 16px;
+padding: 13px;
+gap: 0;
+}}
+/* ====================     Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion en Guiarapidayredes              ==================== */
+@media (max-width: 640px){
+.info-hero{ padding: 10px 20px 10px; }
+.steps{ padding: 10px 18px 60px; }
+.comunidad{ padding: 10px 18px 60px; }
+.comunidad-card{ padding: var(--sp-5) var(--sp-4); }
+.cta-final{ padding: 10px 18px 80px; }
+}

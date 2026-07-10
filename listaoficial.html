@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0f0d">
+<title>Quinielas El Wero | Lista Oficial</title>
+<link rel="stylesheet" href="inicio-styles.css">
+<link rel="stylesheet" href="listaoficial-styles.css">
+</head>
+<body>
+<!-- Esto de abajo trabaja con el Header de nuestra pagina de la lista oficial --> <!-- Esto de abajo trabaja con el Header de nuestra pagina de la lista oficial -->
+<header class="app-header lo-header" id="appHeader">
+<div class="header-inner">
+<div class="header-top">
+<div class="brand-block">
+<span class="brand-icon">⚽</span>
+<div class="brand-text">
+<h1 class="brand-title">Quinielas <span class="brand-highlight">El Wero</span></h1>
+<p class="brand-subtitle">Todos los participantes, un mismo objetivo: ganar.</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Esto de abajo trabaja con la capsula de la lista oficial --> <!-- Esto de abajo trabaja con la capsula de la lista oficial -->
+<section class="lo-hero" aria-label="Sección Lista Oficial">
+<div class="lo-hero-inner">
+<span class="lo-hero-badge">Lista Oficial 🏆</span>
+</div>
+</section>
+<!-- Esto de abajo trabaja con la Tabla y el filtro mas el buscador de la lista oficial --> <!-- Esto de abajo trabaja con la Tabla y el filtro mas el buscador de la lista oficial -->
+<main class="lo-main" aria-label="Lista oficial de quinielas">
+<div class="lo-card">
+<div class="lo-top-bar">
+<div class="lo-buscador-wrap">
+<span class="lo-buscador-icono" aria-hidden="true">🔍</span>
+<input
+type="text"
+id="inputBuscador"
+class="lo-buscador-input"
+placeholder="Buscar participante..."
+autocomplete="off"
+aria-label="Buscar participante por nombre">
+</div>
+<button id="btnFiltroOficial" class="lo-btn-filtro" aria-label="Filtrar lista oficial" aria-expanded="false">☰</button>
+</div>
+<div class="lo-tabla-wrap" id="tablaWrap">
+<table class="lo-tabla" id="tablaOficial">
+<thead>
+<tr id="filaEncabezado">
+<th class="lo-th lo-th-folio">Folio</th>
+<th class="lo-th lo-th-nombre">Nombre</th>
+<th class="lo-th lo-th-vendedor">Vendedor</th>
+<th class="lo-th lo-th-puntos">Puntos</th>
+</tr>
+</thead>
+<tbody id="cuerpoTabla">
+</tbody>
+</table>
+</div>
+<div class="lo-empty-msg" id="mensajeVacio" hidden>
+<span class="lo-empty-icon">📋</span>
+<span id="mensajeVacioTexto">Aún no hay quinielas en la Lista Oficial.</span>
+</div>
+</div>
+</main>
+<!--Esto de abajo trabaja con el filtro -->                                                         <!--Esto de abajo trabaja con el filtro --> 
+<div id="filtroOficialOverlay" class="lo-filtro-overlay" hidden>
+<div class="lo-filtro-panel" role="dialog" aria-modal="true" aria-labelledby="filtroOficialTitle">
+<div class="lo-filtro-header">
+<h3 id="filtroOficialTitle">Filtrar lista</h3>
+<button id="btnCerrarFiltroOficial" class="lo-filtro-close" aria-label="Cerrar filtro">✕</button>
+</div>
+<div class="lo-filtro-opciones" id="listaFiltrosOficial" role="radiogroup" aria-label="Opciones de filtro">
+</div>
+</div>
+</div>
+<!--Esto de abajo trabaja con el footer de lista oficial -->                                           <!--Esto de abajo trabaja con el footer de lista oficial -->    
+<footer class="footer">
+<p class="footer-brand">Quinielas El Wero © 2026</p>
+<div class="footer-links">
+<a href="inicio.html">Inicio</a>
+<a href="guiarapidayredes.html">Guía rápida y redes</a>
+<a href="horarios.html">Horarios</a>
+<a href="porcentajes.html">Porcentajes</a>
+<a href="realizarlaquiniela.html">Realizar la quiniela</a>
+<a href="misquinielas.html">Mis quinielas</a>
+<a href="lista-oficial.html">Lista Oficial</a>
+<a href="simularlosresultados.html">Simular los resultados</a>
+<a href="ayuda.html">Ayuda</a>
+</div>
+</footer>
+<!-- Esto de abajo trabaja con el boton de regresar al inicio-->                            <!-- Esto de abajo trabaja con el boton de regresar al inicio-->   
+<a href="inicio.html" class="adm-fab-inicio" aria-label="Volver al inicio">
+<span class="adm-fab-label">Inicio</span>
+<span class="adm-fab-icon">🏠</span>
+</a>
+<script src="listaoficial-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0f0d">
+<title>Quinielas El Wero | Realizar mi Quiniela</title>
+<link rel="stylesheet" href="inicio-styles.css">
+<link rel="stylesheet" href="realizarlaquiniela-styles.css">
+</head>
+<body>
+<!-- Esto de abajo trabaja con el Header de nuestra pagina para realizar la quiniela --><!-- Esto de abajo trabaja con el Header de nuestra pagina para realizar la quiniela -->
+<header class="app-header rq-header" id="appHeader">
+<div class="header-inner">
+<div class="header-top">
+<div class="brand-block">
+<span class="brand-icon">⚽</span>
+<div class="brand-text">
+<h1 class="brand-title">Quinielas <span class="brand-highlight">El Wero</span></h1>
+<p class="brand-subtitle">Cada partido es una decisión, cada acierto </Br>te acerca al premio.</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!--Esto de abajo trabaja con el hero de nuestra pagina para realizar la quiniela --><!-- Esto de abajo trabaja con el hero de nuestra pagina para realizar la quiniela-->
+<section class="rq-hero" aria-label="Sección motivadora">
+<div class="rq-hero-inner">
+<span class="rq-hero-badge">🏆 Realizar la quiniela</span>
+</div>
+</section>
+<!-- Esto de abajo trabaja para realizar la quiniela -->                                               <!-- Esto de abajo trabaja para realizar la quiniela -->
+<main class="rq-main" id="quinielaCard" aria-label="Formulario de quiniela">
+<div class="rq-card">
+<div class="rq-top-bar">
+<div class="rq-nombre-wrap">
+<input type="text" id="nombreInput" class="rq-nombre-input" placeholder="Escribe tu nombre" maxlength="20" autocomplete="name" aria-label="Tu nombre" aria-required="true" aria-describedby="nombreError">
+<span id="nombreError" class="rq-field-error" role="alert" aria-live="polite"></span>
+</div>
+<div class="rq-top-actions">
+<button id="btnGuardar" class="rq-btn rq-btn-guardar" aria-label="Guardar quiniela">Guardar<span aria-hidden="true">💾</span></button>
+<button id="btnReglamento" class="rq-btn rq-btn-reglamento rq-btn-icon-only" aria-label="Ver reglamento"><span aria-hidden="true">📕</span></button>
+</div>
+</div>
+<section class="rq-partidos" aria-label="Partidos de la jornada">
+<div id="listaPartidos" class="rq-partidos-grid" role="list" aria-label="Lista de partidos para seleccionar resultado"></div>
+</section>
+<div class="rq-actions-bar" role="toolbar" aria-label="Acciones de la quiniela">
+<button id="btnBorrar" class="rq-action-btn rq-action-borrar" aria-label="Borrar quiniela">
+<span class="rq-action-icon">🗑️</span><span class="rq-action-label">Borrar</span>
+</button>
+<button id="btnAleatoria" class="rq-action-btn rq-action-aleatoria" aria-label="Selección aleatoria">
+<span class="rq-action-icon">🎲</span><span class="rq-action-label">Aleatoria</span>
+</button>
+<button id="btnQuinielas" class="rq-action-btn rq-action-quinielas" aria-label="Ver mis quinielas">
+<span class="rq-quinielas-contador" id="badgeQuinielas">0</span>
+<span class="rq-action-label">Quinielas</span>
+</button>
+<button id="btnPrecio" class="rq-action-btn rq-action-precio" aria-label="Costo total de tus quinielas" type="button">
+<span class="rq-action-icon rq-precio-monto" id="precioMonto">$0</span><span class="rq-action-label">Precio</span>
+</button>
+<button id="btnGuardadas" class="rq-action-btn rq-action-guardadas" aria-label="Ver quinielas guardadas">
+<span class="rq-guardadas-badge" id="badgeGuardadas">0</span>
+<span class="rq-action-icon">📂</span><span class="rq-action-label">Guardadas</span>
+</button>
+<button id="btnEnviar" class="rq-action-btn rq-action-enviar" aria-label="Enviar quiniela">
+<span class="rq-action-icon">📨</span><span class="rq-action-label">Enviar</span>
+</button>
+</div>
+<!-- Esto de abajo trabaja en tienes dudas de como enviar tu quiniela -->                 <!-- Esto de abajo trabaja en tienes dudas de como enviar tu quiniela -->    
+<div class="rq-ayuda-card" id="ayudaCard">
+<button class="rq-ayuda-trigger" id="ayudaTrigger" aria-expanded="false" aria-controls="ayudaContenido">
+<span class="rq-ayuda-titulo">¿Tienes dudas de cómo enviar</Br> tu quiniela?</span>
+<span class="rq-ayuda-icono">❓</span>
+<span class="rq-ayuda-chevron" aria-hidden="true">▾</span>
+</button>
+<div class="rq-ayuda-contenido" id="ayudaContenido" role="region" aria-labelledby="ayudaTrigger" hidden>
+<p style="text-align:center; opacity:.85; margin-bottom:1rem;">Rápido, fácil y desde tu celular 📲</p>
+<ol class="rq-ayuda-pasos">
+<li class="rq-paso"><span class="rq-paso-num">1</span><div class="rq-paso-body"><strong>Selecciona el resultado</strong><p>Local 🤝 Empate 🤝 Visita</p></div></li>
+<li class="rq-paso"><span class="rq-paso-num">2</span><div class="rq-paso-body"><strong>Completa todos los partidos</strong><p>No dejes ninguno vacío 👀</p></div></li>
+<li class="rq-paso"><span class="rq-paso-num">3</span><div class="rq-paso-body"><strong>Escribe tu nombre y guarda tu quiniela</strong><p>Así queda registrada correctamente.</p></div></li>
+<li class="rq-paso"><span class="rq-paso-num">4</span><div class="rq-paso-body"><strong>Envía tu quiniela por WhatsApp 📲</strong><p>Un solo toque y listo.</p></div></li>
+<li class="rq-paso"><span class="rq-paso-num">5</span><div class="rq-paso-body"><strong>¡Muy importante!</strong><p>Envíala antes del cierre ⏰</p></div></li>
+</ol>
+<p style="text-align:center; margin-top:1.2rem; font-weight:600;">🍀 ¡Mucha suerte! 🍀</p>
+</div>
+</div>
+</main>
+<!-- Esto de abajo trabaja en el footer de la pagina -->                                <!-- Esto de abajo trabaja en el footer de la pagina -->   
+<footer class="footer">
+<p class="footer-brand">Quinielas El Wero © 2026</p>
+<div class="footer-links">
+<a href="inicio.html">Inicio</a>
+<a href="guiarapidayredes.html">Guía rápida y redes</a>
+<a href="horarios.html">Horarios</a>
+<a href="porcentajes.html">Porcentajes</a>
+<a href="realizarlaquiniela.html">Realizar la quiniela</a>
+<a href="misquinielas.html">Mis quinielas</a>
+<a href="listaoficial.html">Lista Oficial</a>
+<a href="simularlosresultados.html">Simular los resultados</a>
+<a href="ayuda.html">Ayuda</a>
+</div>
+</footer>
+<!-- Esto de abajo trabaja en el contenedor de los avisos -->                              <!-- Esto de abajo trabaja en el contenedor de los avisos -->   
+<div id="notifContainer" class="rq-notif-container" aria-live="polite" aria-atomic="false"></div>
+<!-- Esto de abajo trabaja en el reglamento de la pagina -->                                           <!-- Esto de abajo trabaja en el reglamento de la pagina --> 
+<div id="modalReglamento" class="rq-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalReglamentoTitle" hidden>
+<div class="rq-modal">
+<button class="rq-modal-close" data-close="modalReglamento" aria-label="Cerrar modal">✕</button>
+<div class="rq-modal-header"><span class="rq-modal-icon">📕</span><h2 id="modalReglamentoTitle" class="rq-modal-title">Reglamento</h2></div>
+<div class="rq-modal-body rq-reglamento-body">
+<div class="rq-reg-bloque">
+<h3>1. Primer lugar</h3>
+<p>Será el participante que obtenga el mayor número de aciertos. En caso de empate, el monto total del premio se repartirá en partes iguales.</p>
+</div>
+<div class="rq-reg-bloque">
+<h3>2. Segundo lugar</h3>
+<p>Un acierto menos que el primer lugar. Solamente será repartido y entregado el monto asignado al segundo lugar, siempre y cuando se cumpla el requisito.</p>
+</div>
+<div class="rq-reg-bloque">
+<h3>3. Monto publicado</h3>
+<p>El monto publicado es lo que se le entregará al ganador(es).</p>
+</div>
+<div class="rq-reg-bloque">
+<h3>4. Opciones de apuesta</h3>
+<p>Solo se podrá apostar por: equipo local, empate o equipo visitante. El resultado válido para cada partido será únicamente el obtenido durante el tiempo reglamentario, es decir, los 90 minutos más el tiempo agregado.</p>
+</div>
+<div class="rq-reg-bloque">
+<h3>5. Responsabilidad del participante</h3>
+<p>Es responsabilidad del participante verificar que su quiniela esté correctamente registrada. En caso de existir algún error y no ser reportado antes de la publicación de la lista final, no se podrán realizar correcciones posteriormente.</p>
+</div>
+<div class="rq-reg-bloque">
+<h3>6. Quiniela no capturada</h3>
+<p>Si tu quiniela no fue registrada por algún error, ya sea por parte del vendedor o por un fallo nuestro, simplemente se te reembolsará el costo total de la quiniela.</p>
+</div>
+<div class="rq-reg-bloque">
+<h3>7. Participación de la quiniela</h3>
+<p>Tu quiniela participará conforme a cómo fue capturada y publicada en la lista final. Si no estás de acuerdo con los resultados registrados, podrás solicitar el reembolso antes de que inicie el segundo partido.</p>
+</div>
+<div class="rq-reg-bloque">
+<h3>8. Publicación de la lista final</h3>
+<p>Cada semana, antes de iniciar el primer partido, se publicará la lista final de participantes, la cual no podrá ser modificada una vez publicada.</p>
+</div>
+<div class="rq-reg-bloque">
+<h3>9. Partidos suspendidos o pospuestos</h3>
+<p>Si un partido es suspendido durante su transcurso, se tomará en cuenta siempre y cuando se reanude y finalice dentro de la misma jornada. De lo contrario, se considerará como resultado oficial el marcador al momento de la suspensión. Por otra parte, si un partido es pospuesto antes de iniciar y no se juega dentro de la misma jornada, dicho partido no será tomado en cuenta.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Esto de abajo trabaja en las quinielas guardadas -->                                                <!-- Esto de abajo trabaja en las quinielas guardadas -->    
+<div id="modalGuardadas" class="rq-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalGuardadasTitle" hidden>
+<div class="rq-modal rq-modal-guardadas">
+<button class="rq-modal-close" data-close="modalGuardadas" aria-label="Cerrar modal">✕</button>
+<div class="rq-modal-header"><span class="rq-modal-icon">📂</span>
+<h2 id="modalGuardadasTitle" class="rq-modal-title">Quinielas guardadas</h2></div>
+<div class="rq-modal-body" id="listaGuardadasModal"></div>
+<div class="rq-guardadas-resumen" id="resumenGuardadas">
+<span id="totalQuinielasTexto">Total de quinielas: 0</span>
+<span id="precioGuardadasTexto">Precio: $0</span>
+</div>
+</div>
+</div>
+<!-- Esto de abajo trabaja en la accion de cuando envias las quinielas -->           <!-- Esto de abajo trabaja en la accion de cuando envias las quinielas -->   
+<div id="overlayEnvio" class="rq-envio-overlay" hidden>
+<div class="rq-envio-box">
+<div class="rq-envio-spinner" aria-hidden="true"></div>
+<p class="rq-envio-texto">Enviando tu quiniela...</p>
+</div>
+</div>
+<!-- Esto de abajo trabaja con el boton de regresar al inicio-->                            <!-- Esto de abajo trabaja con el boton de regresar al inicio-->   
+<a href="inicio.html" class="adm-fab-inicio" aria-label="Volver al inicio">
+<span class="adm-fab-label">Inicio</span>
+<span class="adm-fab-icon">🏠</span>
+</a>
+<script src="realizarlaquiniela-script.js"></script>
+</body>
+</html>

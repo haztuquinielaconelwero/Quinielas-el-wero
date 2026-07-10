@@ -1,0 +1,475 @@
+/* ====================                       Esto de abajo trabaja en colores y topografia por defecto para nuestra aplicacion             ==================== */
+:root{
+--verde-mx: #006341;
+--verde-mx-claro: #0aa06a;
+--rojo-mx: #CE1126;
+--dorado: #FFD700;
+--dorado-premium: #D4AF37;
+--bg-app: #0a0f0d;
+--bg-card: #121815;
+--text-main: #f5f7f6;
+--text-muted: #a9b3ae;
+--text-muted-soft: #8b948f; 
+--glass-bg: rgba(18, 24, 21, 0.55);
+--glass-border: rgba(255, 255, 255, 0.08);
+--shadow-soft: 0 10px 30px rgba(0,0,0,0.45);
+--radius-lg: 20px;
+--radius-md: 14px;
+--ease: cubic-bezier(0.22, 1, 0.36, 1);
+--sp-1: 8px;
+--sp-2: 10px;
+--sp-3: 12px;
+--sp-4: 16px;
+--sp-5: 20px;
+--sp-6: 24px;
+}
+*{ 
+margin:0; 
+padding:0; 
+box-sizing:border-box; 
+-webkit-tap-highlight-color: transparent;
+}
+html{ 
+scroll-behavior:smooth; 
+}
+body{
+background: var(--bg-app);
+color: var(--text-main);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+-webkit-font-smoothing: antialiased;
+overflow-x: hidden;
+padding-top: 0px;
+}
+img{ 
+display:block; 
+max-width:100%; 
+}
+a{ 
+color: inherit; 
+}
+/* ====================                             Esto de abajo trabaja en el Header para nuestra aplicacion                                ==================== */
+.app-header{
+position: absolute;
+top: 0; left: 0; right: 0;
+z-index: 10;
+background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 100%);
+backdrop-filter: blur(6px);
+-webkit-backdrop-filter: blur(6px);
+border-bottom: none;
+}
+.header-inner{
+max-width: 1280px;
+margin: 0 auto;
+padding: var(--sp-3) var(--sp-4) 0px;
+display: flex;
+flex-direction: column;
+}
+.header-top{
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: var(--sp-3);
+flex-wrap: wrap;
+margin-bottom: -7px;
+}
+.brand-block{
+display: flex;
+align-items: center;
+gap: 7px;
+}
+.brand-icon{
+font-size: 1.5rem;
+filter: drop-shadow(0 0 8px rgba(0,163,108,0.6));
+}
+.brand-title{
+font-size: 2.0rem;
+font-weight: 800;
+letter-spacing: -0.02em;
+line-height: 1.2;
+}
+.brand-highlight{
+background: linear-gradient(90deg, var(--verde-mx-claro), var(--dorado), var(--rojo-mx));
+-webkit-background-clip: text;
+background-clip: text;
+color: transparent;
+}
+.brand-subtitle{
+font-size: 0.78rem;
+color: var(--text-muted);
+max-width: 480px;
+margin-top: 0px;
+line-height: 1.35;
+}
+.header-bottom{
+display: flex;
+align-items: stretch;
+justify-content: flex-start;
+gap: 2px;
+margin-top: 0px;
+margin-bottom: 0px;
+flex-wrap: wrap;
+position: relative;
+z-index: 1;
+}
+.stats-row{
+margin-top: 0px;
+display: flex;
+align-items: stretch;
+gap: var(--sp-3);
+}
+.stat-chip{
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: var(--sp-2) var(--sp-3);
+border-radius: var(--radius-md);
+min-width: 132px;
+background: var(--glass-bg);
+border: 1px solid var(--glass-border);
+backdrop-filter: blur(10px);
+}
+.stat-pending{ border-color: rgba(206,17,38,0.35); }
+.stat-active{ border-color: rgba(0,163,108,0.35); }
+.stat-number{
+font-size: 1.25rem;
+font-weight: 800;
+color: var(--dorado);
+line-height: 1;
+}
+.stat-label{
+font-size: 0.66rem;
+color: var(--text-muted);
+text-align: center;
+margin-top: 0px;
+}
+.timer-card{
+background: var(--glass-bg);
+border: 1px solid var(--glass-border);
+backdrop-filter: blur(10px);
+border-radius: var(--radius-md);
+padding: var(--sp-2) var(--sp-4);
+min-width: 220px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.timer-header{
+display: flex;
+align-items: center;
+gap: 5px;
+margin-bottom: 3px;
+}
+.timer-icon{ font-size: 0.85rem; }
+.timer-title{
+font-size: 0.61rem;
+font-weight: 700;
+color: var(--text-muted);
+letter-spacing: 0.05em;
+}
+.timer-bar-track{
+position: relative;
+width: 100%;
+height: 10px;
+border-radius: 999px;
+background: rgba(255,255,255,0.08);
+overflow: hidden;
+}
+.timer-bar-fill{
+position: absolute;
+top:0; left:0; bottom:0;
+width: 100%;
+border-radius: 999px;
+background: linear-gradient(90deg, #0aa06a, #3ddc84);
+transition: width 1s linear, background 1.2s ease;
+}
+.timer-bar-glow{
+position: absolute;
+top:0; bottom:0; right:0;
+width: 20px;
+background: rgba(255,255,255,0.5);
+filter: blur(6px);
+opacity: 0;
+transition: opacity 0.4s ease;
+}
+.timer-card.urgent .timer-bar-glow{ opacity: 0.6; animation: pulseGlow 1.6s ease-in-out infinite; }
+.timer-card.critical .timer-bar-glow{ opacity: 0.9; animation: pulseGlow 0.9s ease-in-out infinite; }
+@keyframes pulseGlow{
+0%, 100%{ transform: scaleX(1); opacity: 0.5; }
+50%{ transform: scaleX(1.6); opacity: 1; }
+}
+.timer-card.urgent{ animation: cardPulse 2.4s ease-in-out infinite; }
+.timer-card.critical{ animation: cardPulse 1.2s ease-in-out infinite; }
+@keyframes cardPulse{
+0%, 100%{ box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 rgba(206,17,38,0); }
+50%{ box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 18px rgba(206,17,38,0.35); }
+}
+.timer-countdown{
+margin-top: 3px;
+font-size: 0.72rem;
+font-weight: 700;
+letter-spacing: 0.02em;
+font-variant-numeric: tabular-nums;
+text-align: right;
+color: var(--text-main);
+}
+/* ====================                             Esto de abajo trabaja en el Hero para nuestra aplicacion                                ==================== */
+.hero{
+position: relative;
+min-height: 92vh;
+display: flex;
+flex-direction: column;
+justify-content: flex-end;
+padding: 0px 0px 0px;
+margin: 0px;
+overflow: hidden;
+border-radius: 0px;
+box-shadow: none;
+z-index: 0;
+}
+.hero-media{
+position: absolute;
+inset: 0;
+z-index: -1;
+}
+.hero-img{
+width: 100%;
+height: 100%;
+object-fit: cover;
+transform: scale(1.05);
+filter: brightness(0.75);
+}
+.hero-overlay{
+position: absolute;
+inset: 0;
+background:
+linear-gradient(0deg, rgba(0,0,0,0.97) 0%, rgba(0,0,0,0.82) 40%, rgba(0,0,0,0.7) 100%);
+}
+.hero-content{
+position: relative;
+z-index: 2;
+max-width: 680px;
+padding-bottom: var(--sp-6);
+padding-top: 190px; 
+}
+.hero-content--centered{
+margin: 0 auto;
+display: flex;
+flex-direction: column;
+align-items: center;
+text-align: center;
+gap: 0;
+}
+.hero-eyebrow{
+display: inline-block;
+font-size: 0.78rem;
+font-weight: 700;
+letter-spacing: 0.03em;
+color: var(--dorado);
+background: rgba(255,215,0,0.1);
+border: 1px solid rgba(255,215,0,0.3);
+padding: 6px 14px;
+border-radius: 999px;
+margin-top: 10px;
+margin-bottom: 0px;
+}
+.hero-country-logo{
+width: 150px;
+height: 150px;
+object-fit: contain;
+filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));
+}
+.hero-slogan{
+font-size: clamp(1.4rem, 4vw, 2.1rem);
+font-weight: 900;
+margin-bottom: 0px;
+color: var(--dorado-premium);
+background: none;
+-webkit-background-clip: unset;
+background-clip: unset;
+text-shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+.btn-participa{
+display: inline-flex;
+align-items: center;
+gap: 10px;
+background: linear-gradient(90deg, var(--rojo-mx), var(--verde-mx));
+color: #fff;
+text-decoration: none;
+font-weight: 700;
+font-size: 0.9rem;
+padding: 10px 10px 10px 22px;
+border-radius: 999px;
+box-shadow: 0 6px 18px rgba(206,17,38,0.35);
+white-space: nowrap;
+border: 1px solid rgba(255,255,255,0.15);
+}
+.btn-participa--hero{
+margin-top: 25px;
+padding: 8px 8px 8px 24px;
+font-size: 0.85rem;
+box-shadow: 0 8px 20px rgba(206,17,38,0.4);
+}
+.btn-participa svg{
+flex-shrink: 0;
+width: 34px;
+height: 34px;
+padding: 9px;
+border-radius: 50%;
+background: rgba(255,255,255,0.16);
+border: 1px solid rgba(255,255,255,0.35);
+box-sizing: border-box;
+stroke-width: 2.2;
+}
+.hero-highlights{
+display: flex;
+gap: var(--sp-5);
+flex-wrap: wrap;
+justify-content: center;
+margin-top: var(--sp-5);
+}
+.hero-highlight-item{
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 4px;
+min-width: 72px;
+}
+.hero-highlight-icon{ font-size: 1.4rem; }
+.hero-highlight-text{
+color: var(--text-main);
+font-size: 0.72rem;
+font-weight: 700;
+line-height: 1.3;
+text-align: center;
+}
+/* ====================                             Esto de abajo trabaja en el Explora para nuestra aplicacion                                ==================== */
+.explora{
+padding: 0px 32px 90px;
+margin-top: -25px;
+margin-left: auto;
+margin-right: auto;
+max-width: 1280px;
+position: relative;
+z-index: 2;
+background: #000000;
+}
+.explora-heading{
+margin: 0px 0px var(--sp-3) 0px;
+padding-top: 0px;
+}
+.explora-title{
+font-size: 1.6rem;
+font-weight: 800;
+border-left: 5px solid var(--dorado);
+padding-left: 14px;
+margin: 0px;
+line-height: 1.1;
+}
+.explora-subtitle{
+font-size: 0.82rem;
+font-weight: 400;
+color: var(--text-muted-soft);
+margin-top: 1px;
+padding-left: 19px;
+max-width: 520px;
+}
+.cards-grid{
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+gap: var(--sp-5);
+}
+.card{
+position: relative;
+border-radius: var(--radius-md);
+overflow: hidden;
+background: var(--bg-card);
+border: 1px solid var(--glass-border);
+box-shadow: var(--shadow-soft);
+}
+.card img{
+width: 100%;
+height: 150px;
+object-fit: cover;
+filter: brightness(0.65) contrast(1.05);
+}
+.card-overlay{
+position: absolute;
+bottom: 0; left: 0; right: 0;
+background: linear-gradient(0deg, rgba(0,0,0,0.97) 15%, transparent 100%);
+padding: 34px 14px 14px;
+display: flex;
+flex-direction: column;
+gap: 3px;
+}
+.card-title{
+font-weight: 800;
+font-size: 1.50rem;
+line-height: 1.2;
+color: var(--text-main);
+}
+/* ====================               Esto de abajo trabaja en el footer  para nuestra aplicacion                                                      ==================== */
+.footer{
+background: #000000;
+border-top: 1px solid var(--glass-border);
+padding: var(--sp-6) 32px;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: var(--sp-4);
+text-align: center;
+}
+.footer-brand{
+font-size: 0.85rem;
+font-weight: 700;
+color: var(--text-muted);
+letter-spacing: 0.02em;
+}
+.footer-links{
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+gap: var(--sp-4) var(--sp-5);
+max-width: 900px;
+}
+.footer-links a{
+font-size: 0.82rem;
+font-weight: 600;
+color: var(--text-main);
+text-decoration: none;
+padding: 4px 2px;
+border-bottom: 1px solid transparent;
+white-space: nowrap;
+}
+@media (max-width: 640px){
+.footer{ padding: var(--sp-5) 18px; }
+.footer-links{ gap: var(--sp-3) var(--sp-4); }
+.footer-links a{ font-size: 0.78rem; }
+}
+/* ====================                  Esto de abajo trabaja en la activacion del Header para seccion administrador                       ==================== */
+.brand-block {
+cursor: pointer;
+transition: transform 0.12s ease;
+-webkit-tap-highlight-color: transparent;
+user-select: none;
+}
+.brand-block.tap-pulso {
+transform: scale(0.985);
+}
+/* ====================            Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion                            ==================== */
+@media (max-width: 900px){
+body{ padding-top: 0px; }
+.header-bottom{ flex-direction: column; align-items: stretch; margin-top: var(--sp-2); }
+.timer-card{ width: 100%; }}
+@media (max-width: 640px){
+body{ padding-top: 0px; }
+.header-inner{ padding: 12px 18px 0px; }
+.header-top{ gap: 12px; }
+.brand-title{ font-size: 1rem; }
+.brand-subtitle{ font-size: 0.72rem; }
+.hero{ min-height: 50vh; align-items: flex-end; margin-top: 0; }
+.explora{ padding: 40px 18px 70px; }
+.stats-row{ width: 100%; }
+.stat-chip{ flex: 1; min-width: 0; }
+}

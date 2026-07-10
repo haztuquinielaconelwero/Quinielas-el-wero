@@ -1,0 +1,520 @@
+/* ====================               Esto de abajo trabaja en el Header de la Lista Oficial para nuestra aplicacion                     ==================== */
+.lo-header {
+position: sticky !important;
+top: 0;
+z-index: 100;
+background: linear-gradient(180deg, rgba(10,15,13,0.97) 0%, rgba(10,15,13,0.88) 100%) !important;
+backdrop-filter: blur(14px);
+-webkit-backdrop-filter: blur(14px);
+border-bottom: 1px solid rgba(255,255,255,0.07);
+padding-bottom: 2px;
+}
+.lo-header .header-inner { padding-bottom: 3px; }
+.lo-header .brand-subtitle {
+line-height: 1.4;
+padding-bottom: 1px;
+font-size: 0.78rem;
+font-weight: 500;
+color: var(--text-muted);
+letter-spacing: 0.01em;
+}
+/* ====================               Esto de abajo trabaja en el Hero de la Lista Oficial para nuestra aplicacion                     ==================== */
+.lo-hero {
+padding: 18px 24px 16px;
+text-align: center;
+background: radial-gradient(ellipse at 50% 0%, rgba(0,163,108,0.12) 0%, transparent 70%);
+}
+.lo-hero-inner {
+max-width: 600px;
+margin: 0 auto;
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+.lo-hero-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+font-size: 0.8rem;
+font-weight: 800;
+letter-spacing: 0.04em;
+color: var(--dorado-premium);
+background: rgba(212,175,55,0.1);
+border: 1px solid rgba(212,175,55,0.28);
+padding: 9px 22px;
+border-radius: 999px;
+box-shadow: 0 4px 16px rgba(212,175,55,0.08);
+}
+/* ====================               Esto de abajo trabaja en la capsula para la Lista Oficial para nuestra aplicacion                     ==================== */
+.lo-main {
+max-width: 1180px;
+margin: 0 auto;
+padding: 0 16px 100px;
+}
+.lo-card {
+background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.01));
+border: 1px solid var(--glass-border);
+border-radius: 24px;
+padding: 16px;
+backdrop-filter: blur(14px);
+-webkit-backdrop-filter: blur(14px);
+box-shadow: 0 20px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+animation: loCardIn 0.5s var(--ease) both;
+}
+@keyframes loCardIn {
+from { opacity: 0; transform: translateY(18px); }
+to { opacity: 1; transform: translateY(0); }
+}
+/* ====================               Esto de abajo trabaja en el buscador y filtro                                                             ==================== */
+.lo-top-bar {
+display: flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 14px;
+}
+.lo-buscador-wrap {
+flex: 1 1 auto;
+min-width: 0;
+display: flex;
+align-items: center;
+gap: 8px;
+background: rgba(255,255,255,0.05);
+border: 1px solid var(--glass-border);
+border-radius: 14px;
+padding: 0 14px;
+height: 42px;
+transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease);
+}
+.lo-buscador-wrap:focus-within {
+border-color: rgba(0,163,108,0.6);
+box-shadow: 0 0 0 3px rgba(0,163,108,0.12);
+background: rgba(255,255,255,0.07);
+}
+.lo-buscador-icono { 
+font-size: 0.85rem; opacity: 0.7; flex-shrink: 0; 
+}
+.lo-buscador-input {
+flex: 1;
+min-width: 0;
+background: transparent;
+border: none;
+outline: none;
+color: var(--text-main);
+font-size: 0.82rem;
+font-family: inherit;
+height: 100%;
+}
+.lo-buscador-input::placeholder { 
+color: var(--text-muted-soft); 
+}
+.lo-btn-filtro {
+width: 42px;
+height: 42px;
+min-width: 42px;
+border-radius: 14px;
+border: 1px solid var(--glass-border);
+background: linear-gradient(160deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+color: var(--text-main);
+font-size: 1.1rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: transform 0.25s var(--ease), border-color 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease);
+box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+.lo-btn-filtro:active { 
+transform: scale(0.93); 
+}
+.lo-btn-filtro.activo { 
+border-color: rgba(212,175,55,0.5); 
+box-shadow: 0 0 0 3px rgba(212,175,55,0.15); 
+}
+/* ====================                     Esto de abajo trabaja en la tabla                                                                  ==================== */
+.lo-tabla-wrap {
+width: 100%;
+overflow-y: visible;
+border: 1px solid var(--glass-border);
+background: rgba(0,0,0,0.18);
+scrollbar-width: thin;
+scrollbar-color: rgba(0,163,108,0.5) transparent;
+}
+.lo-tabla-wrap[hidden] { 
+display: none; 
+}
+.lo-tabla-wrap::-webkit-scrollbar { 
+height: 6px; 
+}
+.lo-tabla-wrap::-webkit-scrollbar-thumb { 
+background: rgba(0,163,108,0.45); border-radius: 999px; 
+}
+.lo-tabla-wrap::-webkit-scrollbar-track { 
+background: transparent; 
+}
+.lo-tabla {
+width: 100%;
+min-width: 760px;
+border-collapse: separate;
+border-spacing: 0;
+}
+.lo-tabla thead {
+position: sticky;
+top: 0;
+z-index: 5;
+}
+.lo-th {
+background: linear-gradient(180deg, rgba(0,163,108,0.2) 0%, rgba(0,80,54,0.26) 100%);
+color: var(--text-main);
+font-size: 0.64rem;
+font-weight: 700;
+letter-spacing: 0.01em;
+text-transform: none;
+text-align: center;
+padding: 8px 5px;
+border-bottom: 1px solid rgba(255,255,255,0.12);
+white-space: nowrap;
+}
+.lo-th-folio { 
+border-top-left-radius: 0px; 
+}
+.lo-th-puntos { 
+border-top-right-radius: 0px; 
+}
+.lo-th-partido { 
+min-width: 12px; padding: 0px 0px; 
+}
+.lo-th-logo-vs {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 1px;
+}
+.lo-th-logo {
+width: 30px;
+height: 30px;
+object-fit: contain;
+filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+display: block;  
+line-height: 0;   
+}
+.lo-th-vs {
+font-size: 0.46rem;
+font-weight: 800;
+color: var(--text-muted-soft);
+letter-spacing: 0;
+}
+.lo-tabla tbody tr {
+background: rgba(255,255,255,0.02);
+animation: loFilaIn 0.35s var(--ease) both;
+}
+.lo-tabla tbody tr:nth-child(even) { 
+background: rgba(255,255,255,0.035); 
+}
+.lo-tabla tbody tr:not(:last-child) td { 
+border-bottom: 1px solid rgba(255,255,255,0.05); 
+}
+@keyframes loFilaIn {
+from { opacity: 0; transform: translateY(6px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.lo-td {
+padding: 5px 5px;
+text-align: center;
+vertical-align: middle;
+font-size: 0.7rem;
+}
+.lo-td-folio {
+font-weight: 800;
+color: var(--dorado-premium);
+letter-spacing: 0.01em;
+font-size: 0.66rem;
+}
+.lo-td-nombre {
+font-weight: 700;
+color: var(--text-main);
+white-space: nowrap;
+max-width: 120px;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+.lo-td-vendedor {
+color: var(--text-muted);
+font-weight: 600;
+font-size: 0.64rem;
+white-space: nowrap;
+}
+.lo-chip-resultado {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+min-width: 22px;
+height: 22px;
+padding: 0 3px;
+border-radius: 50%;
+font-size: 0.6rem;
+font-weight: 900;
+border: 1px solid transparent;
+}
+.lo-chip-acierto {
+background: rgba(0,163,108,0.2);
+color: #3ddc84;
+border-color: rgba(0,163,108,0.4);
+}
+.lo-chip-fallo {
+background: rgba(206,17,38,0.2);
+color: #ff7080;
+border-color: rgba(206,17,38,0.4);
+}
+.lo-chip-pendiente {
+background: rgba(255,255,255,0.06);
+color: var(--text-muted);
+border-color: rgba(255,255,255,0.14);
+}
+.lo-chip-vacio { 
+background: rgba(255,255,255,0.04); 
+color: var(--text-muted-soft); 
+border-color: var(--glass-border); 
+}
+.lo-td-puntos { 
+font-weight: 900; 
+font-size: 0.78rem; 
+}
+.lo-puntos-badge {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+min-width: 30px;
+padding: 4px 8px;
+border-radius: 999px;
+background: rgba(255,255,255,0.08);
+border: 1px solid rgba(255,255,255,0.16);
+color: #f4f4f4;
+}
+.lo-tabla tbody tr.lo-primer-lugar .lo-puntos-badge {
+background: rgba(212,175,55,0.16);
+border-color: rgba(212,175,55,0.4);
+color: var(--dorado-premium);
+}
+.lo-tabla tbody tr.lo-fila-resaltada { animation: loResaltar 0.4s var(--ease); }
+@keyframes loResaltar {
+from { background: rgba(0,163,108,0.22); }
+to { background: transparent; }
+}
+/* ====================          Esto de abajo trabaja en el mensaje dentro del buscador sin concidencias                                ==================== */
+.lo-empty-msg {
+text-align: center;
+padding: 50px 20px;
+color: var(--text-muted-soft);
+font-size: 0.85rem;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 10px;
+animation: loCardIn 0.35s var(--ease) both;
+}
+.lo-empty-msg[hidden] { 
+display: none !important; 
+}
+.lo-empty-icon { 
+font-size: 2.2rem; opacity: 0.6;
+}
+/* ====================          Esto debajo trabaja en el panel del filtro                               ==================== */
+.lo-filtro-overlay {
+position: fixed;
+inset: 0;
+z-index: 9000;
+background: rgba(0,0,0,0.6);
+backdrop-filter: blur(4px);
+-webkit-backdrop-filter: blur(4px);
+display: flex;
+justify-content: flex-end;
+animation: loBgIn 0.25s ease both;
+}
+.lo-filtro-overlay[hidden] { 
+display: none; 
+}
+@keyframes loBgIn { 
+from { opacity: 0; } to { opacity: 1; }}
+.lo-filtro-panel {
+width: 100%;
+max-width: 320px;
+height: 100%;
+background: #141c18;
+border-left: 1px solid rgba(255,255,255,0.1);
+box-shadow: -24px 0 70px rgba(0,0,0,0.6);
+padding: 22px 18px;
+display: flex;
+flex-direction: column;
+gap: 18px;
+animation: loDrawerIn 0.4s var(--ease) both;
+overflow-y: auto;
+}
+@keyframes loDrawerIn {
+from { opacity: 0; transform: translateX(30px); }
+to { opacity: 1; transform: translateX(0); }
+}
+.lo-filtro-header { 
+display: flex; 
+align-items: center; 
+justify-content: space-between; 
+}
+.lo-filtro-header h3 { 
+font-size: 1rem; 
+font-weight: 800; 
+color: var(--text-main); 
+}
+.lo-filtro-close {
+width: 32px; 
+height: 32px;
+border-radius: 50%;
+background: rgba(255,255,255,0.07);
+border: 1px solid rgba(255,255,255,0.1);
+color: var(--text-muted);
+cursor: pointer;
+display: flex; 
+align-items: center; 
+justify-content: center;
+}
+.lo-filtro-opciones { 
+display: flex; 
+flex-direction: column; gap: 8px; 
+}
+.lo-filtro-chip {
+display: flex;
+align-items: center;
+justify-content: space-between;
+text-align: left;
+padding: 11px 14px;
+border-radius: 12px;
+border: 1px solid var(--glass-border);
+background: rgba(255,255,255,0.03);
+color: var(--text-main);
+font-size: 0.8rem;
+font-weight: 700;
+cursor: pointer;
+transition: border-color 0.2s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.lo-filtro-chip.activo {
+border-color: rgba(0,163,108,0.55);
+background: linear-gradient(135deg, rgba(0,163,108,0.22), rgba(0,122,77,0.1));
+color: #3ddc84;
+box-shadow: 0 4px 14px rgba(0,163,108,0.18);
+}
+.lo-filtro-chip-contador {
+font-size: 0.68rem;
+font-weight: 800;
+min-width: 22px;
+height: 22px;
+padding: 0 6px;
+border-radius: 999px;
+background: rgba(255,255,255,0.1);
+color: var(--text-main);
+display: inline-flex;
+align-items: center;
+justify-content: center;
+}
+.lo-filtro-chip.activo .lo-filtro-chip-contador {
+background: rgba(0,163,108,0.35);
+color: #3ddc84;
+}
+.lo-td { 
+padding: 2px 0; 
+font-size: 0.44rem; 
+line-height: 1.1; 
+}
+.lo-td-nombre { 
+font-size: 0.46rem; 
+white-space: nowrap; 
+overflow: hidden; 
+text-overflow: ellipsis; 
+}
+.lo-td-vendedor { 
+font-size: 0.4rem;
+white-space: nowrap; 
+overflow: hidden; 
+text-overflow: ellipsis; 
+}
+.lo-td-folio { 
+font-size: 0.42rem; 
+}
+.lo-chip-resultado {
+min-width: 13px;
+width: 13px;
+height: 13px;
+padding: 0;
+font-size: 0.4rem;
+line-height: 1;
+border-radius: 4px;
+}
+.lo-puntos-badge { 
+min-width: 18px; 
+padding: 1px 4px; 
+font-size: 0.46rem; 
+}
+.lo-filtro-panel { 
+max-width: 100%; 
+}
+/* ====================                      Esto de abajo trabaja con el boton de ir a inicio nuevamente                                     ==================== */
+.adm-fab-inicio {
+position: fixed;
+bottom: 22px;
+left: 50%;
+transform: translateX(-50%);
+z-index: 9500;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+padding: 14px 18px;
+border-radius: 999px;
+background: linear-gradient(135deg, #006341, #00a36c);
+color: #fff;
+text-decoration: none;
+font-size: 0.8rem;
+font-weight: 800;
+box-shadow: 0 10px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,175,55,0.25);
+transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), filter 0.25s var(--ease);
+}
+.adm-fab-inicio:active {
+transform: translateX(-50%) scale(0.95);
+}
+.adm-fab-label {
+white-space: nowrap;
+}
+.adm-fab-icon {
+font-size: 1.1rem;
+line-height: 1;
+flex-shrink: 0;
+display: inline-flex;
+align-items: center;
+transform: translateY(-1px);
+}
+@media (max-width: 640px) {
+.adm-fab-inicio {
+bottom: 16px;
+padding: 13px;
+gap: 0;
+}}
+/* ====================          Esto debajo trabaja en las mediciones para que funcione bien en todos los celulares                           ==================== */
+@media (max-width: 640px) {
+.lo-hero { padding: 12px 12px 14px; }
+.lo-main { padding: 0 4px 100px; }
+.lo-card { padding: 5px; border-radius: 14px; }
+.lo-top-bar { gap: 5px; margin-bottom: 6px; }
+.lo-buscador-wrap { height: 34px; padding: 0 8px; }
+.lo-buscador-input { font-size: 0.68rem; }
+.lo-btn-filtro { width: 34px; height: 34px; min-width: 34px; font-size: 0.9rem; }
+.lo-tabla { min-width: 248px; table-layout: fixed; }
+.lo-th { font-size: 0.42rem; padding: 3px 0; letter-spacing: 0; line-height: 1.1; }
+.lo-th-folio, .lo-td-folio { width: 8px; min-width: 8px; text-align: center;vertical-align: middle;}
+.lo-th-nombre, .lo-td-nombre { width: 42px; max-width: 42px; }
+.lo-th-vendedor, .lo-td-vendedor { width: 27px; max-width: 27px; }
+.lo-th-partido, .lo-td-partido { width: 10px; min-width: 10px; max-width: 10px; padding: 2px 0; }
+.lo-th-puntos, .lo-td-puntos { width: 10px; min-width: 10px;   text-align: center;vertical-align: middle;}
+.lo-th-logo-vs { flex-direction: column; gap: 0; }
+.lo-th-logo { width: 15px; height: 15px; }
+.lo-th-vs { display: none; }
+}
+@media (min-width: 1100px) {
+.lo-main { max-width: 1240px; }
+}

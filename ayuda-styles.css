@@ -1,0 +1,461 @@
+/* ====================               Esto de abajo trabaja en el Header de la pagina ayuda para nuestra aplicacion                     ==================== */
+.ay-header {
+position: sticky !important;
+top: 0;
+z-index: 100;
+background: linear-gradient(180deg, rgba(10,15,13,0.97) 0%, rgba(10,15,13,0.88) 100%) !important;
+backdrop-filter: blur(14px);
+-webkit-backdrop-filter: blur(14px);
+border-bottom: 1px solid rgba(255,255,255,0.07);
+padding-bottom: 2px;
+}
+.ay-header .header-inner { 
+padding-bottom: 3px; 
+}
+.ay-header .brand-subtitle { 
+line-height: 1.45; 
+padding-bottom: 1px; 
+}
+/* ====================               Esto de abajo trabaja en el hero de la pagina ayuda para nuestra aplicacion                     ==================== */
+.ay-hero {
+padding: 18px 24px 20px;
+text-align: center;
+background: radial-gradient(ellipse at 50% 0%, rgba(0,163,108,0.12) 0%, transparent 70%);
+}
+.ay-hero-inner {
+max-width: 600px;
+margin: 0 auto;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 10px;
+}
+.ay-hero-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+font-size: 0.8rem;
+font-weight: 800;
+letter-spacing: 0.04em;
+color: var(--dorado-premium);
+background: rgba(212,175,55,0.1);
+border: 1px solid rgba(212,175,55,0.28);
+padding: 9px 22px;
+border-radius: 999px;
+box-shadow: 0 4px 16px rgba(212,175,55,0.08);
+}
+/* ====================               Esto de abajo trabaja en el contenedor de la pagina ayuda para nuestra aplicacion                     ==================== */
+.ay-main {
+max-width: 780px;
+margin: 0 auto;
+padding: 8px 20px 100px;
+display: flex;
+flex-direction: column;
+gap: 48px;
+}
+.ay-section-header { 
+text-align: center; 
+margin-bottom: 22px; 
+}
+.ay-section-title {
+font-size: 1.15rem;
+font-weight: 800;
+color: var(--text-main);
+letter-spacing: 0.01em;
+line-height: 1.35;
+}
+.ay-section-subtitle {
+font-size: 0.85rem;
+color: var(--text-muted);
+margin-top: 6px;
+line-height: 1.5;
+}
+/* ====================               Esto de abajo trabaja en las tarjetas de ayuda de la pagina ayuda para nuestra aplicacion                   ==================== */
+.ay-help-cards {
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+.ay-help-card {
+background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015));
+border: 1px solid var(--glass-border);
+border-radius: 20px;
+overflow: hidden;
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+animation: ayCardIn 0.45s var(--ease) both;
+}
+.ay-help-card.abierto { 
+border-color: rgba(0,163,108,0.4); box-shadow: 0 14px 36px rgba(0,163,108,0.12); 
+}
+@keyframes ayCardIn { 
+from { 
+opacity: 0; 
+transform: translateY(14px); 
+} to { opacity: 1; transform: translateY(0); 
+}}
+.ay-help-card-trigger {
+width: 100%;
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 18px 18px;
+background: transparent;
+border: none;
+cursor: pointer;
+text-align: left;
+-webkit-tap-highlight-color: transparent;
+}
+.ay-help-card-icon {
+flex-shrink: 0;
+width: 46px; height: 46px;
+border-radius: 14px;
+background: rgba(0,163,108,0.12);
+border: 1px solid rgba(0,163,108,0.25);
+color: var(--verde-mx-claro);
+display: flex; align-items: center; justify-content: center;
+transition: background 0.3s var(--ease), transform 0.3s var(--ease);
+}
+.ay-help-card.abierto .ay-help-card-icon { 
+background: rgba(0,163,108,0.22); transform: scale(1.05); 
+}
+.ay-help-card-text { 
+flex: 1; min-width: 0; 
+}
+.ay-help-card-title { 
+font-size: 0.92rem; 
+font-weight: 800; 
+color: var(--text-main); 
+line-height: 1.3; 
+}
+.ay-help-card-preview { 
+font-size: 0.76rem; 
+color: var(--text-muted); 
+margin-top: 2px; 
+}
+.ay-help-card-arrow {
+flex-shrink: 0;
+color: var(--text-muted);
+transition: transform 0.35s var(--ease), color 0.3s var(--ease);
+}
+.ay-help-card.abierto .ay-help-card-arrow { 
+transform: rotate(180deg); color: var(--verde-mx-claro); 
+}
+.ay-help-card-content {
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.45s var(--ease);
+}
+.ay-help-card.abierto .ay-help-card-content { 
+max-height: 900px; 
+}
+.ay-help-card-content-inner {
+padding: 0 18px 20px 78px;
+}
+.ay-help-card-content-inner p {
+font-size: 0.84rem;
+color: var(--text-muted);
+line-height: 1.6;
+margin-bottom: 12px;
+}
+.ay-help-steps {
+list-style: none;
+display: flex;
+flex-direction: column;
+gap: 9px;
+}
+.ay-help-steps li {
+display: flex;
+align-items: flex-start;
+gap: 10px;
+font-size: 0.82rem;
+color: var(--text-main);
+line-height: 1.45;
+}
+/* ====================          Esto de abajo trabaja en las tarjetas para pagar de ayuda de la pagina ayuda para nuestra aplicacion           ==================== */
+.ay-deposits-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+font-size: 0.68rem;
+font-weight: 800;
+color: var(--verde-mx-claro);
+background: rgba(0,163,108,0.12);
+border: 1px solid rgba(0,163,108,0.3);
+padding: 6px 14px;
+border-radius: 999px;
+margin-bottom: 12px;
+}
+.ay-bank-cards {
+display: flex;
+flex-direction: column;
+gap: 14px;
+margin-bottom: 20px;
+}
+.ay-bank-card {
+background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015));
+border: 1px solid var(--glass-border);
+border-radius: 18px;
+overflow: hidden;
+backdrop-filter: blur(12px);
+box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+animation: ayCardIn 0.45s var(--ease) both;
+}
+.ay-bank-card-bar { 
+height: 5px; width: 100%; 
+}
+.ay-bank-card-bar.banorte { 
+background: linear-gradient(90deg, #d81f26, #a3141b); 
+}
+.ay-bank-card-bar.bbva { 
+background: linear-gradient(90deg, #072146, #1a4fa0); 
+}
+.ay-bank-card-bar.azteca { 
+background: linear-gradient(90deg, #00933f, #00622a);
+}
+.ay-bank-card-bar.spin { 
+background: linear-gradient(90deg, #ff8a1f, #d64500);
+}
+.ay-bank-card-bar.nu { 
+background: linear-gradient(90deg, #9c1de0, #5c0899);
+}
+.ay-bank-card-bar.mercadopago { 
+background: linear-gradient(90deg, #2d9cdb, #0080c4);
+}
+.ay-bank-card-bar.bancoppel { 
+background: linear-gradient(90deg, #0033a0, #c8102e);
+}
+.ay-bank-card-bar.hsbc { 
+background: linear-gradient(90deg, #db0011, #7a0009);
+}
+.ay-bank-card-bar.santander { 
+background: linear-gradient(90deg, #ec0000, #a30000);
+}
+.ay-bank-card-body { 
+padding: 16px 18px; 
+}
+.ay-bank-card-header { 
+display: flex; align-items: center; gap: 8px; margin-bottom: 12px; 
+}
+.ay-bank-card-dot { 
+width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; 
+}
+.ay-bank-card-dot.banorte { 
+background: #e0132c; 
+}
+.ay-bank-card-dot.bbva { 
+background: #1a4fa0; 
+}
+.ay-bank-card-dot.azteca { 
+background: #00933f; 
+}
+.ay-bank-card-dot.spin { 
+background: #ff8a1f; 
+}
+.ay-bank-card-dot.nu { 
+background: #9c1de0; 
+}
+.ay-bank-card-dot.mercadopago { 
+background: #2d9cdb; 
+}
+.ay-bank-card-dot.bancoppel { 
+background: #0033a0; 
+}
+.ay-bank-card-dot.hsbc { 
+background: #db0011; 
+}
+.ay-bank-card-dot.santander { 
+background: #ec0000; 
+}
+.ay-bank-card-name { 
+font-size: 0.9rem; font-weight: 800; color: var(--text-main); 
+}
+.ay-bank-card-rows { 
+display: flex; flex-direction: column; gap: 8px; 
+}
+.ay-bank-card-row { 
+display: flex; 
+justify-content: space-between; 
+align-items: center; gap: 10px; 
+}
+.ay-bank-card-row-label { 
+font-size: 0.68rem; color: var(--text-muted-soft); 
+font-weight: 700; 
+letter-spacing: 0.02em; 
+}
+.ay-bank-card-row-value { 
+font-size: 0.82rem; 
+color: var(--text-main); 
+font-weight: 700; 
+font-family: monospace; 
+letter-spacing: 0.02em; 
+}
+.ay-deposit-tip {
+display: flex;
+align-items: center;
+gap: 12px;
+background: rgba(212,175,55,0.08);
+border: 1px solid rgba(212,175,55,0.24);
+border-radius: 16px;
+padding: 14px 16px;
+margin-bottom: 16px;
+}
+.ay-deposit-tip svg { 
+flex-shrink: 0; 
+color: var(--dorado-premium); 
+}
+.ay-deposit-tip p { 
+font-size: 0.8rem; 
+color: var(--text-muted); 
+line-height: 1.5; 
+}
+/* ====================        Esto de abajo trabaja en el boton de contacto directo whats app de la pagina ayuda para nuestra aplicacion         ==================== */
+.ay-contact {
+background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015));
+border: 1px solid var(--glass-border);
+border-radius: 24px;
+padding: 32px 24px;
+text-align: center;
+backdrop-filter: blur(12px);
+box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+}
+.ay-contact-icon {
+width: 60px; height: 60px;
+border-radius: 50%;
+background: rgba(37,211,102,0.14);
+border: 1px solid rgba(37,211,102,0.3);
+color: #25d366;
+display: flex; align-items: center; justify-content: center;
+margin: 0 auto 16px;
+}
+.ay-contact-title { 
+font-size: 1.05rem; 
+font-weight: 800; 
+color: var(--text-main); 
+margin-bottom: 6px; 
+}
+.ay-contact-subtitle { 
+font-size: 0.84rem; 
+color: var(--text-muted); 
+margin-bottom: 20px; 
+line-height: 1.5; }
+.ay-contact-content .ay-whatsapp-button { 
+max-width: 280px; margin: 0 auto; }
+/* ====================        Esto de abajo trabaja en el boton de preguntas frecuentese la pagina ayuda para nuestra aplicacion         ==================== */
+.ay-faq-list {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+.ay-faq-item {
+background: rgba(255,255,255,0.03);
+border: 1px solid var(--glass-border);
+border-radius: 16px;
+overflow: hidden;
+transition: border-color 0.3s var(--ease);
+}
+.ay-faq-item.abierto { 
+border-color: rgba(0,163,108,0.35); 
+}
+.ay-faq-question {
+width: 100%;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 12px;
+padding: 16px 18px;
+background: transparent;
+border: none;
+cursor: pointer;
+text-align: left;
+color: var(--text-main);
+font-size: 0.86rem;
+font-weight: 700;
+-webkit-tap-highlight-color: transparent;
+}
+.ay-faq-icon { 
+flex-shrink: 0; 
+color: var(--text-muted); 
+transition: transform 0.35s var(--ease), color 0.3s var(--ease); 
+}
+.ay-faq-item.abierto .ay-faq-icon { 
+transform: rotate(45deg); 
+color: var(--verde-mx-claro); 
+}
+.ay-faq-answer {
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.4s var(--ease);
+}
+.ay-faq-item.abierto .ay-faq-answer { max-height: 300px; }
+.ay-faq-answer-inner {
+padding: 0 18px 16px;
+}
+.ay-faq-answer-box {
+background: rgba(0,163,108,0.06);
+border: 1px solid rgba(0,163,108,0.18);
+border-radius: 12px;
+padding: 12px 14px;
+}
+.ay-faq-answer-box p { 
+font-size: 0.82rem; 
+color: var(--text-muted); 
+line-height: 1.55; 
+}
+/* ====================                      Esto de abajo trabaja con el boton de ir a inicio nuevamente                                     ==================== */
+.adm-fab-inicio {
+position: fixed;
+bottom: 22px;
+left: 50%;
+transform: translateX(-50%);
+z-index: 9500;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+padding: 14px 18px;
+border-radius: 999px;
+background: linear-gradient(135deg, #006341, #00a36c);
+color: #fff;
+text-decoration: none;
+font-size: 0.8rem;
+font-weight: 800;
+box-shadow: 0 10px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,175,55,0.25);
+transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), filter 0.25s var(--ease);
+}
+.adm-fab-inicio:active {
+transform: translateX(-50%) scale(0.95);
+}
+.adm-fab-label {
+white-space: nowrap;
+}
+.adm-fab-icon {
+font-size: 1.1rem;
+line-height: 1;
+flex-shrink: 0;
+display: inline-flex;
+align-items: center;
+transform: translateY(-1px);
+}
+@media (max-width: 640px) {
+.adm-fab-inicio {
+bottom: 16px;
+padding: 13px;
+gap: 0;
+}}
+/* ====================     Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion en ayuda              ==================== */
+@media (max-width: 640px) {
+.ay-hero { padding: 14px 12px 16px; }
+.ay-main { padding: 6px 14px 100px; gap: 36px; }
+.ay-section-title { font-size: 1rem; }
+.ay-help-card-trigger { padding: 14px 14px; gap: 12px; }
+.ay-help-card-icon { width: 40px; height: 40px; border-radius: 12px; }
+.ay-help-card-title { font-size: 0.86rem; }
+.ay-help-card-preview { font-size: 0.72rem; }
+.ay-help-card-content-inner { padding: 0 14px 16px 66px; }
+.ay-contact { padding: 24px 18px; }
+.ay-bank-card-body { padding: 14px 14px; }}
+@media (min-width: 1100px) {
+.ay-main { max-width: 860px; }
+}

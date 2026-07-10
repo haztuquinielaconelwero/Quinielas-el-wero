@@ -8,7 +8,7 @@ Endpoints de negocio (jornadas, participantes, etc.) se agregan despues.
 
 import os
 from flask import Flask, jsonify
-import psycopg2
+import psycopg
 
 app = Flask(__name__)
 
@@ -16,7 +16,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 
 
 def get_connection():
-    return psycopg2.connect(DATABASE_URL)
+    return psycopg.connect(DATABASE_URL)
 
 
 @app.route("/")

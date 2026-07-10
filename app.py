@@ -1,28 +1,22 @@
-"""
-QUINIELAS EL WERO — app.py
-Backend inicial en Flask. Conecta con PostgreSQL en Railway.
-Objetivo de esta primera version: SOLO confirmar que el servicio
-levanta correctamente y que la conexion a la base de datos funciona.
-Endpoints de negocio (jornadas, participantes, etc.) se agregan despues.
-"""
-
+"""                                Esto de abajo trabaja con las importaciones para que todo el servicion funcione correctamente                        """
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 import psycopg
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-
 
 def get_connection():
     return psycopg.connect(DATABASE_URL)
 
-
-@app.route("/")
+@app.route('/')
 def home():
-    return jsonify({"status": "ok", "mensaje": "Quinielas El Wero backend activo"})
+    return send_from_directory('.', 'inicio.html')
 
+@app.route('/<path:filename>')
+def serve_file(filename):
+    return send_from_directory('.', filename)
 
 @app.route("/health")
 def health():
@@ -36,7 +30,6 @@ def health():
         return jsonify({"status": "ok", "db": "conectado"})
     except Exception as e:
         return jsonify({"status": "error", "detalle": str(e)}), 500
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

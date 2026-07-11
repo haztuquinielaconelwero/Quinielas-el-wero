@@ -368,7 +368,7 @@ def _guardar_resultado(pid, gh, ga, res):
         with conn.cursor() as cur:
             cur.execute(
                 '''
-                INSERT INTO "ResultadosdelaJornada"
+                INSERT INTO resultadosdelajornada
                     ("Partidos", "Resultados", resultado, marcador_local, marcador_visita)
                 VALUES (%s, %s, %s, %s, %s)
                 ON CONFLICT ("Partidos", "Resultados") DO UPDATE SET

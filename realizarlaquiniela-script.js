@@ -184,6 +184,24 @@ return [];
 function escribirStorage(arr) {
 localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
 }
+const STORAGE_KEY_ENVIADAS = "quinielasElWero_enviadas";
+function guardarEnMisQuinielas(quinielasEnviadas) {
+try {
+const actuales = JSON.parse(localStorage.getItem(STORAGE_KEY_ENVIADAS)) ?? [];
+const nuevas = quinielasEnviadas.map((q) => ({
+id: q.id,
+nombre: q.nombre,
+vendedor: q.vendedor,
+jornada: q.jornada,
+estado: "no-jugando",
+puntos: 0,
+selecciones: q.selecciones
+}));
+localStorage.setItem(STORAGE_KEY_ENVIADAS, JSON.stringify([...actuales, ...nuevas]));
+} catch (err) {
+console.error("No se pudo guardar en Mis Quinielas", err);
+}
+}
 /* =====================================     Esto de abajo calcula el precio de las quinielas en tiempo real y tambien las quinielas guardadas      ======================= */
 function calcularCombinacionesEstado() {
 if (estado.total === 0) return 0;
@@ -379,6 +397,7 @@ contador.textContent = `${i + 1} de ${guardadas.length}`;
 await new Promise(r => setTimeout(r, 350));
 }
 escribirStorage([]);
+guardarEnMisQuinielas(enviadasOk);
 actualizarPrecio();
 actualizarBadgeGuardadas();
 actualizarResumenGuardadas();

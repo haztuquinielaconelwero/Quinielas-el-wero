@@ -216,7 +216,7 @@ VENDEDOR_PIN = {
     "Taliban":      "6881",
     "•":            "1379",
 }
-# ── Esto de abajo trabaja en el direccionario de los vendedores ────────────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja en el diccionario de los vendedores ────────────────────────────────────────────────────────────────────────────────
 VENDEDOR_WHATSAPP = {
     "Alexander":    "5218287683709",
     "Alfonso":      "5218186589145",
@@ -765,7 +765,7 @@ def validarpin():
 
     return jsonify({"valido": False, "mensaje": "PIN incorrecto"}), 401
 
-# ── Esto de abajo trabaja con la api de las quinielas del vendedor en admintrador ─────────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con la api de las quinielas del vendedor en administrador ─────────────────────────────────────────────────────────────────────────────
 @app.route("/api/quinielasdelvendedor")
 def quinielasdelvendedor():
     vendedor = (request.args.get("vendedor") or "").strip()

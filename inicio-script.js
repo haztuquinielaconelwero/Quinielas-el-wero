@@ -112,7 +112,7 @@ this.card.classList.add("critical");
 }}};
 /* =============                                Esto de abajo trabaja en la identidad del cliente                                       ============================ */
 const IdentidadCliente = {
-APIBASE: window.location.hostname === "localhost" ? "http://localhost:8000" : "https://www.quinielaselwero.com",
+API_REGISTRO: "/api/registrodeclientes",
 STORAGE_KEY_IDENTIDAD: "quinielasElWero_identidad",
 STORAGE_KEY_DISPOSITIVO: "quinielasElWero_dispositivoId",
 modal: document.getElementById("modalBienvenida"),
@@ -152,7 +152,7 @@ return;
 }
 const dispositivoId = this.leerDispositivoId();
 try {
-const res = await fetch(`${this.APIBASE}/api/registrodeclientes`, {
+const res = await fetch(this.API_REGISTRO, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
 body: JSON.stringify({ dispositivo_id: dispositivoId, nombrecelular: valor })

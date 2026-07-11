@@ -105,6 +105,34 @@ def lista_oficial():
             UNIQUE (partidos,resultados)
         );
     """)
+# ── Esto de abajo trabaja con la tabla de registro de clientes ───────────────────────────────────────────────────────────────────────────────────────────────
+def crear_tablas():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS todaslasquinielas (
+            ...
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS resultadosdelajornada (
+            "partidos" INTEGER NOT NULL,
+            "resultados" VARCHAR(100) NOT NULL,
+            resultado CHAR(1) CHECK (resultado IN ('L','E','V')),
+            marcador_local INTEGER,
+            marcador_visita INTEGER,
+            fecha_actualizacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+            UNIQUE (partidos,resultados)
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS clientes (
+            id SERIAL PRIMARY KEY,
+            dispositivo_id VARCHAR(100) UNIQUE NOT NULL,
+            nombrecelular VARCHAR(100) NOT NULL,
+            fecha_registro TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City')
+        );
+    """)
 
     conn.commit()
     cur.close()
@@ -540,7 +568,7 @@ def registrodeclientes():
         logger.error("registrodeclientes: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
     
-    
+
 @app.route('/')
 def home():
     return send_from_directory('.', 'inicio.html')

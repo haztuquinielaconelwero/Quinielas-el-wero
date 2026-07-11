@@ -52,6 +52,7 @@ headers: { "Content-Type": "application/json" },
 body: JSON.stringify({ vendedor, pin: pinActual })
 }, 10000);
 const data = await response.json();
+console.log("📩 Respuesta del servidor:", JSON.stringify(data));
 if (data.valido) {
 sessionStorage.setItem("adm_vendedor", data.vendedor);
 _ocultarError();

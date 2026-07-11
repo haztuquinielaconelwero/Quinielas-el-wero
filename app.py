@@ -110,11 +110,6 @@ def crear_tablas():
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS todaslasquinielas (
-            ...
-        );
-    """)
-    cur.execute("""
         CREATE TABLE IF NOT EXISTS resultadosdelajornada (
             "partidos" INTEGER NOT NULL,
             "resultados" VARCHAR(100) NOT NULL,

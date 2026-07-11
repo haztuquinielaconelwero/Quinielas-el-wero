@@ -27,7 +27,7 @@ def crear_tablas():
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS 'todaslasquinielas' (
+        CREATE TABLE IF NOT EXISTS todaslasquinielas (
             id SERIAL PRIMARY KEY,
             nombrecelular VARCHAR(100) NOT NULL,
             nombrequiniela VARCHAR(100) NOT NULL,
@@ -67,7 +67,7 @@ def crear_tablas():
             marcador_local INTEGER,
             marcador_visita INTEGER,
             fecha_actualizacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
-            UNIQUE ('partidos','resultados')
+            UNIQUE (partidos,resultados)
         );
     """)
 

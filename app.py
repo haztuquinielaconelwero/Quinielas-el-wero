@@ -20,10 +20,12 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL no esta configurada en las variables de entorno de Railway")
 
+
 def get_connection():
     return psycopg.connect(DATABASE_URL)
 
-# ── Esto de abajo trabaja con la tabla de Todas las quinielas ──────────────────────────────────────────────────────────────────────────────────────────
+
+# ── Esto de abajo trabaja con la creacion de todas las tablas  ──────────────────────────────────────────────────────────────────────
 def crear_tablas():
     conn = get_connection()
     cur = conn.cursor()
@@ -58,59 +60,9 @@ def crear_tablas():
             )
         );
     """)
-# ── Esto de abajo trabaja con la tabla de la Lista oficial ──────────────────────────────────────────────────────────────────────────────────────────
-@app.route("/api/lista-oficial")
-def lista_oficial():
-    jornada = request.args.get("jornada", JORNADA_ACTUAL)
-
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    SELECT id, folio, nombrequiniela, vendedor,
-                           p1, p2, p3, p4, p5, p6, p7, p8, p9
-                    FROM todaslasquinielas
-                    WHERE estado = 'Jugando'
-                      AND jornada = %s
-                    ORDER BY folio::int ASC;
-                """, (jornada,))
-                filas = cur.fetchall()
-
-        quinielas = []
-        for row in filas:
-            id_, folio, nombre, vendedor, p1, p2, p3, p4, p5, p6, p7, p8, p9 = row
-            quinielas.append({
-                "id": id_,
-                "folio": folio,
-                "nombre": nombre,
-                "vendedor": vendedor,
-                "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
-            })
-
-        return jsonify({"quinielas": quinielas})
-
-    except Exception as exc:
-        logger.error("lista_oficial: error -> %s", exc)
-        return jsonify({"quinielas": [], "error": str(exc)}), 500
-# ── Esto de abajo trabaja con la tabla de la Api de Espn ───────────────────────────────────────────────────────────────────────────────────────────────
     cur.execute("""
         CREATE TABLE IF NOT EXISTS resultadosdelajornada (
             id SERIAL PRIMARY KEY,
-            "partidos" INTEGER NOT NULL,
-            "resultados" VARCHAR(100) NOT NULL,
-            resultado CHAR(1) CHECK (resultado IN ('L','E','V')),
-            marcador_local INTEGER,
-            marcador_visita INTEGER,
-            fecha_actualizacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
-            UNIQUE (partidos,resultados)
-        );
-    """)
-# ── Esto de abajo trabaja con la tabla de registro de clientes ───────────────────────────────────────────────────────────────────────────────────────────────
-def crear_tablas():
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS resultadosdelajornada (
             "partidos" INTEGER NOT NULL,
             "resultados" VARCHAR(100) NOT NULL,
             resultado CHAR(1) CHECK (resultado IN ('L','E','V')),
@@ -128,10 +80,11 @@ def crear_tablas():
             fecha_registro TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City')
         );
     """)
-
     conn.commit()
     cur.close()
     conn.close()
+
+
 # ── Esto de abajo trabaja con la informacion de la Jornada ───────────────────────────────────────────────────────────────────────────────────────────────
 JORNADA_ACTUAL = "Jornada 1"
 PARTIDOS = [
@@ -226,7 +179,116 @@ if _total_especiales > len(PARTIDOS):
         f"MAX_DOBLES ({MAX_DOBLES}) + MAX_TRIPLES ({MAX_TRIPLES}) = "
         f"{_total_especiales} excede el numero de partidos ({len(PARTIDOS)})"
     )
-# ── Ligas en total ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────                                        
+# ── Esto de abajo trabaja en el direccionario de pins de los vendedores────────────────────────────────────────────────────────────────────────────────
+VENDEDOR_PIN = {
+    "Alexander":    "0229",
+    "Alfonso":      "1977",
+    "Azael":        "1895",
+    "Boosters":     "8106",
+    "Caro":         "0511",
+    "Checo":        "3019",
+    "Choneke":      "2323",
+    "Dani":         "1728",
+    "Del Angel":    "4635",
+    "El Piojo":     "2052",
+    "Energeticos":  "1707",
+    "Ever":         "1821",
+    "Fer":          "1111",
+    "Figueroa":     "1378",
+    "Gera":         "2115",
+    "GioSoto":      "1788",
+    "Guerrero":     "1187",
+    "Javier Garcia":"2014",
+    "Jose Luis":    "1682",
+    "Juan de Dios": "1083",
+    "Juanillo":     "1739",
+    "Kany":         "2177",
+    "Manu":         "5525",
+    "Marchan":      "1226",
+    "Mazatan":      "1213",
+    "Memo":         "1976",
+    "Pantoja":      "5429",
+    "Patty":        "2012",
+    "Piny":         "1234",
+    "PolloGol":     "1234",
+    "Ranita":       "2307",
+    "Rolando":      "1982",
+    "Taliban":      "6881",
+    "•":            "1379",
+}
+# ── Esto de abajo trabaja en el direccionario de los vendedores ────────────────────────────────────────────────────────────────────────────────
+VENDEDOR_WHATSAPP = {
+    "Alexander":    "5218287683709",
+    "Alfonso":      "5218186589145",
+    "Azael":        "5218120708453",
+    "Boosters":     "5218121942047",
+    "Caro":         "5215584076984",
+    "Checo":        "5218281186921",
+    "Choneke":      "5218138834830",
+    "Dani":         "5218282942378",
+    "Del Angel":    "5218117456805",
+    "El Piojo":     "5218118004801",
+    "Energeticos":  "5218281432464",
+    "Ever":         "5218117299742",
+    "Fer":          "5218281317783",
+    "Figueroa":     "5218334077675",
+    "Gera":         "5218182523537",
+    "GioSoto":      "5218116911526",
+    "Guerrero":     "5217206346990",
+    "Javier Garcia":"5218281148922",
+    "Jose Luis":    "5218113153788",
+    "Juanillo":     "5218136984024",
+    "Kany":         "5218281007191",
+    "Manu":         "5213111359115",
+    "Marchan":      "5218281007640",
+    "Mazatan":      "5218136280437",
+    "Memo":         "5218284577005",
+    "Pantoja":      "5218117027387",
+    "Patty":        "5218281016489",
+    "PolloGol":     "5218125728071",
+    "Piny":         "5218282941357",
+    "Ranita":       "5218281432398",
+    "Rolando":      "5214891009110",
+    "Taliban":      "5218287685754",
+    "•":            "5218281011650",
+}
+# ── Esto de abajo trabaja en los links de cada vendedor────────────────────────────────────────────────────────────────────────────────
+VENDEDOR_LINKS = {
+    "Alexander":    "https://www.quinielaselwero.com/?vendedor=Alexander",
+    "Alfonso":      "https://www.quinielaselwero.com/?vendedor=Alfonso",
+    "Azael":        "https://www.quinielaselwero.com/?vendedor=Azael",
+    "Boosters":     "https://www.quinielaselwero.com/?vendedor=Boosters",
+    "Caro":         "https://www.quinielaselwero.com/?vendedor=Caro",
+    "Checo":        "https://www.quinielaselwero.com/?vendedor=Checo",
+    "Choneke":      "https://www.quinielaselwero.com/?vendedor=Choneke",
+    "Dani":         "https://www.quinielaselwero.com/?vendedor=Dani",
+    "Del Angel":    "https://www.quinielaselwero.com/?vendedor=Del+Angel",
+    "El Piojo":     "https://www.quinielaselwero.com/?vendedor=El+Piojo",
+    "Energeticos":  "https://www.quinielaselwero.com/?vendedor=Energeticos",
+    "Ever":         "https://www.quinielaselwero.com/?vendedor=Ever",
+    "Fer":          "https://www.quinielaselwero.com/?vendedor=Fer",
+    "Figueroa":     "https://www.quinielaselwero.com/?vendedor=Figueroa",
+    "Gera":         "https://www.quinielaselwero.com/?vendedor=Gera",
+    "GioSoto":      "https://www.quinielaselwero.com/?vendedor=GioSoto",
+    "Guerrero":     "https://www.quinielaselwero.com/?vendedor=Guerrero",
+    "Javier Garcia":"https://www.quinielaselwero.com/?vendedor=Javier+Garcia",
+    "Jose Luis":    "https://www.quinielaselwero.com/?vendedor=Jose+Luis",
+    "Juanillo":     "https://www.quinielaselwero.com/?vendedor=Juanillo",
+    "Kany":         "https://www.quinielaselwero.com/?vendedor=Kany",
+    "Manu":         "https://www.quinielaselwero.com/?vendedor=Manu",
+    "Marchan":      "https://www.quinielaselwero.com/?vendedor=Marchan",
+    "Mazatan":      "https://www.quinielaselwero.com/?vendedor=Mazatan",
+    "Memo":         "https://www.quinielaselwero.com/?vendedor=Memo",
+    "Pantoja":      "https://www.quinielaselwero.com/?vendedor=Pantoja",
+    "Patty":        "https://www.quinielaselwero.com/?vendedor=Patty",
+    "Piny":         "https://www.quinielaselwero.com/?vendedor=Piny",
+    "PolloGol":     "https://www.quinielaselwero.com/?vendedor=PolloGol",
+    "Ranita":       "https://www.quinielaselwero.com/?vendedor=Ranita",
+    "Rolando":      "https://www.quinielaselwero.com/?vendedor=Rolando",
+    "Taliban":      "https://www.quinielaselwero.com/?vendedor=Taliban",
+    "•":            "https://www.quinielaselwero.com/?vendedor=%E2%80%A2",
+}
+# ── Ligas en total ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 LIGAS_ESPN = {
     "bundesliga": "ger.1",
     "champions":  "uefa.champions",
@@ -238,7 +300,7 @@ LIGAS_ESPN = {
     "mundial":    "fifa.world",
 }
 NOMBRE_A_ESPN = {
-# ── Liga Mx ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+# ── Liga Mx──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     "América":     ("América",                  "liga_mx"),
     "Atlas":       ("Atlas",                    "liga_mx"),
     "Chivas":      ("Guadalajara",              "liga_mx"),
@@ -257,65 +319,65 @@ NOMBRE_A_ESPN = {
     "Tigres":      ("Tigres UANL",              "liga_mx"),
     "Tijuana":     ("Club Tijuana",             "liga_mx"),
     "Toluca":      ("Toluca",                   "liga_mx"),
-# ── Premier League ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    "Arsenal":        ("Arsenal",                  "premier"),
-    "Aston Villa":    ("Aston Villa",              "premier"),
-    "Brighton":       ("Brighton & Hove Albion",   "premier"),
-    "Chelsea":        ("Chelsea",                  "premier"),
-    "Crystal":        ("Crystal Palace",           "premier"),
-    "Everton":        ("Everton",                  "premier"),
-    "Fulham":         ("Fulham",                   "premier"),
-    "Leeds":          ("Leeds United",             "premier"),
-    "Liverpool":      ("Liverpool",                "premier"),
-    "Man City":       ("Manchester City",          "premier"),
-    "Man Utd":        ("Manchester United",        "premier"),
-    "Newcastle":      ("Newcastle United",         "premier"),
-    "Forest":         ("Nottingham Forest",        "premier"),
-    "Tottenham":      ("Tottenham Hotspur",        "premier"),
-    "West Ham":       ("West Ham United",          "premier"),
-    "Wolves":         ("Wolverhampton Wanderers",  "premier"),
-# ── La Liga ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+# ──Premier League──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    "Arsenal":     ("Arsenal",                  "premier"),
+    "Aston Villa": ("Aston Villa",              "premier"),
+    "Brighton":    ("Brighton & Hove Albion",   "premier"),
+    "Chelsea":     ("Chelsea",                  "premier"),
+    "Crystal":     ("Crystal Palace",           "premier"),
+    "Everton":     ("Everton",                  "premier"),
+    "Fulham":      ("Fulham",                   "premier"),
+    "Leeds":       ("Leeds United",             "premier"),
+    "Liverpool":   ("Liverpool",                "premier"),
+    "Man City":    ("Manchester City",          "premier"),
+    "Man Utd":     ("Manchester United",        "premier"),
+    "Newcastle":   ("Newcastle United",         "premier"),
+    "Forest":      ("Nottingham Forest",        "premier"),
+    "Tottenham":   ("Tottenham Hotspur",        "premier"),
+    "West Ham":    ("West Ham United",          "premier"),
+    "Wolves":      ("Wolverhampton Wanderers",  "premier"),
+# ──La Liga──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     "Athletic":    ("Athletic Club",            "la_liga"),
     "Atlético":    ("Atletico de Madrid",       "la_liga"),
     "Barcelona":   ("Barcelona",                "la_liga"),
     "Betis":       ("Real Betis",               "la_liga"),
     "Espanyol":    ("Espanyol",                 "la_liga"),
-    "Real M":     ("Real Madrid",              "la_liga"),
+    "Real M":      ("Real Madrid",              "la_liga"),
     "Sevilla":     ("Sevilla",                  "la_liga"),
     "Sociedad":    ("Real Sociedad",            "la_liga"),
     "Valencia":    ("Valencia",                 "la_liga"),
     "Villarreal":  ("Villarreal",               "la_liga"),
-    # ── Bundesliga ───────────────────────────────────────────────────
+# ──La Bundesliga───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     "Bayern":      ("Bayern Munich",            "bundesliga"),
     "Dortmund":    ("Borussia Dortmund",        "bundesliga"),
     "Frankfurt":   ("Eintracht Frankfurt",      "bundesliga"),
     "Leipzig":     ("RB Leipzig",               "bundesliga"),
     "Leverkusen":  ("Bayer Leverkusen",         "bundesliga"),
-    # ── Serie A ──────────────────────────────────────────────────────
+# ──Serie A─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     "Inter":       ("Inter Milan",              "serie_a"),
     "Juventus":    ("Juventus",                 "serie_a"),
     "Lazio":       ("Lazio",                    "serie_a"),
     "Milan":       ("AC Milan",                 "serie_a"),
     "Napoli":      ("Napoli",                   "serie_a"),
     "Roma":        ("AS Roma",                  "serie_a"),
-    # ── Ligue 1 ──────────────────────────────────────────────────────
+# ──La Ligue 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     "Marsella":    ("Marseille",                "ligue_1"),
     "Monaco":      ("Monaco",                   "ligue_1"),
     "PSG":         ("Paris Saint-Germain",      "ligue_1"),
-    # ── Selecciones Nacionales ───────────────────────────────────────
+# ──Mundial ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     "Alemania":      ("Germany",                "mundial"),
     "Arabia":        ("Saudi Arabia",           "mundial"),
-    "Argelia":       ("Algeria",                "mundial"),   
-    "Argentina":     ("Argentina",              "mundial"),   
-    "Austria":       ("Austria",                "mundial"), 
+    "Argelia":       ("Algeria",                "mundial"),
+    "Argentina":     ("Argentina",              "mundial"),
+    "Austria":       ("Austria",                "mundial"),
     "Australia":     ("Australia",              "mundial"),
     "Belgica":       ("Belgium",                "mundial"),
-    "Bosnia":        ("Bosnia-Herzegovina",     "mundial"), 
+    "Bosnia":        ("Bosnia-Herzegovina",     "mundial"),
     "Brasil":        ("Brazil",                 "mundial"),
     "Cabo Verde":    ("Cape Verde",             "mundial"),
     "Chequia":       ("Czechia",                "mundial"),
     "Colombia":      ("Colombia",               "mundial"),
-    "Congo":         ("Congo DR",               "mundial"),   
+    "Congo":         ("Congo DR",               "mundial"),
     "Corea Sur":     ("South Korea",            "mundial"),
     "Costa Marfil":  ("Ivory Coast",            "mundial"),
     "Croacia":       ("Croatia",                "mundial"),
@@ -326,7 +388,7 @@ NOMBRE_A_ESPN = {
     "Eua":           ("United States",          "mundial"),
     "Francia":       ("France",                 "mundial"),
     "Ghana":         ("Ghana",                  "mundial"),
-    "Inglaterra":    ("England",                "mundial"),  
+    "Inglaterra":    ("England",                "mundial"),
     "Iran":          ("Iran",                   "mundial"),
     "Japon":         ("Japan",                  "mundial"),
     "Marruecos":     ("Morocco",                "mundial"),
@@ -335,7 +397,7 @@ NOMBRE_A_ESPN = {
     "Paises Bajos":  ("Netherlands",            "mundial"),
     "Paraguay":      ("Paraguay",               "mundial"),
     "Portugal":      ("Portugal",               "mundial"),
-    "Senegal":       ("Senegal",                "mundial"), 
+    "Senegal":       ("Senegal",                "mundial"),
     "Sudafrica":     ("South Africa",           "mundial"),
     "Suecia":        ("Sweden",                 "mundial"),
     "Suiza":         ("Switzerland",            "mundial"),
@@ -344,10 +406,12 @@ NOMBRE_A_ESPN = {
     "Uruguay":       ("Uruguay",                "mundial"),
 }
 
+
 def _normalizar_nombre(nombre):
     nombre = (nombre or "").strip().lower()
     nombre = unicodedata.normalize("NFD", nombre)
     return "".join(c for c in nombre if unicodedata.category(c) != "Mn")
+
 
 def _parsear_eventos_espn(data, local_lookup, ids_listos):
     encontrados = []
@@ -379,6 +443,7 @@ def _parsear_eventos_espn(data, local_lookup, ids_listos):
             encontrados.append((pid, gh, ga, res))
     return encontrados
 
+
 def _construir_lookups():
     kickoff_por_id = {}
     for p in PARTIDOS:
@@ -409,7 +474,9 @@ def _construir_lookups():
             local_lookup[_normalizar_nombre(p["local"])] = pid
             logger.warning("'%s' no esta en NOMBRE_A_ESPN, usando nombre directo", p["local"])
     return kickoff_por_id, local_lookup, liga_fecha_ids
-# ── Consultas a resultadosdelajornada usando las columnas nuevas: "partidos" y "resultados"  ─────────────────────────────────────────────────────── 
+
+
+# ── Consultas a resultadosdelajornada usando las columnas nuevas: "partidos" y "resultados"  ───────────────────────────────────────────────────
 def _get_ids_con_resultado(jornada, ids):
     if not ids:
         return set()
@@ -420,6 +487,7 @@ def _get_ids_con_resultado(jornada, ids):
                 (jornada, list(ids)),
             )
             return {r[0] for r in cur.fetchall()}
+
 
 def _guardar_resultado(pid, gh, ga, res):
     with get_connection() as conn:
@@ -516,7 +584,9 @@ def iniciar_auto_sync():
         hilo.start()
         _sync_iniciado = True
         logger.info("Hilo auto_sync lanzado en background")
-# ── Inicializacion al arrancar el servicior  ─────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+
+
+# ── Inicializacion al arrancar el servicio  ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 try:
     crear_tablas()
 except Exception as exc:
@@ -524,7 +594,8 @@ except Exception as exc:
 
 iniciar_auto_sync()
 
-# ── Esto de abajo trabaja con la api de registrodeclientes  ─────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+
+# ── Esto de abajo trabaja con la api de registrodeclientes  ─────────────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/registrodeclientes", methods=["POST"])
 def registrodeclientes():
     data = request.get_json(silent=True) or {}
@@ -562,15 +633,174 @@ def registrodeclientes():
     except Exception as exc:
         logger.error("registrodeclientes: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
+
+
+# ── Esto de abajo trabaja con la api de vendedores  ──────────────────────────────────────────────────────────────────────────────────────────────────
+@app.route("/api/vendedores")
+def api_vendedores():
+    return jsonify({"success": True, "vendedores": VENDEDOR_WHATSAPP})
+
+
+# ── Esto de abajo trabaja con la api de enviar la quiniela por whatsapp  ────────────────────────────────────────────────────────────────────────────
+@app.route("/api/enviarlaquinielaporwhatsapp", methods=["POST"])
+def enviarlaquinielaporwhatsapp():
+    data = request.get_json(silent=True) or {}
+    nombrecelular = (data.get("nombrecelular") or "").strip()
+    nombrequiniela = (data.get("nombrequiniela") or "").strip()
+    vendedor = (data.get("vendedor") or "El Wero").strip()
+    jornada = (data.get("jornada") or JORNADA_ACTUAL).strip()
+    selecciones = data.get("selecciones") or {}
+
+    if not nombrecelular or not nombrequiniela or not selecciones:
+        return jsonify({"success": False, "mensaje": "Faltan datos"}), 400
+
+    picks = []
+    for p in PARTIDOS:
+        pick = selecciones.get(str(p["id"])) or selecciones.get(p["id"])
+        if not pick or pick not in ("L", "E", "V"):
+            return jsonify({"success": False, "mensaje": f"Falta seleccion en partido {p['id']}"}), 400
+        picks.append(pick)
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO todaslasquinielas
+                        (nombrecelular, nombrequiniela, vendedor, jornada,
+                         p1, p2, p3, p4, p5, p6, p7, p8, p9)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (llavemaestra) DO NOTHING
+                    RETURNING id;
+                    """,
+                    (nombrecelular, nombrequiniela, vendedor, jornada, *picks),
+                )
+                fila = cur.fetchone()
+            conn.commit()
+
+        if fila is None:
+            return jsonify({"success": False, "mensaje": "Esta quiniela ya fue enviada anteriormente"}), 409
+
+        return jsonify({"success": True, "id": fila[0]})
+
+    except Exception as exc:
+        logger.error("enviarlaquinielaporwhatsapp: error -> %s", exc)
+        return jsonify({"success": False, "mensaje": str(exc)}), 500
+
+
+# ── Esto de abajo trabaja con la api de verificar registro de clientes  ──────────────────────────────────────────────────────────────────────────────
+@app.route("/api/verificarregistro")
+def verificarregistro():
+    dispositivo_id = (request.args.get("dispositivo_id") or "").strip()
+
+    if not dispositivo_id:
+        return jsonify({"registrado": False}), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT nombrecelular FROM clientes WHERE dispositivo_id = %s",
+                    (dispositivo_id,),
+                )
+                fila = cur.fetchone()
+
+        if fila is None:
+            return jsonify({"registrado": False})
+
+        return jsonify({"registrado": True, "nombrecelular": fila[0]})
+
+    except Exception as exc:
+        logger.error("verificarregistro: error -> %s", exc)
+        return jsonify({"registrado": False, "mensaje": str(exc)}), 500
+
+
+# ── Esto de abajo trabaja con la api de la lista oficial  ───────────────────────────────────────────────────────────────────────────────────────────
+@app.route("/api/lista-oficial")
+def lista_oficial():
+    jornada = request.args.get("jornada", JORNADA_ACTUAL)
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT id, folio, nombrequiniela, vendedor,
+                           p1, p2, p3, p4, p5, p6, p7, p8, p9
+                    FROM todaslasquinielas
+                    WHERE estado = 'Jugando'
+                      AND jornada = %s
+                    ORDER BY folio::int ASC;
+                """, (jornada,))
+                filas = cur.fetchall()
+
+        quinielas = []
+        for row in filas:
+            id_, folio, nombre, vendedor, p1, p2, p3, p4, p5, p6, p7, p8, p9 = row
+            quinielas.append({
+                "id": id_,
+                "folio": folio,
+                "nombre": nombre,
+                "vendedor": vendedor,
+                "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
+            })
+
+        return jsonify({"quinielas": quinielas})
+
+    except Exception as exc:
+        logger.error("lista_oficial: error -> %s", exc)
+        return jsonify({"quinielas": [], "error": str(exc)}), 500
+
+# ── Esto de abajo trabaja con la api de validad pin de los vendedores ───────────────────────────────────────────────────────────────────────────────────────────
+@app.route("/api/validarpin", methods=["POST"])
+def validarpin():
+    data = request.get_json(silent=True) or {}
+    vendedor = (data.get("vendedor") or "").strip()
+    pin = (data.get("pin") or "").strip()
+
+    if vendedor not in VENDEDOR_WHATSAPP:
+        return jsonify({"valido": False, "mensaje": "Vendedor no reconocido"}), 400
+
+    if VENDEDOR_PIN.get(vendedor) == pin:
+        return jsonify({"valido": True, "vendedor": vendedor})
+
+    return jsonify({"valido": False, "mensaje": "PIN incorrecto"}), 401
+
+# ── Esto de abajo trabaja con la api de las quinielas del vendedor en admintrador ─────────────────────────────────────────────────────────────────────────────
+@app.route("/api/quinielasdelvendedor")
+def quinielasdelvendedor():
+    vendedor = (request.args.get("vendedor") or "").strip()
+    if vendedor not in VENDEDOR_WHATSAPP:
+        return jsonify({"success": False, "mensaje": "Vendedor no valido"}), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """SELECT id, nombrecelular, nombrequiniela, jornada, estado, folio,
+                              p1,p2,p3,p4,p5,p6,p7,p8,p9
+                       FROM todaslasquinielas
+                       WHERE vendedor = %s
+                       ORDER BY fecha_creacion DESC;""",
+                    (vendedor,),
+                )
+                filas = cur.fetchall()
+        return jsonify({"success": True, "quinielas": [dict(zip(
+            ["id","nombrecelular","nombrequiniela","jornada","estado","folio","p1","p2","p3","p4","p5","p6","p7","p8","p9"], f
+        )) for f in filas]})
+    except Exception as exc:
+        logger.error("quinielasdelvendedor: error -> %s", exc)
+        return jsonify({"success": False, "mensaje": str(exc)}), 500
     
 
 @app.route('/')
 def home():
     return send_from_directory('.', 'inicio.html')
 
+
 @app.route('/<path:filename>')
 def serve_file(filename):
     return send_from_directory('.', filename)
+
 
 @app.route("/health")
 def health():

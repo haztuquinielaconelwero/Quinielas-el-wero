@@ -36,8 +36,37 @@ return sessionStorage.getItem("adm_vendedor") || null;
 const PinAdmin = (() => {
 let pinActual = "";
 const LONGITUD_PIN = 4;
-const PIN_EJEMPLO = "1379";
-const VENDEDOR_EJEMPLO = "El Wero";
+async function _validarPin() {
+const vendedor = new URLSearchParams(window.location.search).get("vendedor");
+if (!vendedor) {
+_mostrarError();
+pinActual = "";
+_actualizarDots();
+return;
+}
+try {
+const url = apiUrl("api/validarpin");
+const response = await _fetchConTimeout(url, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ vendedor, pin: pinActual })
+}, 10000);
+const data = await response.json();
+if (data.valido) {
+sessionStorage.setItem("adm_vendedor", data.vendedor);
+_ocultarError();
+_mostrarPanel();
+} else {
+pinActual = "";
+_actualizarDots();
+_mostrarError();
+}
+} catch (err) {
+pinActual = "";
+_actualizarDots();
+showToast("Error de conexión al validar PIN", "error");
+}
+}
 const TOQUES_NECESARIOS = 5;
 const VENTANA_MS = 3000;
 let _contadorToques = 0;

@@ -14,10 +14,13 @@ const PARTIDOS = [
 ];
 /* =====================================  Esto de abajo trabaja en donde encontrar las quinielas , precio y maximo de dobles y triples         ======================= */
 const STORAGE_KEY = "quinielasElWero_guardadas";
+const nombreCelularActual = localStorage.getItem("quinielasElWero_nombreCelular") || "";
 const OPCIONES = ["L", "E", "V"];
 const PRECIO_UNITARIO = 30;
 const MAX_DOBLES = 3;
 const MAX_TRIPLES = 3;
+const APIBASE = window.location.hostname === "localhost" ? "http://localhost:8000" : "https://quinielas-el-wero-production.up.railway.app";
+let VENDEDOR_WHATSAPP = {};
 const estado = {
 selecciones: {},
 get nombre() {
@@ -309,45 +312,107 @@ notificar("Resultados subidos nuevamente. Escribe otro nombre para guardar esta 
 function abrirModalReglamento() {
 abrirModal("modalReglamento");
 }
+/* =====================================             Esto de abajo trabaja en cargar los vendedores desde el servidor              ======================= */
+async function cargarVendedores() {
+try {
+const res = await fetch(`${APIBASE}/api/vendedores`);
+const data = await res.json();
+if (data.success) VENDEDOR_WHATSAPP = data.vendedores;
+} catch (err) {
+console.error("No se pudieron cargar los vendedores", err);
+}
+}
 /* =====================================             Esto de abajo trabaja con el envio de la quiniela                                         ======================= */
-const STORAGE_KEY_ENVIADAS = "quinielasElWero_enviadas";
-function leerEnviadas() {
-try { return JSON.parse(localStorage.getItem(STORAGE_KEY_ENVIADAS)) ?? []; }
-catch { return []; }
-}
-function escribirEnviadas(arr) {
-localStorage.setItem(STORAGE_KEY_ENVIADAS, JSON.stringify(arr));
-}
 function enviarQuiniela() {
 const guardadas = leerStorage();
-if (guardadas.length === 0) {
-tarjetaroja("No tienes quinielas guardadas para enviar.");
-return;
+if (guardadas.length === 0) { tarjetaroja("No tienes quinielas guardadas para enviar."); return; }
+const precio = guardadas.length * PRECIO_UNITARIO;
+document.getElementById("confirmCantidad").textContent = `${guardadas.length} quiniela${guardadas.length > 1 ? "s" : ""} guardada${guardadas.length > 1 ? "s" : ""}`;
+document.getElementById("confirmPrecio").textContent = `$${precio}`;
+abrirModal("modalConfirmarEnvio");
 }
+function cancelarEnvio() {
+cerrarModal("modalConfirmarEnvio");
+}
+async function confirmarEnvioAlServidor() {
+const guardadas = leerStorage();
+if (guardadas.length === 0) return;
+cerrarModal("modalConfirmarEnvio");
 const overlay = document.getElementById("overlayEnvio");
+const contador = document.getElementById("progresoContador");
 overlay.hidden = false;
-setTimeout(() => {
-overlay.hidden = true;
-const enviadas = leerEnviadas();
-guardadas.forEach((q) => {
-enviadas.push({
-id: Date.now() + Math.floor(Math.random() * 1000),
-nombre: q.nombre,
+contador.textContent = `0 de ${guardadas.length}`;
+const enviadasOk = [];
+try {
+for (let i = 0; i < guardadas.length; i++) {
+const q = guardadas[i];
+const res = await fetch(`${APIBASE}/api/enviarlaquinielaporwhatsapp`, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+nombrecelular: nombreCelularActual || q.nombre,
+nombrequiniela: q.nombre,
 vendedor: q.vendedor || "El Wero",
 jornada: q.jornada || "Jornada 1",
-selecciones: { ...q.selecciones },
-estado: "no-jugando",
-puntos: 0
+selecciones: q.selecciones
+})
 });
-});
-escribirEnviadas(enviadas);
+const data = await res.json();
+if (!res.ok || !data.success) { throw new Error(data.mensaje || "Error al enviar al servidor"); }
+enviadasOk.push(q);
+contador.textContent = `${i + 1} de ${guardadas.length}`;
+await new Promise(r => setTimeout(r, 350));
+}
 escribirStorage([]);
-actualizarPrecio();           
-actualizarBadgeGuardadas();    
-actualizarResumenGuardadas();  
-cerrarTodosModales();
-notificar(`¡${guardadas.length} quiniela(s) enviada(s) con éxito! Mucha suerte.`, "exito");
-}, 2200);
+actualizarPrecio();
+actualizarBadgeGuardadas();
+actualizarResumenGuardadas();
+overlay.hidden = true;
+mostrarModalListo(enviadasOk, precioTotal(enviadasOk));
+} catch (err) {
+overlay.hidden = true;
+tarjetaroja("Hubo un error al enviar tus quinielas. Intenta de nuevo.");
+console.error(err);
+}
+}
+function precioTotal(arr) {
+return arr.length * PRECIO_UNITARIO;
+}
+function mostrarModalListo(quinielas, precio) {
+document.getElementById("listoCantidad").textContent = quinielas.length;
+document.getElementById("listoPrecio").textContent = `$${precio}`;
+window._quinielasEnviadasParaWhatsApp = quinielas;
+window._precioEnviadoParaWhatsApp = precio;
+abrirModal("modalEnvioListo");
+}
+function construirMensajeWhatsApp(quinielas, precio) {
+let mensaje = "";
+quinielas.forEach((q, idx) => {
+mensaje += `*${q.nombre}*\n`;
+PARTIDOS.forEach((p, i) => {
+const sel = q.selecciones[p.id];
+const letra = Array.isArray(sel) ? sel.join("/") : sel || "-";
+mensaje += `P${i + 1} ${letra}\n`;
+});
+if (idx < quinielas.length - 1) mensaje += "\n";
+});
+mensaje += "\n---------------------------------\n";
+mensaje += `Total de quinielas: ${quinielas.length} quiniela${quinielas.length > 1 ? "s" : ""}\n`;
+mensaje += `A pagar: $${precio}\n\n`;
+mensaje += "En unos momentos te envío el comprobante";
+return mensaje;
+}
+function enviarAWhatsApp() {
+const quinielas = window._quinielasEnviadasParaWhatsApp || [];
+const precio = window._precioEnviadoParaWhatsApp || 0;
+if (quinielas.length === 0) return;
+const vendedorNombre = quinielas[0]?.vendedor || "El Wero";
+const numeroVendedor = VENDEDOR_WHATSAPP[vendedorNombre];
+if (!numeroVendedor) { tarjetaroja("No se encontró el número del vendedor."); return; }
+const mensaje = construirMensajeWhatsApp(quinielas, precio);
+const url = `https://wa.me/${numeroVendedor}?text=${encodeURIComponent(mensaje)}`;
+window.open(url, "_blank");
+cerrarModal("modalEnvioListo");
 }
 /* =====================================   Esto de abajo trabaja en mostrar las notificaciones                                        ======================= */
 function notificar(mensaje, tipo = "info") {
@@ -385,7 +450,7 @@ const overlay = document.getElementById(id);
 if (overlay) overlay.hidden = true;
 }
 function cerrarTodosModales() {
-["modalReglamento", "modalGuardadas"].forEach(cerrarModal);
+["modalReglamento", "modalGuardadas", "modalConfirmarEnvio", "modalEnvioListo"].forEach(cerrarModal);
 }
 function marcarErrorNombre() {
 const input = document.getElementById("nombreInput");
@@ -422,6 +487,9 @@ document.getElementById("btnBorrar")?.addEventListener("click", borrarQuiniela);
 document.getElementById("btnAleatoria")?.addEventListener("click", seleccionAleatoria);
 document.getElementById("btnGuardadas")?.addEventListener("click", abrirModalGuardadas);
 document.getElementById("btnEnviar")?.addEventListener("click", enviarQuiniela);
+document.getElementById("btnCancelarEnvio")?.addEventListener("click", cancelarEnvio);
+document.getElementById("btnConfirmarEnvio")?.addEventListener("click", confirmarEnvioAlServidor);
+document.getElementById("btnEnviarWhatsApp")?.addEventListener("click", enviarAWhatsApp);
 document.querySelectorAll("[data-close]").forEach((btn) => {
 btn.addEventListener("click", () => cerrarModal(btn.dataset.close));
 });
@@ -436,6 +504,7 @@ if (errEl) errEl.textContent = "";
 }
 /* =====================================   Esto de abajo trabaja en inicianizacion de nuestra quiniela                                       ======================= */
 document.addEventListener("DOMContentLoaded", () => {
+cargarVendedores();
 renderPartidos();
 actualizarPrecio();
 actualizarBadgeGuardadas();

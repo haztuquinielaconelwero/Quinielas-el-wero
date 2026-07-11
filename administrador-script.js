@@ -152,6 +152,12 @@ if (!overlay) {
 console.error("❌ #pinOverlay no existe en el HTML de esta página");
 return;
 }
+const params = new URLSearchParams(window.location.search);
+const vendedorURL = params.get("vendedor");
+const vendedorGuardado = localStorage.getItem("quinielasElWero_vendedorActual");
+const vendedor = vendedorURL || vendedorGuardado || "Vendedor";
+const pinVendorText = document.getElementById("pinVendorText");
+if (pinVendorText) pinVendorText.textContent = vendedor;
 pinActual = "";
 _actualizarDots();
 _ocultarError();

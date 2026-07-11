@@ -199,17 +199,6 @@ function _ocultarError() {
 const errorEl = document.getElementById("pinError");
 if (errorEl) errorEl.hidden = true;
 }
-async function _validarPin() {
-if (pinActual === PIN_EJEMPLO) {
-sessionStorage.setItem("adm_vendedor", VENDEDOR_EJEMPLO);
-_ocultarError();
-_mostrarPanel();
-} else {
-pinActual = "";
-_actualizarDots();
-_mostrarError();
-}
-}
 function _mostrarPanel() {
 cerrar();
 const page = document.getElementById("pageAdmin");

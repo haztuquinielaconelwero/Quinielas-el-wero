@@ -34,6 +34,16 @@ return Object.values(this.selecciones).filter((s) => s.length === 2).length;},
 get totalTriples() {
 return Object.values(this.selecciones).filter((s) => s.length === 3).length;}
 };
+function detectarVendedor() {
+const params = new URLSearchParams(window.location.search);
+const vendedorURL = params.get("vendedor");
+if (vendedorURL) {
+localStorage.setItem("quinielasElWero_vendedorActual", vendedorURL);
+return vendedorURL;
+}
+const guardado = localStorage.getItem("quinielasElWero_vendedorActual");
+return guardado || null;
+}
 /* =====================================       Esto de abajo trabaja formar la quiniela                                                      ======================= */
 function renderPartidos() {
 const grid = document.getElementById("listaPartidos");
@@ -134,8 +144,13 @@ function guardarQuiniela() {
 const nombre = estado.nombre;
 if (!nombre) { marcarErrorNombre(); tarjetaroja("Escribe tu nombre antes de continuar."); return; }
 if (!estado.completo) { notificar(`Faltan ${PARTIDOS.length - estado.total} partidos por seleccionar.`, "aviso"); return; }
+const vendedor = detectarVendedor();
+if (!vendedor) {
+tarjetaroja("No se detectó tu vendedor. Verifica tu link para poder añadir quinielas correctamente.");
+return;
+}
 const combos = generarCombinaciones(estado.selecciones);
-if (existeAlgunDuplicado(nombre, "El Wero", combos)) {
+if (existeAlgunDuplicado(nombre, vendedor, combos)) {
 tarjetaroja("Ya añadiste una quiniela con el mismo nombre y resultados, tu quiniela no fue guardada.");
 return;
 }
@@ -145,9 +160,9 @@ combos.forEach((combo, idx) => {
 quinielas.push({
 id: base + idx,
 nombre,
-vendedor: "El Wero",
+vendedor,
 jornada: "Jornada 1",
-firma: firmaBoleto(nombre, "El Wero", combo),
+firma: firmaBoleto(nombre, vendedor, combo),
 selecciones: combo
 });
 });
@@ -352,7 +367,7 @@ headers: { "Content-Type": "application/json" },
 body: JSON.stringify({
 nombrecelular: nombreCelularActual || q.nombre,
 nombrequiniela: q.nombre,
-vendedor: q.vendedor || "El Wero",
+vendedor: q.vendedor || detectarVendedor() || (() => { throw new Error("SIN_VENDEDOR"); })(),
 jornada: q.jornada || "Jornada 1",
 selecciones: q.selecciones
 })
@@ -371,7 +386,11 @@ overlay.hidden = true;
 mostrarModalListo(enviadasOk, precioTotal(enviadasOk));
 } catch (err) {
 overlay.hidden = true;
+if (err.message === "SIN_VENDEDOR") {
+tarjetaroja("Verifica tu link para poder añadir quinielas correctamente.");
+} else {
 tarjetaroja("Hubo un error al enviar tus quinielas. Intenta de nuevo.");
+}
 console.error(err);
 }
 }
@@ -406,7 +425,11 @@ function enviarAWhatsApp() {
 const quinielas = window._quinielasEnviadasParaWhatsApp || [];
 const precio = window._precioEnviadoParaWhatsApp || 0;
 if (quinielas.length === 0) return;
-const vendedorNombre = quinielas[0]?.vendedor || "El Wero";
+const vendedorNombre = quinielas[0]?.vendedor || detectarVendedor();
+if (!vendedorNombre) {
+tarjetaroja("Verifica tu link para poder añadir quinielas correctamente.");
+return;
+}
 const numeroVendedor = VENDEDOR_WHATSAPP[vendedorNombre];
 if (!numeroVendedor) { tarjetaroja("No se encontró el número del vendedor."); return; }
 const mensaje = construirMensajeWhatsApp(quinielas, precio);
@@ -504,6 +527,9 @@ if (errEl) errEl.textContent = "";
 }
 /* =====================================   Esto de abajo trabaja en inicianizacion de nuestra quiniela                                       ======================= */
 document.addEventListener("DOMContentLoaded", () => {
+const vendedor = detectarVendedor();
+if (!vendedor) {
+tarjetaroja("Verifica tu link para poder añadir quinielas correctamente.");}
 cargarVendedores();
 renderPartidos();
 actualizarPrecio();

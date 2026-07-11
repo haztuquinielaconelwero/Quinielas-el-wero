@@ -18,6 +18,17 @@ const target = card.getAttribute("data-target");
 if (target) window.location.href = target;
 }
 };
+/* =============                           Esto de abajo trabaja en detectar al Vendedor                             ============================ */
+const DetectorVendedor = {
+STORAGE_KEY: "quinielasElWero_vendedorActual",
+init() {
+const params = new URLSearchParams(window.location.search);
+const vendedorURL = params.get("vendedor");
+if (vendedorURL) {
+localStorage.setItem(this.STORAGE_KEY, vendedorURL);
+}
+}
+};
 /* =============                           Esto de abajo trabaja los contadores de Jugando y No jugando                               ============================ */
 const StatsQuinielas = {
 elPending: document.getElementById("statPending"),
@@ -170,6 +181,7 @@ console.error(err);
 };
 /* =============                                Esto de abajo trabaja en el inicio del inicio                                            ============================ */
 document.addEventListener("DOMContentLoaded", () => {
+DetectorVendedor.init();
 NavegacionExplora.init();
 StatsQuinielas.init();
 TimerPremium.init();

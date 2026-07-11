@@ -59,10 +59,10 @@ def crear_tablas():
     """)
 # ── Esto de abajo trabaja con la tabla de la Api de Espn ───────────────────────────────────────────────────────────────────────────────────────────────
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS 'resultadosdelajornada' (
+        CREATE TABLE IF NOT EXISTS resultadosdelajornada (
             id SERIAL PRIMARY KEY,
-            "Partidos" INTEGER NOT NULL,
-            "Resultados" VARCHAR(100) NOT NULL,
+            "partidos" INTEGER NOT NULL,
+            "resultados" VARCHAR(100) NOT NULL,
             resultado CHAR(1) CHECK (resultado IN ('L','E','V')),
             marcador_local INTEGER,
             marcador_visita INTEGER,
@@ -351,14 +351,14 @@ def _construir_lookups():
             local_lookup[_normalizar_nombre(p["local"])] = pid
             logger.warning("'%s' no esta en NOMBRE_A_ESPN, usando nombre directo", p["local"])
     return kickoff_por_id, local_lookup, liga_fecha_ids
-# ── Consultas a "resultadosdelajornada" usando las columnas nuevas: "partidos" y "resultados"  ─────────────────────────────────────────────────────── 
+# ── Consultas a resultadosdelajornada usando las columnas nuevas: "partidos" y "resultados"  ─────────────────────────────────────────────────────── 
 def _get_ids_con_resultado(jornada, ids):
     if not ids:
         return set()
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                '''SELECT "Partidos" FROM "ResultadosdelaJornada" WHERE "Resultados"=%s AND "Partidos" = ANY(%s)''',
+                '''SELECT "partidos" FROM resultadosdelajornada WHERE "resultados"=%s AND "partidos" = ANY(%s)''',
                 (jornada, list(ids)),
             )
             return {r[0] for r in cur.fetchall()}
@@ -369,9 +369,9 @@ def _guardar_resultado(pid, gh, ga, res):
             cur.execute(
                 '''
                 INSERT INTO resultadosdelajornada
-                    ("Partidos", "Resultados", resultado, marcador_local, marcador_visita)
+                    ("partidos", "resultados", resultado, marcador_local, marcador_visita)
                 VALUES (%s, %s, %s, %s, %s)
-                ON CONFLICT ("Partidos", "Resultados") DO UPDATE SET
+                ON CONFLICT ("partidos", "resultados") DO UPDATE SET
                     resultado = EXCLUDED.resultado,
                     marcador_local = EXCLUDED.marcador_local,
                     marcador_visita = EXCLUDED.marcador_visita,

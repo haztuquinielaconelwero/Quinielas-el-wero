@@ -37,7 +37,8 @@ const PinAdmin = (() => {
 let pinActual = "";
 const LONGITUD_PIN = 4;
 async function _validarPin() {
-const vendedor = new URLSearchParams(window.location.search).get("vendedor");
+const params = new URLSearchParams(window.location.search);
+const vendedor = params.get("vendedor") || localStorage.getItem("quinielasElWero_vendedorActual");
 if (!vendedor) {
 _mostrarError();
 pinActual = "";

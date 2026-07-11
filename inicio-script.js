@@ -179,6 +179,14 @@ console.error(err);
 }
 }
 };
+/* =============                                Esto de abajo trabaja en eliminar el service worker                               ============================ */
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.getRegistrations().then(function(registrations) {
+for (let registration of registrations) {
+registration.unregister();
+}
+});
+}
 /* =============                                Esto de abajo trabaja en el inicio del inicio                                            ============================ */
 document.addEventListener("DOMContentLoaded", () => {
 DetectorVendedor.init();

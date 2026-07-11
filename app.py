@@ -7,6 +7,9 @@ app = Flask(__name__, static_folder='.', static_url_path='')
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL no esta configurada en las variables de entorno de Railway")
+
 def get_connection():
     return psycopg.connect(DATABASE_URL)
 """                                Esto de abajo trabaja en generar las tablas para el servidor para que funcione correctamente                                   """

@@ -501,6 +501,46 @@ except Exception as exc:
 
 iniciar_auto_sync()
 
+# ── Esto de abajo trabaja con la api de registrodeclientes  ─────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+@app.route("/api/registrodeclientes", methods=["POST"])
+def registrodeclientes():
+    data = request.get_json(silent=True) or {}
+    dispositivo_id = (data.get("dispositivo_id") or "").strip()
+    nombrecelular = (data.get("nombrecelular") or "").strip()
+
+    if not dispositivo_id or not nombrecelular:
+        return jsonify({"success": False, "mensaje": "Faltan datos"}), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO clientes (dispositivo_id, nombrecelular)
+                    VALUES (%s, %s)
+                    ON CONFLICT (dispositivo_id) DO NOTHING
+                    RETURNING id;
+                    """,
+                    (dispositivo_id, nombrecelular),
+                )
+                fila = cur.fetchone()
+
+                if fila is None:
+                    cur.execute(
+                        "SELECT id FROM clientes WHERE dispositivo_id = %s",
+                        (dispositivo_id,)
+                    )
+                    fila = cur.fetchone()
+
+            conn.commit()
+
+        return jsonify({"success": True, "id": fila[0]})
+
+    except Exception as exc:
+        logger.error("registrodeclientes: error -> %s", exc)
+        return jsonify({"success": False, "mensaje": str(exc)}), 500
+    
+    
 @app.route('/')
 def home():
     return send_from_directory('.', 'inicio.html')

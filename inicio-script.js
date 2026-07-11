@@ -152,7 +152,7 @@ return;
 }
 const dispositivoId = this.leerDispositivoId();
 try {
-const res = await fetch(`${this.APIBASE}/api/registrarcliente`, {
+const res = await fetch(`${this.APIBASE}/api/registrodeclientes`, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
 body: JSON.stringify({ dispositivo_id: dispositivoId, nombrecelular: valor })

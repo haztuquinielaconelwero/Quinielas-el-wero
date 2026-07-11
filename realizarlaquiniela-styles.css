@@ -889,6 +889,153 @@ bottom: 16px;
 padding: 13px;
 gap: 0;
 }}
+/* ====================       Esto de abajo trabaja en el envio de la quiniela y los modales para el whats app                                ==================== */
+.rq-modal-envio-confirm{
+text-align:center;
+max-width:380px
+}
+.rq-envio-emoji{
+font-size:48px;
+margin-bottom:8px
+}
+.rq-envio-titulo{
+font-size:20px;
+font-weight:700;
+margin-bottom:18px
+}
+.rq-envio-resumen{
+background:linear-gradient(135deg,#25D366,#128C7E);
+color:#fff;
+border-radius:12px;
+padding:16px;
+margin-bottom:14px
+}
+.rq-envio-cantidad{
+font-size:15px;
+font-weight:600;
+opacity:.95
+}
+.rq-envio-precio{
+font-size:30px;
+font-weight:800;
+margin-top:4px
+}
+.rq-envio-texto{
+opacity:.8;
+font-size:14px;
+margin-bottom:20px
+}
+.rq-envio-botones{
+display:flex;gap:10px
+}
+.rq-btn-cancelar,.rq-btn-enviar-ahora,.rq-btn-whatsapp{
+flex:1;
+padding:13px;
+border:none;
+border-radius:10px;
+font-size:14px;
+font-weight:700;
+cursor:pointer;
+transition:transform .15s,filter .15s
+}
+.rq-btn-cancelar{
+background:#f1f3f5;
+color:#374151
+}
+.rq-btn-cancelar:hover{
+filter:brightness(.95)
+}
+.rq-btn-enviar-ahora{
+background:linear-gradient(135deg,#25D366,#128C7E);
+color:#fff
+}
+.rq-btn-enviar-ahora:hover{
+transform:translateY(-2px)
+}
+.rq-envio-overlay{
+position:fixed;
+inset:0;
+background:rgba(15,23,42,.6);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:9999;
+padding:20px;
+backdrop-filter:blur(3px)
+}
+.rq-envio-box{
+background:#fff;
+border-radius:18px;
+padding:40px 30px;
+max-width:340px;
+width:100%;
+text-align:center;
+box-shadow:0 20px 60px rgba(0,0,0,.3)
+}
+.rq-envio-spinner{
+width:54px;
+height:54px;
+margin:0 auto 20px;
+border:5px solid #d1fae5;
+border-top-color:#25D366;
+border-radius:50%;
+animation:rqSpin .9s linear infinite
+}
+@keyframes rqSpin{
+to{
+transform:rotate(360deg)
+}}
+.rq-progreso-contador{
+font-size:28px;
+font-weight:800;
+color:#128C7E;
+margin-bottom:6px;
+font-variant-numeric:tabular-nums
+}
+.rq-modal-listo{
+text-align:center;
+max-width:380px
+}
+.rq-listo-emoji{
+font-size:48px;
+margin-bottom:8px
+}
+.rq-listo-titulo{
+font-size:20px;
+font-weight:700;
+margin-bottom:18px
+}
+.rq-listo-tabla{
+width:100%;
+border-collapse:collapse;
+margin-bottom:18px
+}
+.rq-listo-tabla th{
+font-size:11px;
+opacity:.6;
+padding-bottom:6px;
+border-bottom:1px solid rgba(0,0,0,.1)
+}
+.rq-listo-tabla td{
+font-size:26px;
+font-weight:800;
+padding-top:10px
+}
+.rq-listo-texto{
+opacity:.8;
+font-size:14px;
+margin-bottom:20px
+}
+.rq-btn-whatsapp{
+width:100%;
+background:linear-gradient(135deg,#25D366,#128C7E);
+color:#fff;
+font-size:15px;
+padding:15px
+}
+.rq-btn-whatsapp:hover{
+transform:translateY(-2px)
+}
 /* ====================                Esto de abajo trabaja en los tamaños para los celulares                                        ==================== */
 @media (max-width: 640px) {
 .rq-hero { padding: 14px 12px 14px; }

@@ -110,10 +110,69 @@ if (this.card) {
 this.card.classList.remove("urgent");
 this.card.classList.add("critical");
 }}};
+/* =============                                Esto de abajo trabaja en la identidad del cliente                                       ============================ */
+const IdentidadCliente = {
+APIBASE: window.location.hostname === "localhost" ? "http://localhost:8000" : "https://www.quinielaselwero.com",
+STORAGE_KEY_IDENTIDAD: "quinielasElWero_identidad",
+STORAGE_KEY_DISPOSITIVO: "quinielasElWero_dispositivoId",
+modal: document.getElementById("modalBienvenida"),
+input: document.getElementById("identidadInput"),
+errEl: document.getElementById("identidadError"),
+btn: document.getElementById("btnGuardarIdentidad"),
+init() {
+if (!this.modal) return;
+this.btn?.addEventListener("click", () => this.confirmar());
+this.input?.addEventListener("keydown", (e) => {
+if (e.key === "Enter") { e.preventDefault(); this.confirmar(); }
+});
+this.mostrarSiEsNecesario();
+},
+leerIdentidad() {
+return localStorage.getItem(this.STORAGE_KEY_IDENTIDAD) || "";
+},
+leerDispositivoId() {
+let id = localStorage.getItem(this.STORAGE_KEY_DISPOSITIVO);
+if (!id) {
+id = crypto.randomUUID();
+localStorage.setItem(this.STORAGE_KEY_DISPOSITIVO, id);
+}
+return id;
+},
+mostrarSiEsNecesario() {
+if (!this.leerIdentidad()) this.modal.hidden = false;
+},
+async confirmar() {
+const valor = this.input.value.trim();
+if (!valor || valor.length < 3) {
+this.input.classList.add("error");
+this.errEl.hidden = false;
+this.errEl.textContent = "Escribe tu nombre completo por favor.";
+this.input.focus();
+return;
+}
+const dispositivoId = this.leerDispositivoId();
+try {
+const res = await fetch(`${this.APIBASE}/api/registrarcliente`, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ dispositivo_id: dispositivoId, nombrecelular: valor })
+});
+const data = await res.json();
+if (!res.ok || !data.success) throw new Error(data.mensaje || "Error al registrar");
+localStorage.setItem(this.STORAGE_KEY_IDENTIDAD, valor);
+this.modal.hidden = true;
+} catch (err) {
+this.errEl.hidden = false;
+this.errEl.textContent = "No se pudo guardar, intenta de nuevo.";
+console.error(err);
+}
+}
+};
 /* =============                                Esto de abajo trabaja en el inicio del inicio                                            ============================ */
 document.addEventListener("DOMContentLoaded", () => {
 NavegacionExplora.init();
 StatsQuinielas.init();
 TimerPremium.init();
+IdentidadCliente.init();
 });
 })();

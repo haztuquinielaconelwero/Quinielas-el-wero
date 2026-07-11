@@ -163,10 +163,38 @@
 </div>
 </div>
 <!-- Esto de abajo trabaja en la accion de cuando envias las quinielas -->           <!-- Esto de abajo trabaja en la accion de cuando envias las quinielas -->   
+<div id="modalConfirmarEnvio" class="rq-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalConfirmarEnvioTitle" hidden>
+<div class="rq-modal rq-modal-envio-confirm">
+<div class="rq-envio-emoji" aria-hidden="true">📲</div>
+<h2 id="modalConfirmarEnvioTitle" class="rq-envio-titulo">Enviar por WhatsApp</h2>
+<div class="rq-envio-resumen">
+<div class="rq-envio-cantidad" id="confirmCantidad">0 quinielas guardadas</div>
+<div class="rq-envio-precio" id="confirmPrecio">$0</div>
+</div>
+<p class="rq-envio-texto">Se enviarán tus quinielas por WhatsApp</p>
+<div class="rq-envio-botones">
+<button class="rq-btn-cancelar" id="btnCancelarEnvio" type="button">Cancelar</button>
+<button class="rq-btn-enviar-ahora" id="btnConfirmarEnvio" type="button">Enviar ahora ➤</button>
+</div>
+</div>
+</div>
+<div id="modalEnvioListo" class="rq-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalEnvioListoTitle" hidden>
+<div class="rq-modal rq-modal-listo">
+<div class="rq-listo-emoji" aria-hidden="true">✅🚀</div>
+<h2 id="modalEnvioListoTitle" class="rq-listo-titulo">¡Todas tus quinielas están listas!</h2>
+<table class="rq-listo-tabla">
+<thead><tr><th>Quinielas</th><th>Total a pagar</th></tr></thead>
+<tbody><tr><td id="listoCantidad">0</td><td id="listoPrecio">$0</td></tr></tbody>
+</table>
+<p class="rq-listo-texto">Ve a WhatsApp para compartirlas</p>
+<button class="rq-btn-whatsapp" id="btnEnviarWhatsApp" type="button">Enviar a WhatsApp 📱</button>
+</div>
+</div>
 <div id="overlayEnvio" class="rq-envio-overlay" hidden>
 <div class="rq-envio-box">
 <div class="rq-envio-spinner" aria-hidden="true"></div>
-<p class="rq-envio-texto">Enviando tu quiniela...</p>
+<div class="rq-progreso-contador" id="progresoContador">0 de 0</div>
+<p class="rq-envio-texto">Enviando tus quinielas al servidor...</p>
 </div>
 </div>
 <!-- Esto de abajo trabaja con el boton de regresar al inicio-->                            <!-- Esto de abajo trabaja con el boton de regresar al inicio-->   

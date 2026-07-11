@@ -9,6 +9,18 @@
 <link rel="stylesheet" href="administrador-styles.css">
 </head>
 <body>
+<!-- Esto de abajo trabaja con el inicio de nuestra pagina para el nombre  -->           <!-- Esto de abajo trabaja con el inicio de nuestra pagina para el nombre  -->  
+<div class="adm-pin-overlay" id="modalBienvenida" hidden role="dialog" aria-modal="true" aria-labelledby="bienvenidaTitle">
+<div class="adm-pin-box rq-bienvenida-box">
+<div class="rq-bienvenida-emoji" aria-hidden="true">👋</div>
+<h2 class="adm-pin-title" id="bienvenidaTitle">¡Hola, qué tal!</h2>
+<p class="rq-bienvenida-texto">Para mejorar tu experiencia y darte un mejor servicio, escríbenos tu nombre completo.</p>
+<p class="rq-bienvenida-nota">Esto solamente lo hacemos con el fin de tener un mejor control de tus quinielas y funciones de la misma aplicación.</p>
+<input type="text" id="identidadInput" class="rq-bienvenida-input" placeholder="Tu nombre completo" maxlength="50" autocomplete="name">
+<span id="identidadError" class="adm-pin-error" role="alert" aria-live="polite" hidden></span>
+<button class="btn-participa" id="btnGuardarIdentidad" type="button" style="width:100%;justify-content:center">Continuar</button>
+</div>
+</div>
 <!-- Esto de abajo trabaja con el Header de nuestra pagina Inicio -->                            <!-- Esto de abajo trabaja con el Header de nuestra pagina Inicio -->
 <header class="app-header" id="appHeader">
 <div class="header-inner">

@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 import requests
 import psycopg
 from flask import Flask, jsonify, send_from_directory
+from flask import request
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("app")
@@ -57,6 +58,40 @@ def crear_tablas():
             )
         );
     """)
+# ── Esto de abajo trabaja con la tabla de la Lista oficial ──────────────────────────────────────────────────────────────────────────────────────────
+@app.route("/api/lista-oficial")
+def lista_oficial():
+    jornada = request.args.get("jornada", JORNADA_ACTUAL)
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT id, folio, nombrequiniela, vendedor,
+                           p1, p2, p3, p4, p5, p6, p7, p8, p9
+                    FROM todaslasquinielas
+                    WHERE estado = 'Jugando'
+                      AND jornada = %s
+                    ORDER BY folio::int ASC;
+                """, (jornada,))
+                filas = cur.fetchall()
+
+        quinielas = []
+        for row in filas:
+            id_, folio, nombre, vendedor, p1, p2, p3, p4, p5, p6, p7, p8, p9 = row
+            quinielas.append({
+                "id": id_,
+                "folio": folio,
+                "nombre": nombre,
+                "vendedor": vendedor,
+                "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
+            })
+
+        return jsonify({"quinielas": quinielas})
+
+    except Exception as exc:
+        logger.error("lista_oficial: error -> %s", exc)
+        return jsonify({"quinielas": [], "error": str(exc)}), 500
 # ── Esto de abajo trabaja con la tabla de la Api de Espn ───────────────────────────────────────────────────────────────────────────────────────────────
     cur.execute("""
         CREATE TABLE IF NOT EXISTS resultadosdelajornada (

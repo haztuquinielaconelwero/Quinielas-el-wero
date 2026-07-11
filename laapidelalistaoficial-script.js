@@ -1,6 +1,6 @@
 const API_BASE = window.location.hostname === 'localhost'
 ? 'http://localhost:8000'
-: 'https://www.quinielaselwero.com';
+: '';
 function getAuthHeaders() {
 return { 'Content-Type': 'application/json' };
 }

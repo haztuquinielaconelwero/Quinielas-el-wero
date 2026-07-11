@@ -1,5 +1,5 @@
 /* Esto de abajo trabaja en los datos del servidor*/                                           /* Esto de abajo trabaja en los datos del servidor*/   
-const API_BASE = "https://TU-PROYECTO.up.railway.app";
+const API_BASE = "";
 const ENV = { isDev: true };
 function apiUrl(path, params = {}) {
 try {

@@ -19,7 +19,7 @@ const OPCIONES = ["L", "E", "V"];
 const PRECIO_UNITARIO = 30;
 const MAX_DOBLES = 3;
 const MAX_TRIPLES = 3;
-const APIBASE = window.location.hostname === "localhost" ? "http://localhost:8000" : "https://quinielas-el-wero-production.up.railway.app";
+const APIBASE = window.location.hostname === "localhost" ? "http://localhost:8000" : "";
 let VENDEDOR_WHATSAPP = {};
 const estado = {
 selecciones: {},

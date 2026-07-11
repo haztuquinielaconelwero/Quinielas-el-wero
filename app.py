@@ -647,12 +647,15 @@ def enviarlaquinielaporwhatsapp():
     data = request.get_json(silent=True) or {}
     nombrecelular = (data.get("nombrecelular") or "").strip()
     nombrequiniela = (data.get("nombrequiniela") or "").strip()
-    vendedor = (data.get("vendedor") or "El Wero").strip()
+    vendedor = (data.get("vendedor") or "").strip()
     jornada = (data.get("jornada") or JORNADA_ACTUAL).strip()
     selecciones = data.get("selecciones") or {}
 
     if not nombrecelular or not nombrequiniela or not selecciones:
         return jsonify({"success": False, "mensaje": "Faltan datos"}), 400
+
+    if vendedor not in VENDEDOR_WHATSAPP:
+        return jsonify({"success": False, "mensaje": "Vendedor no reconocido"}), 400
 
     picks = []
     for p in PARTIDOS:

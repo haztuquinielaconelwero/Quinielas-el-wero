@@ -3,7 +3,7 @@ const API_BASE = "";
 const ENV = { isDev: true };
 function apiUrl(path, params = {}) {
 try {
-const url = new URL(`${API_BASE}/${path}`);
+const url = new URL(path, window.location.origin);
 Object.entries(params).forEach(([k, v]) => {
 if (v !== undefined && v !== null && v !== "") url.searchParams.set(k, v);
 });

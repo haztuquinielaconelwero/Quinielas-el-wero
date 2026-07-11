@@ -843,10 +843,10 @@ animation: rqSpin 0.8s linear infinite;
 to { 
 transform: rotate(360deg); 
 }}
-.rq-envio-texto { 
-font-size: 1rem; 
-font-weight: 700; 
-color: var(--text-main); 
+.rq-envio-texto {
+font-size: 1rem;
+font-weight: 700;
+color: #E63946;
 }
 /* ====================                      Esto de abajo trabaja con el boton de ir a inicio nuevamente                                     ==================== */
 .adm-fab-inicio {

@@ -1,4 +1,4 @@
-"""                                Esto de abajo trabaja con las importaciones para que todo el servicion funcione correctamente                        """
+"""                                Esto de abajo trabaja con las importaciones para que todo el servicion funcione correctamente                           """
 import os
 from flask import Flask, jsonify, send_from_directory
 import psycopg
@@ -9,6 +9,45 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_connection():
     return psycopg.connect(DATABASE_URL)
+"""                                Esto de abajo trabaja en generar las tablas para el servidor para que funcione correctamente                                   """
+def crear_tablas():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS quinielas (
+            id SERIAL PRIMARY KEY,
+            nombrecelular VARCHAR(100) NOT NULL,
+            nombrequiniela VARCHAR(100) NOT NULL,
+            vendedor VARCHAR(100) NOT NULL,
+            jornada VARCHAR(100) NOT NULL,
+            p1 CHAR(1) CHECK (p1 IN ('L','E','V')),
+            p2 CHAR(1) CHECK (p2 IN ('L','E','V')),
+            p3 CHAR(1) CHECK (p3 IN ('L','E','V')),
+            p4 CHAR(1) CHECK (p4 IN ('L','E','V')),
+            p5 CHAR(1) CHECK (p5 IN ('L','E','V')),
+            p6 CHAR(1) CHECK (p6 IN ('L','E','V')),
+            p7 CHAR(1) CHECK (p7 IN ('L','E','V')),
+            p8 CHAR(1) CHECK (p8 IN ('L','E','V')),
+            p9 CHAR(1) CHECK (p9 IN ('L','E','V')),
+            estado VARCHAR(20) NOT NULL DEFAULT 'En espera'
+                CHECK (estado IN ('No jugando','Jugando','En espera','Rechazada')),
+            folio VARCHAR(20),
+            llavemaestra VARCHAR(300) GENERATED ALWAYS AS (
+                nombrecelular || '|' || jornada || '|' || nombrequiniela || '|' ||
+                p1 || p2 || p3 || p4 || p5 || p6 || p7 || p8 || p9
+            ) STORED UNIQUE,
+            fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+
+            CONSTRAINT folio_solo_si_jugando CHECK (
+                (estado = 'Jugando' AND folio IS NOT NULL) OR
+                (estado != 'Jugando' AND folio IS NULL)
+            )
+        );
+    """)
+    conn.commit()
+    cur.close()
+    conn.close()
+crear_tablas()
 
 @app.route('/')
 def home():

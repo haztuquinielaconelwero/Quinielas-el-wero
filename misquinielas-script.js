@@ -14,6 +14,7 @@ const PARTIDOS = [
 ];
 /* =====================================  Esto de abajo trabaja en el almacenimiento de las quinielas en el celular                  ======================= */
 const STORAGE_KEY_ENVIADAS = "quinielasElWero_enviadas";
+const STORAGE_KEY_DISPOSITIVO = "quinielasElWero_dispositivoid";
 function leerEnviadas() {
 try {
 return JSON.parse(localStorage.getItem(STORAGE_KEY_ENVIADAS)) ?? [];
@@ -21,8 +22,45 @@ return JSON.parse(localStorage.getItem(STORAGE_KEY_ENVIADAS)) ?? [];
 return [];
 }
 }
+function guardarEnviadas(lista) {
+localStorage.setItem(STORAGE_KEY_ENVIADAS, JSON.stringify(lista));
+}
+function leerDispositivoId() {
+return localStorage.getItem(STORAGE_KEY_DISPOSITIVO) || "";
+}
+
+const MAPA_ESTADO_BACKEND = {
+"No jugando": "no-jugando",
+"Jugando": "jugando",
+"En espera": "espera",
+"Rechazada": "rechazada"
+};
+async function sincronizarConBackend() {
+const dispositivoId = leerDispositivoId();
+if (!dispositivoId) return;
+try {
+const res = await fetch(`/api/actualizarmisquinielas?dispositivoid=${encodeURIComponent(dispositivoId)}`);
+const data = await res.json();
+if (!res.ok || !data.success) return;
+const enviadas = leerEnviadas();
+let cambio = false;
+const actualizadas = enviadas.map((q) => {
+const remota = data.quinielas.find((r) => r.id === q.id);
+if (!remota) return q;
+const estadoNuevo = MAPA_ESTADO_BACKEND[remota.estado] ?? q.estado;
+if (estadoNuevo !== q.estado || remota.folio !== q.folio) cambio = true;
+return { ...q, estado: estadoNuevo, folio: remota.folio ?? q.folio ?? null };
+});
+if (cambio) {
+guardarEnviadas(actualizadas);
+renderLista();
+}
+} catch (err) {
+console.error("Error en sincronizarConBackend:", err);
+}
+}
 /* =====================================  Esto de abajo trabaja en ordenar las quinielas para mostrarlas correctamente                     ======================= */
-const ORDEN_ESTADO = { jugando: 0, "no-jugando": 1, espera: 2 };
+const ORDEN_ESTADO = { jugando: 0, "no-jugando": 1, "rechazada": 1, espera: 2 };
 function ordenarQuinielas(lista) {
 return [...lista].sort((a, b) => {
 const estadoA = ORDEN_ESTADO[a.estado] ?? 2;
@@ -38,7 +76,7 @@ switch (filtroActivo) {
 case "jugando":
 return lista.filter((q) => q.estado === "jugando");
 case "no-jugando":
-return lista.filter((q) => q.estado === "no-jugando");
+return lista.filter((q) => q.estado === "no-jugando" || q.estado === "rechazada");
 case "espera":
 return lista.filter((q) => q.estado === "espera");
 case "mayor-puntos":
@@ -54,7 +92,6 @@ const ESTADO_INFO = {
 jugando: { clase: "mq-estado-jugando", texto: "Jugando ✅" },
 "no-jugando": { clase: "mq-estado-no-jugando", texto: "No jugando ❌" },
 espera: { clase: "mq-estado-espera", texto: "En espera ⏳" },
-borrador: { clase: "mq-estado-borrador", texto: "Borrador 📝" },
 rechazada: { clase: "mq-estado-no-jugando", texto: "Rechazada ❌" }
 };
 function renderMiniQuiniela(q) {
@@ -83,12 +120,13 @@ return `
 }
 function renderTarjeta(q) {
 const info = ESTADO_INFO[q.estado] ?? ESTADO_INFO.espera;
+const folioTexto = q.folio ? ` · Folio ${q.folio}` : "";
 return `
 <article class="mq-tarjeta ${q.estado || 'espera'}" role="listitem" data-id="${q.id}">
 <div class="mq-tarjeta-header">
 <div class="mq-tarjeta-info">
 <span class="mq-tarjeta-nombre">${q.nombre}</span>
-<span class="mq-tarjeta-meta">${q.vendedor || "El Wero"} - ${q.jornada || "Jornada 1"}</span>
+<span class="mq-tarjeta-meta">${q.vendedor} - ${q.jornada || "Jornada 1"}${folioTexto}</span>
 </div>
 <span class="mq-estado-badge ${info.clase}">${info.texto}</span>
 </div>
@@ -173,5 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
 renderLista();
 initFiltro();
 initSincronizacion();
+sincronizarConBackend();
+setInterval(sincronizarConBackend, 15000);
 });
 })();

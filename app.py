@@ -937,7 +937,7 @@ def contadordequinielas():
             with conn.cursor() as cur:
                 cur.execute("""
                     SELECT
-                        COUNT(*) FILTER (WHERE estado IN ('No jugando', 'En espera')) AS pending,
+                        COUNT(*) FILTER (WHERE estado IN ('No jugando', 'En espera', 'Rechazada')) AS pending,
                         COUNT(*) FILTER (WHERE estado = 'Jugando') AS active
                     FROM todaslasquinielas
                     WHERE dispositivoid = %s
@@ -1029,6 +1029,36 @@ def api_rechazar(qid):
         logger.error("api_rechazar: error -> %s", exc)
         return jsonify({"success": False, "error": str(exc)}), 500
 
+# ── Esto de abajo trabaja con actualizarmisquiniela ────────────────────────────────────────────────────────────────────────────────
+@app.route("/api/actualizarmisquinielas")
+def actualizarmisquinielas():
+    dispositivoid = (request.args.get("dispositivoid") or "").strip()
+    if not dispositivoid:
+        return jsonify({"success": False, "mensaje": "Falta dispositivoid"}), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT id, estado, folio
+                    FROM todaslasquinielas
+                    WHERE dispositivoid = %s
+                    """,
+                    (dispositivoid,),
+                )
+                filas = cur.fetchall()
+
+        quinielas = [
+            {"id": id_, "estado": estado, "folio": folio}
+            for id_, estado, folio in filas
+        ]
+
+        return jsonify({"success": True, "quinielas": quinielas})
+    except Exception as exc:
+        logger.error("actualizarmisquinielas: error -> %s", exc)
+        return jsonify({"success": False, "mensaje": str(exc)}), 500
+    
 # ── Esto de abajo trabaja con el home e inicio.html ────────────────────────────────────────────────────────────────────────────────
 @app.route("/")
 def home():

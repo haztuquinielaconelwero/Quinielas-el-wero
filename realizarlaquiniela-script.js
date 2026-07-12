@@ -370,6 +370,11 @@ cerrarModal("modalConfirmarEnvio");
 async function confirmarEnvioAlServidor() {
 const guardadas = leerStorage();
 if (guardadas.length === 0) return;
+const dispositivoid = localStorage.getItem("quinielasElWero_dispositivoid") || "";
+if (!dispositivoid) {
+tarjetaroja("No se encontró el dispositivo. Registra de nuevo el celular.");
+return;
+}
 cerrarModal("modalConfirmarEnvio");
 const overlay = document.getElementById("overlayEnvio");
 const contador = document.getElementById("progresoContador");
@@ -387,11 +392,14 @@ nombrecelular: nombreCelularActual || q.nombre,
 nombrequiniela: q.nombre,
 vendedor: q.vendedor || detectarVendedor() || (() => { throw new Error("SIN_VENDEDOR"); })(),
 jornada: q.jornada || "Jornada 1",
+dispositivoid: dispositivoid,
 selecciones: q.selecciones
 })
 });
 const data = await res.json();
-if (!res.ok || !data.success) { throw new Error(data.mensaje || "Error al enviar al servidor"); }
+if (!res.ok || !data.success) {
+throw new Error(data.mensaje || "Error al enviar al servidor");
+}
 enviadasOk.push(q);
 contador.textContent = `${i + 1} de ${guardadas.length}`;
 await new Promise(r => setTimeout(r, 350));

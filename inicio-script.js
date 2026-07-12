@@ -138,7 +138,7 @@ this.card.classList.add("critical");
 const IdentidadCliente = {
 API_REGISTRO: "/api/registrodeclientes",
 STORAGE_KEY_IDENTIDAD: "quinielasElWero_identidad",
-STORAGE_KEY_DISPOSITIVO: "quinielasElWero_dispositivoId",
+STORAGE_KEY_DISPOSITIVO: "quinielasElWero_dispositivoid",
 modal: document.getElementById("modalBienvenida"),
 input: document.getElementById("identidadInput"),
 errEl: document.getElementById("identidadError"),

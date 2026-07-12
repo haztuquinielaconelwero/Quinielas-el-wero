@@ -120,13 +120,14 @@ return `
 }
 function renderTarjeta(q) {
 const info = ESTADO_INFO[q.estado] ?? ESTADO_INFO.espera;
-const folioTexto = q.folio ? ` · Folio ${q.folio}` : "";
+const folioTexto = q.folio ? `<span class="mq-tarjeta-folio">Folio: ${q.folio}</span>` : "";
 return `
 <article class="mq-tarjeta ${q.estado || 'espera'}" role="listitem" data-id="${q.id}">
 <div class="mq-tarjeta-header">
 <div class="mq-tarjeta-info">
 <span class="mq-tarjeta-nombre">${q.nombre}</span>
-<span class="mq-tarjeta-meta">${q.vendedor} - ${q.jornada || "Jornada 1"}${folioTexto}</span>
+<span class="mq-tarjeta-meta">Vendedor: ${q.vendedor} - ${q.jornada || "Jornada 1"}</span>
+${folioTexto}
 </div>
 <span class="mq-estado-badge ${info.clase}">${info.texto}</span>
 </div>

@@ -294,23 +294,23 @@ const miniPartidos = PARTIDOS.map((p) => {
 const sel = q.selecciones?.[p.id];
 const letras = Array.isArray(sel) ? sel : sel ? [sel] : [];
 const marcador = letras.length ? letras.join("") : "—";
-const claseMarcador = letras.length === 3 ? "triple" : letras.length === 2 ? "doble" : "";
 return `
 <div class="rq-mini-partido">
 <img src="${p.localLogo}" alt="${p.local}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
 <span class="rq-mini-equipo local">${p.local}</span>
-<span class="rq-mini-marcador ${claseMarcador}">${marcador}</span>
+<span class="rq-mini-marcador">${marcador}</span>
 <span class="rq-mini-equipo visitante">${p.visitante}</span>
 <img src="${p.visitanteLogo}" alt="${p.visitante}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
 </div>`;
 }).join("");
+
 return `
 <div class="rq-tarjeta-guardada" data-id="${q.id}">
 <button class="rq-tg-eliminar" data-id="${q.id}" aria-label="Eliminar quiniela">❌</button>
 <div class="rq-tg-header">
 <span class="rq-tg-nombre">${q.nombre}</span>
 <span class="rq-tg-jornada">${q.jornada || "Jornada 1"}</span>
-<span class="rq-tg-vendedor">Vendedor: ${q.vendedor || "El Wero"}</span>
+<span class="rq-tg-vendedor">Vendedor: ${q.vendedor}</span>
 </div>
 <div class="rq-tg-mini-quiniela">${miniPartidos}</div>
 </div>`;

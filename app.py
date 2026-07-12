@@ -27,13 +27,14 @@ def get_connection():
 def crear_tablas():
     conn = get_connection()
     cur = conn.cursor()
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS todaslasquinielas (
             id SERIAL PRIMARY KEY,
-            nombrecelular VARCHAR(100) NOT NULL,
-            nombrequiniela VARCHAR(100) NOT NULL,
-            vendedor VARCHAR(100) NOT NULL,
-            jornada VARCHAR(100) NOT NULL,
+            nombrecelular TEXT NOT NULL,
+            nombrequiniela TEXT NOT NULL,
+            vendedor TEXT NOT NULL,
+            jornada TEXT NOT NULL,
             p1 CHAR(1) CHECK (p1 IN ('L','E','V')),
             p2 CHAR(1) CHECK (p2 IN ('L','E','V')),
             p3 CHAR(1) CHECK (p3 IN ('L','E','V')),
@@ -43,20 +44,60 @@ def crear_tablas():
             p7 CHAR(1) CHECK (p7 IN ('L','E','V')),
             p8 CHAR(1) CHECK (p8 IN ('L','E','V')),
             p9 CHAR(1) CHECK (p9 IN ('L','E','V')),
-            estado VARCHAR(20) NOT NULL DEFAULT 'No jugando'
-            CHECK (estado IN ('No jugando','Jugando','En espera','Rechazada')),
-            folio VARCHAR(20),
-            llavemaestra VARCHAR(300) GENERATED ALWAYS AS (
-                nombrecelular || '|' || jornada || '|' || nombrequiniela || '|' ||
-                p1 || p2 || p3 || p4 || p5 || p6 || p7 || p8 || p9
-            ) STORED UNIQUE,
-            fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
-            CONSTRAINT folio_solo_si_jugando CHECK (
-                (estado = 'Jugando' AND folio IS NOT NULL) OR
-                (estado != 'Jugando' AND folio IS NULL)
-            )
+            estado TEXT NOT NULL DEFAULT 'No jugando'
+                CHECK (estado IN ('No jugando','Jugando','En espera','Rechazada')),
+            folio TEXT,
+            fechacreacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+            llavemaestra TEXT NOT NULL UNIQUE,
+            dispositivoid TEXT NOT NULL
         );
     """)
+
+    cur.execute("""
+        CREATE INDEX IF NOT EXISTS idx_llavemaestra
+        ON todaslasquinielas (llavemaestra);
+    """)
+
+    cur.execute("""
+        CREATE INDEX IF NOT EXISTS idx_dispositivoid
+        ON todaslasquinielas (dispositivoid);
+    """)
+
+    cur.execute("""
+        CREATE INDEX IF NOT EXISTS idx_estado
+        ON todaslasquinielas (estado);
+    """)
+
+    cur.execute("""
+        CREATE INDEX IF NOT EXISTS idx_vendedor_estado
+        ON todaslasquinielas (vendedor, estado);
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS resultadosdelajornada (
+            id SERIAL PRIMARY KEY,
+            partidos INTEGER NOT NULL,
+            resultados VARCHAR(100) NOT NULL,
+            resultado CHAR(1) CHECK (resultado IN ('L','E','V')),
+            marcadorlocal INTEGER,
+            marcadorvisita INTEGER,
+            fechaactualizacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+            UNIQUE (partidos, resultados)
+        );
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS clientes (
+            id SERIAL PRIMARY KEY,
+            dispositivoid VARCHAR(100) UNIQUE NOT NULL,
+            nombrecelular VARCHAR(100) NOT NULL,
+            fecharegistro TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City')
+        );
+    """)
+
+    conn.commit()
+    cur.close()
+    conn.close()
     # ── Esto de abajo trabaja en el indice que hace mas rapidas las listas del panel y las acciones de confirmar/rechazar ──────────────────────
     cur.execute("""
         CREATE INDEX IF NOT EXISTS idx_vendedor_estado
@@ -77,7 +118,7 @@ def crear_tablas():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS clientes (
             id SERIAL PRIMARY KEY,
-            dispositivo_id VARCHAR(100) UNIQUE NOT NULL,
+            dispositivoid VARCHAR(100) UNIQUE NOT NULL,
             nombrecelular VARCHAR(100) NOT NULL,
             fecha_registro TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City')
         );
@@ -617,33 +658,40 @@ iniciar_auto_sync()
 @app.route("/api/registrodeclientes", methods=["POST"])
 def registrodeclientes():
     data = request.get_json(silent=True) or {}
-    dispositivo_id = (data.get("dispositivo_id") or "").strip()
+
+    dispositivoid = (data.get("dispositivoid") or "").strip()
     nombrecelular = (data.get("nombrecelular") or "").strip()
-    if not dispositivo_id or not nombrecelular:
+
+    if not dispositivoid or not nombrecelular:
         return jsonify({"success": False, "mensaje": "Faltan datos"}), 400
+
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    INSERT INTO clientes (dispositivo_id, nombrecelular)
+                    INSERT INTO clientes (dispositivoid, nombrecelular)
                     VALUES (%s, %s)
-                    ON CONFLICT (dispositivo_id) DO NOTHING
-                    RETURNING id;
+                    ON CONFLICT (dispositivoid) DO NOTHING
+                    RETURNING id
                     """,
-                    (dispositivo_id, nombrecelular),
+                    (dispositivoid, nombrecelular)
                 )
                 fila = cur.fetchone()
+
                 if fila is None:
                     cur.execute(
-                        "SELECT id FROM clientes WHERE dispositivo_id = %s",
-                        (dispositivo_id,)
+                        "SELECT id FROM clientes WHERE dispositivoid = %s",
+                        (dispositivoid,)
                     )
                     fila = cur.fetchone()
-            conn.commit()
+
+                conn.commit()
+
         return jsonify({"success": True, "id": fila[0]})
+
     except Exception as exc:
-        logger.error("registrodeclientes: error -> %s", exc)
+        logger.error("registrodeclientes error: %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
 
 # ── Esto de abajo trabaja con la api de vendedores  ──────────────────────────────────────────────────────────────────────────────────────────────────
@@ -652,61 +700,82 @@ def api_vendedores():
     return jsonify({"success": True, "vendedores": VENDEDOR_WHATSAPP})
 
 # ── Esto de abajo trabaja con la api de enviar la quiniela por whatsapp  ────────────────────────────────────────────────────────────────────────────
+def construir_llavemaestra(nombrecelular, jornada, nombrequiniela, picks):
+    return f"{nombrecelular}|{jornada}|{nombrequiniela}|{''.join(picks)}"
+
 @app.route("/api/enviarlaquinielaporwhatsapp", methods=["POST"])
 def enviarlaquinielaporwhatsapp():
     data = request.get_json(silent=True) or {}
+
     nombrecelular = (data.get("nombrecelular") or "").strip()
     nombrequiniela = (data.get("nombrequiniela") or "").strip()
     vendedor = (data.get("vendedor") or "").strip()
     jornada = (data.get("jornada") or JORNADA_ACTUAL).strip()
+    dispositivoid = (data.get("dispositivoid") or "").strip()
     selecciones = data.get("selecciones") or {}
 
-    if not nombrecelular or not nombrequiniela or not selecciones:
+    if not nombrecelular or not nombrequiniela or not selecciones or not dispositivoid:
         return jsonify({"success": False, "mensaje": "Faltan datos"}), 400
 
     if vendedor not in VENDEDOR_WHATSAPP:
         return jsonify({"success": False, "mensaje": "Vendedor no reconocido"}), 400
+
     picks = []
     for p in PARTIDOS:
         pick = selecciones.get(str(p["id"])) or selecciones.get(p["id"])
         if not pick or pick not in ("L", "E", "V"):
-            return jsonify({"success": False, "mensaje": f"Falta seleccion en partido {p['id']}"}), 400
+            return jsonify({"success": False, "mensaje": f"Falta selección en partido {p['id']}"}), 400
         picks.append(pick)
+
+    llavemaestra = construir_llavemaestra(nombrecelular, jornada, nombrequiniela, picks)
+
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    INSERT INTO todaslasquinielas
-                        (nombrecelular, nombrequiniela, vendedor, jornada,
-                         p1, p2, p3, p4, p5, p6, p7, p8, p9)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    INSERT INTO todaslasquinielas (
+                        nombrecelular, nombrequiniela, vendedor, jornada,
+                        p1, p2, p3, p4, p5, p6, p7, p8, p9,
+                        llavemaestra, dispositivoid
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (llavemaestra) DO NOTHING
-                    RETURNING id;
+                    RETURNING id
                     """,
-                    (nombrecelular, nombrequiniela, vendedor, jornada, *picks),
+                    (
+                        nombrecelular, nombrequiniela, vendedor, jornada,
+                        *picks, llavemaestra, dispositivoid
+                    )
                 )
                 fila = cur.fetchone()
-            conn.commit()
+                conn.commit()
+
         if fila is None:
             return jsonify({"success": False, "mensaje": "Esta quiniela ya fue enviada anteriormente"}), 409
-        return jsonify({"success": True, "id": fila[0]})
+
+        return jsonify({
+            "success": True,
+            "id": fila[0],
+            "llavemaestra": llavemaestra
+        })
+
     except Exception as exc:
-        logger.error("enviarlaquinielaporwhatsapp: error -> %s", exc)
+        logger.error("enviarlaquinielaporwhatsapp error: %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
 
 # ── Esto de abajo trabaja con la api de verificar registro de clientes  ──────────────────────────────────────────────────────────────────────────────
 @app.route("/api/verificarregistro")
 def verificarregistro():
-    dispositivo_id = (request.args.get("dispositivo_id") or "").strip()
-    if not dispositivo_id:
+    dispositivoid = (request.args.get("dispositivoid") or "").strip()
+    if not dispositivoid:
         return jsonify({"registrado": False}), 400
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT nombrecelular FROM clientes WHERE dispositivo_id = %s",
-                    (dispositivo_id,),
+                    "SELECT nombrecelular FROM clientes WHERE dispositivoid = %s",
+                    (dispositivoid,),
                 )
                 fila = cur.fetchone()
         if fila is None:

@@ -33,9 +33,22 @@ localStorage.setItem(this.STORAGE_KEY, vendedorURL);
 const StatsQuinielas = {
 elPending: document.getElementById("statPending"),
 elActive: document.getElementById("statActive"),
-init() {
-const dataInicial = { pending: 0, active: 0 };
-this.actualizar(dataInicial);
+async init() {
+try {
+const dispositivoId = IdentidadCliente.leerDispositivoId();
+const res = await fetch(`/api/contadordequinielas?dispositivoid=${encodeURIComponent(dispositivoId)}`);
+const data = await res.json();
+if (!res.ok || !data.success) {
+throw new Error(data.mensaje || "No se pudo cargar el contador");
+}
+this.actualizar({
+pending: data.pending || 0,
+active: data.active || 0
+});
+} catch (err) {
+console.error("Error cargando contadores:", err);
+this.actualizar({ pending: 0, active: 0 });
+}
 },
 actualizar({ pending, active }) {
 if (this.elPending) this.elPending.textContent = pending;
@@ -166,7 +179,7 @@ try {
 const res = await fetch(this.API_REGISTRO, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ dispositivo_id: dispositivoId, nombrecelular: valor })
+body: JSON.stringify({ dispositivoid: dispositivoId, nombrecelular: valor })
 });
 const data = await res.json();
 if (!res.ok || !data.success) throw new Error(data.mensaje || "Error al registrar");

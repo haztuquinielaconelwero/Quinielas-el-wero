@@ -157,7 +157,7 @@ const valor = this.input.value.trim();
 if (!valor || valor.length < 3) {
 this.input.classList.add("error");
 this.errEl.hidden = false;
-this.errEl.textContent = "Escribe tu nombre completo por favor.";
+this.errEl.textContent = "Escribe tu nombre por favor.";
 this.input.focus();
 return;
 }

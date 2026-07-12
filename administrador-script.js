@@ -486,7 +486,7 @@ if (!response.ok) throw new Error(`HTTP ${response.status}`);
 const data = await response.json();
 const lista = data.pendientes ?? [];
 if (!lista.length) {
-_renderEstadoTabla(tbody, "vacio", "No hay quinielas por confirmar ✅", numCols);
+_renderEstadoTabla(tbody, "vacio", "No hay quinielas por confirmar", numCols);
 if (countElement) countElement.textContent = "0 En total";
 if (resumenElement) resumenElement.textContent = "0";
 return;
@@ -558,7 +558,7 @@ if (!response.ok) throw new Error(`HTTP ${response.status}`);
 const data = await response.json();
 const lista = data.espera ?? [];
 if (!lista.length) {
-_renderEstadoTabla(tbody, "vacio", "No hay quinielas en espera ✅", numCols);
+_renderEstadoTabla(tbody, "vacio", "No hay quinielas en espera", numCols);
 if (countElement) countElement.textContent = "0 en espera";
 if (resumenEspera) resumenEspera.textContent = "0";
 return;
@@ -638,7 +638,7 @@ const totalSemana = Number(data.totalSemana ?? lista.length);
 totalCount.textContent = String(totalSemana);
 }
 if (!lista.length) {
-_renderEstadoTabla(tbody, "vacio", "No hay quinielas jugando todavía ⚽", numCols);
+_renderEstadoTabla(tbody, "vacio", "No hay quinielas jugando todavía", numCols);
 if (countElement) countElement.textContent = "0 en juego";
 if (resumenJugando) resumenJugando.textContent = "0";
 return;

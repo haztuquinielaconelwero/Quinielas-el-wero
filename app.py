@@ -20,10 +20,8 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL no esta configurada en las variables de entorno de Railway")
 
-
 def get_connection():
     return psycopg.connect(DATABASE_URL)
-
 
 # ── Esto de abajo trabaja con la creacion de todas las tablas  ──────────────────────────────────────────────────────────────────────
 def crear_tablas():
@@ -45,20 +43,24 @@ def crear_tablas():
             p7 CHAR(1) CHECK (p7 IN ('L','E','V')),
             p8 CHAR(1) CHECK (p8 IN ('L','E','V')),
             p9 CHAR(1) CHECK (p9 IN ('L','E','V')),
-            estado VARCHAR(20) NOT NULL DEFAULT 'En espera'
-                CHECK (estado IN ('No jugando','Jugando','En espera','Rechazada')),
+            estado VARCHAR(20) NOT NULL DEFAULT 'No jugando'
+            CHECK (estado IN ('No jugando','Jugando','En espera','Rechazada')),
             folio VARCHAR(20),
             llavemaestra VARCHAR(300) GENERATED ALWAYS AS (
                 nombrecelular || '|' || jornada || '|' || nombrequiniela || '|' ||
                 p1 || p2 || p3 || p4 || p5 || p6 || p7 || p8 || p9
             ) STORED UNIQUE,
             fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
-
             CONSTRAINT folio_solo_si_jugando CHECK (
                 (estado = 'Jugando' AND folio IS NOT NULL) OR
                 (estado != 'Jugando' AND folio IS NULL)
             )
         );
+    """)
+    # ── Esto de abajo trabaja en el indice que hace mas rapidas las listas del panel y las acciones de confirmar/rechazar ──────────────────────
+    cur.execute("""
+        CREATE INDEX IF NOT EXISTS idx_vendedor_estado
+        ON todaslasquinielas (vendedor, estado);
     """)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS resultadosdelajornada (
@@ -83,7 +85,6 @@ def crear_tablas():
     conn.commit()
     cur.close()
     conn.close()
-
 
 # ── Esto de abajo trabaja con la informacion de la Jornada ───────────────────────────────────────────────────────────────────────────────────────────────
 JORNADA_ACTUAL = "Jornada 1"
@@ -170,7 +171,6 @@ PARTIDOS = [
         "kickoff": "2026-07-18T21:00:00-06:00",
     },
 ]
-
 MAX_DOBLES = 3
 MAX_TRIPLES = 3
 _total_especiales = MAX_DOBLES + MAX_TRIPLES
@@ -287,6 +287,45 @@ VENDEDOR_LINKS = {
     "Rolando":      "https://www.quinielaselwero.com/?vendedor=Rolando",
     "Taliban":      "https://www.quinielaselwero.com/?vendedor=Taliban",
     "•":            "https://www.quinielaselwero.com/?vendedor=%E2%80%A2",
+}
+# ── Esto de abajo trabaja en los limites de folio asignados por vendedor ────────────────────────────────────────────────────────────────────────────────
+LIMITES_VENDEDORES = {
+    "Alfonso":        (1,    60),
+    "•":              (61,   70),
+    "Choneke":        (71,   100),
+    "Rifa":           (101,  200),
+    "Azael":          (201,  250),
+    "Checo":          (251,  390),
+    "Dani":           (401,  450),
+    "El Piojo":       (451,  490),
+    "Taliban":        (501,  720),
+    "Guerrero":       (726,  750),
+    "Fer":            (751,  790),
+    "Figueroa":       (801,  850),
+    "Del Angel":      (851,  910),
+    "PolloGol":       (916,  950),
+    "Marchan":        (951,  990),
+    "Patty":          (1001, 1400),
+    "Manu":           (1401, 1460),
+    "Pantoja":        (1471, 1500),
+    "Rolando":        (1501, 1640),
+    "Ranita":         (1651, 1710),
+    "Gera":           (1716, 1750),
+    "Mazatan":        (1751, 1785),
+    "Boosters":       (1801, 1835),
+    "Alexander":      (1851, 1940),
+    "GioSoto":        (1951, 2010),
+    "Juanillo":       (2021, 2050),
+    "Energeticos":    (2051, 2110),
+    "Jose Luis":      (2116, 2150),
+    "Memo":           (2151, 2240),
+    "Tienda":         (2251, 2255),
+    "Piny":           (2256, 2260),
+    "Dinamica":       (2261, 2265),
+    "Vender 1":       (2266, 2315),
+    "Kany":           (2401, 2430),
+    "Ever":           (2451, 2480),
+    "Caro":           (2501, 2525),
 }
 # ── Ligas en total ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 LIGAS_ESPN = {
@@ -406,12 +445,10 @@ NOMBRE_A_ESPN = {
     "Uruguay":       ("Uruguay",                "mundial"),
 }
 
-
 def _normalizar_nombre(nombre):
     nombre = (nombre or "").strip().lower()
     nombre = unicodedata.normalize("NFD", nombre)
     return "".join(c for c in nombre if unicodedata.category(c) != "Mn")
-
 
 def _parsear_eventos_espn(data, local_lookup, ids_listos):
     encontrados = []
@@ -443,7 +480,6 @@ def _parsear_eventos_espn(data, local_lookup, ids_listos):
             encontrados.append((pid, gh, ga, res))
     return encontrados
 
-
 def _construir_lookups():
     kickoff_por_id = {}
     for p in PARTIDOS:
@@ -457,7 +493,6 @@ def _construir_lookups():
             continue
         ko_dt = ko_dt.astimezone(timezone.utc) if ko_dt.tzinfo else ko_dt.replace(tzinfo=timezone.utc)
         kickoff_por_id[p["id"]] = ko_dt
-
     local_lookup = {}
     liga_fecha_ids = {}
     for p in PARTIDOS:
@@ -475,7 +510,6 @@ def _construir_lookups():
             logger.warning("'%s' no esta en NOMBRE_A_ESPN, usando nombre directo", p["local"])
     return kickoff_por_id, local_lookup, liga_fecha_ids
 
-
 # ── Consultas a resultadosdelajornada usando las columnas nuevas: "partidos" y "resultados"  ───────────────────────────────────────────────────
 def _get_ids_con_resultado(jornada, ids):
     if not ids:
@@ -487,8 +521,6 @@ def _get_ids_con_resultado(jornada, ids):
                 (jornada, list(ids)),
             )
             return {r[0] for r in cur.fetchall()}
-
-
 def _guardar_resultado(pid, gh, ga, res):
     with get_connection() as conn:
         with conn.cursor() as cur:
@@ -507,7 +539,6 @@ def _guardar_resultado(pid, gh, ga, res):
             )
         conn.commit()
 
-
 def _auto_sync_loop():
     logger.info("auto_sync (hilo Flask) iniciado")
     try:
@@ -515,7 +546,6 @@ def _auto_sync_loop():
     except Exception as exc:
         logger.error("auto_sync: error construyendo lookups -> %s", exc)
         return
-
     while True:
         try:
             now = datetime.now(timezone.utc)
@@ -523,23 +553,19 @@ def _auto_sync_loop():
                 pid for pid, ko in kickoff_por_id.items()
                 if now >= ko + timedelta(minutes=105)
             }
-
             if not ids_listos:
                 time.sleep(600)
                 continue
-
             try:
                 ids_con_resultado = _get_ids_con_resultado(JORNADA_ACTUAL, ids_listos)
             except Exception as exc:
                 logger.error("auto_sync: error consultando DB -> %s", exc)
                 time.sleep(60)
                 continue
-
             ids_sin_resultado = ids_listos - ids_con_resultado
             if not ids_sin_resultado:
                 time.sleep(600)
                 continue
-
             for (liga_key, fecha), pids in liga_fecha_ids.items():
                 if not any(pid in ids_sin_resultado for pid in pids):
                     continue
@@ -556,24 +582,20 @@ def _auto_sync_loop():
                     logger.warning("auto_sync: error de red liga=%s fecha=%s -> %s", liga_key, fecha, exc)
                     continue
 
+
                 for pid, gh, ga, res in _parsear_eventos_espn(data, local_lookup, ids_sin_resultado):
                     try:
                         _guardar_resultado(pid, gh, ga, res)
                         logger.info("auto_sync OK partido_id=%s %s-%s res=%s", pid, gh, ga, res)
                     except Exception as exc:
                         logger.error("auto_sync: error guardando partido_id=%s -> %s", pid, exc)
-
         except Exception as exc:
             logger.error("auto_sync_loop: error inesperado -> %s", exc)
             time.sleep(60)
             continue
-
         time.sleep(600)
-
-
 _sync_iniciado = False
 _sync_lock = threading.Lock()
-
 
 def iniciar_auto_sync():
     global _sync_iniciado
@@ -584,16 +606,12 @@ def iniciar_auto_sync():
         hilo.start()
         _sync_iniciado = True
         logger.info("Hilo auto_sync lanzado en background")
-
-
 # ── Inicializacion al arrancar el servicio  ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 try:
     crear_tablas()
 except Exception as exc:
     raise RuntimeError(f"No se pudieron crear las tablas: {exc}") from exc
-
 iniciar_auto_sync()
-
 
 # ── Esto de abajo trabaja con la api de registrodeclientes  ─────────────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/registrodeclientes", methods=["POST"])
@@ -601,10 +619,8 @@ def registrodeclientes():
     data = request.get_json(silent=True) or {}
     dispositivo_id = (data.get("dispositivo_id") or "").strip()
     nombrecelular = (data.get("nombrecelular") or "").strip()
-
     if not dispositivo_id or not nombrecelular:
         return jsonify({"success": False, "mensaje": "Faltan datos"}), 400
-
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
@@ -618,28 +634,22 @@ def registrodeclientes():
                     (dispositivo_id, nombrecelular),
                 )
                 fila = cur.fetchone()
-
                 if fila is None:
                     cur.execute(
                         "SELECT id FROM clientes WHERE dispositivo_id = %s",
                         (dispositivo_id,)
                     )
                     fila = cur.fetchone()
-
             conn.commit()
-
         return jsonify({"success": True, "id": fila[0]})
-
     except Exception as exc:
         logger.error("registrodeclientes: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
-
 
 # ── Esto de abajo trabaja con la api de vendedores  ──────────────────────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/vendedores")
 def api_vendedores():
     return jsonify({"success": True, "vendedores": VENDEDOR_WHATSAPP})
-
 
 # ── Esto de abajo trabaja con la api de enviar la quiniela por whatsapp  ────────────────────────────────────────────────────────────────────────────
 @app.route("/api/enviarlaquinielaporwhatsapp", methods=["POST"])
@@ -656,14 +666,12 @@ def enviarlaquinielaporwhatsapp():
 
     if vendedor not in VENDEDOR_WHATSAPP:
         return jsonify({"success": False, "mensaje": "Vendedor no reconocido"}), 400
-
     picks = []
     for p in PARTIDOS:
         pick = selecciones.get(str(p["id"])) or selecciones.get(p["id"])
         if not pick or pick not in ("L", "E", "V"):
             return jsonify({"success": False, "mensaje": f"Falta seleccion en partido {p['id']}"}), 400
         picks.append(pick)
-
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
@@ -680,25 +688,19 @@ def enviarlaquinielaporwhatsapp():
                 )
                 fila = cur.fetchone()
             conn.commit()
-
         if fila is None:
             return jsonify({"success": False, "mensaje": "Esta quiniela ya fue enviada anteriormente"}), 409
-
         return jsonify({"success": True, "id": fila[0]})
-
     except Exception as exc:
         logger.error("enviarlaquinielaporwhatsapp: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
-
 
 # ── Esto de abajo trabaja con la api de verificar registro de clientes  ──────────────────────────────────────────────────────────────────────────────
 @app.route("/api/verificarregistro")
 def verificarregistro():
     dispositivo_id = (request.args.get("dispositivo_id") or "").strip()
-
     if not dispositivo_id:
         return jsonify({"registrado": False}), 400
-
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
@@ -707,22 +709,17 @@ def verificarregistro():
                     (dispositivo_id,),
                 )
                 fila = cur.fetchone()
-
         if fila is None:
             return jsonify({"registrado": False})
-
         return jsonify({"registrado": True, "nombrecelular": fila[0]})
-
     except Exception as exc:
         logger.error("verificarregistro: error -> %s", exc)
         return jsonify({"registrado": False, "mensaje": str(exc)}), 500
-
 
 # ── Esto de abajo trabaja con la api de la lista oficial  ───────────────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/lista-oficial")
 def lista_oficial():
     jornada = request.args.get("jornada", JORNADA_ACTUAL)
-
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
@@ -735,7 +732,6 @@ def lista_oficial():
                     ORDER BY folio::int ASC;
                 """, (jornada,))
                 filas = cur.fetchall()
-
         quinielas = []
         for row in filas:
             id_, folio, nombre, vendedor, p1, p2, p3, p4, p5, p6, p7, p8, p9 = row
@@ -746,9 +742,7 @@ def lista_oficial():
                 "vendedor": vendedor,
                 "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
             })
-
         return jsonify({"quinielas": quinielas})
-
     except Exception as exc:
         logger.error("lista_oficial: error -> %s", exc)
         return jsonify({"quinielas": [], "error": str(exc)}), 500
@@ -759,15 +753,11 @@ def validarpin():
     data = request.get_json(silent=True) or {}
     vendedor = (data.get("vendedor") or "").strip()
     pin = (data.get("pin") or "").strip()
-
     if vendedor not in VENDEDOR_WHATSAPP:
         return jsonify({"valido": False, "mensaje": "Vendedor no reconocido"}), 400
-
     if VENDEDOR_PIN.get(vendedor) == pin:
         return jsonify({"valido": True, "vendedor": vendedor})
-
     return jsonify({"valido": False, "mensaje": "PIN incorrecto"}), 401
-
 # ── Esto de abajo trabaja con la api de las quinielas del vendedor en administrador ─────────────────────────────────────────────────────────────────────────────
 @app.route("/api/quinielasdelvendedor")
 def quinielasdelvendedor():
@@ -793,17 +783,187 @@ def quinielasdelvendedor():
     except Exception as exc:
         logger.error("quinielasdelvendedor: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
+
+# ── Esto de abajo trabaja con la api de las quinielas No jugando  ─────────────────────────────────────────────────────────────────────────
+@app.route("/api/nojugando")
+def api_nojugando():
+    vendedor = (request.args.get("vendedor") or "").strip()
+    if vendedor not in VENDEDOR_WHATSAPP:
+        return jsonify({"success": False, "mensaje": "Vendedor no valido"}), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """SELECT id, nombrecelular, nombrequiniela,
+                              p1, p2, p3, p4, p5, p6, p7, p8, p9
+                       FROM todaslasquinielas
+                       WHERE vendedor = %s AND estado = 'No jugando'
+                       ORDER BY fecha_creacion ASC;""",
+                    (vendedor,),
+                )
+                filas = cur.fetchall()
+        pendientes = []
+        for row in filas:
+            id_, nombrecelular, nombre, p1, p2, p3, p4, p5, p6, p7, p8, p9 = row
+            pendientes.append({
+                "id": id_,
+                "nombre": nombre,
+                "vendedor": vendedor,
+                "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
+            })
+        return jsonify({"pendientes": pendientes})
+    except Exception as exc:
+        logger.error("api_nojugando: error -> %s", exc)
+        return jsonify({"pendientes": [], "error": str(exc)}), 500
+
+# ── Esto de abajo trabaja con la api de las quinielas En espera ─────────────────────────────────────────────────────────────────────────
+@app.route("/api/espera")
+def api_espera():
+    vendedor = (request.args.get("vendedor") or "").strip()
+    if vendedor not in VENDEDOR_WHATSAPP:
+        return jsonify({"success": False, "mensaje": "Vendedor no valido"}), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """SELECT id, nombrecelular, nombrequiniela,
+                              p1, p2, p3, p4, p5, p6, p7, p8, p9
+                       FROM todaslasquinielas
+                       WHERE vendedor = %s AND estado = 'En espera'
+                       ORDER BY fecha_creacion ASC;""",
+                    (vendedor,),
+                )
+                filas = cur.fetchall()
+        espera = []
+        for row in filas:
+            id_, nombrecelular, nombre, p1, p2, p3, p4, p5, p6, p7, p8, p9 = row
+            espera.append({
+                "id": id_,
+                "nombre": nombre,
+                "vendedor": vendedor,
+                "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
+            })
+        return jsonify({"espera": espera})
+    except Exception as exc:
+        logger.error("api_espera: error -> %s", exc)
+        return jsonify({"espera": [], "error": str(exc)}), 500
+
+# ── Esto de abajo trabaja con la api de las quinielas Jugando ─────────────────────────────────────────────────────────────────────────
+@app.route("/api/jugando")
+def api_jugando():
+    vendedor = (request.args.get("vendedor") or "").strip()
+    if vendedor not in VENDEDOR_WHATSAPP:
+        return jsonify({"success": False, "mensaje": "Vendedor no valido"}), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """SELECT id, folio, nombrequiniela,
+                              p1, p2, p3, p4, p5, p6, p7, p8, p9
+                       FROM todaslasquinielas
+                       WHERE vendedor = %s AND estado = 'Jugando'
+                       ORDER BY folio::int ASC;""",
+                    (vendedor,),
+                )
+                filas = cur.fetchall()
+        jugando = []
+        for row in filas:
+            id_, folio, nombre, p1, p2, p3, p4, p5, p6, p7, p8, p9 = row
+            jugando.append({
+                "id": id_,
+                "folio": folio,
+                "nombre": nombre,
+                "vendedor": vendedor,
+                "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
+            })
+        return jsonify({"jugando": jugando, "totalSemana": len(jugando)})
+    except Exception as exc:
+        logger.error("api_jugando: error -> %s", exc)
+        return jsonify({"jugando": [], "error": str(exc)}), 500
     
+# ── Esto de abajo trabaja con la api de confirmar una quiniela (pasa de No jugando a Jugando o En espera) ─────────────────────────────────────────
+@app.route("/api/quinielas/<int:qid>/confirmar", methods=["PATCH"])
+def api_confirmar(qid):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT vendedor, estado FROM todaslasquinielas WHERE id = %s FOR UPDATE;",
+                    (qid,),
+                )
+                fila = cur.fetchone()
+                if fila is None:
+                    return jsonify({"success": False, "error": "Quiniela no encontrada"}), 404
+                vendedor, estado = fila
+                if estado != "No jugando":
+                    return jsonify({"success": False, "error": "Esta quiniela ya fue procesada"}), 409
+                rango = LIMITES_VENDEDORES.get(vendedor)
+                if rango is None:
+                    return jsonify({"success": False, "error": f"'{vendedor}' no tiene folios asignados"}), 400
+                folio_inicio, folio_fin = rango
+                cur.execute(
+                    """SELECT folio::int FROM todaslasquinielas
+                       WHERE vendedor = %s AND estado = 'Jugando'
+                       ORDER BY folio::int ASC
+                       FOR UPDATE;""",
+                    (vendedor,),
+                )
+                folios_ocupados = {r[0] for r in cur.fetchall()}
+                folio_libre = None
+                for candidato in range(folio_inicio, folio_fin + 1):
+                    if candidato not in folios_ocupados:
+                        folio_libre = candidato
+                        break
+                if folio_libre is None:
+                    cur.execute(
+                        "UPDATE todaslasquinielas SET estado = 'En espera' WHERE id = %s;",
+                        (qid,),
+                    )
+                    conn.commit()
+                    return jsonify({"success": True, "estado": "espera"})
+                nuevo_folio = str(folio_libre)
+                cur.execute(
+                    """UPDATE todaslasquinielas
+                       SET estado = 'Jugando', folio = %s
+                       WHERE id = %s
+                       RETURNING folio;""",
+                    (nuevo_folio, qid),
+                )
+                folio = cur.fetchone()[0]
+            conn.commit()
+
+        return jsonify({"success": True, "estado": "jugando", "quiniela": {"folio": folio}})
+
+    except Exception as exc:
+        logger.error("api_confirmar: error -> %s", exc)
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+# ── Esto de abajo trabaja con la api de rechazar una quiniela (pasa de No jugando a Rechazada) ─────────────────────────────────────────────────────
+@app.route("/api/quinielas/<int:qid>/rechazar", methods=["PATCH"])
+def api_rechazar(qid):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "UPDATE todaslasquinielas SET estado = 'Rechazada' WHERE id = %s AND estado = 'No jugando';",
+                    (qid,),
+                )
+                afectadas = cur.rowcount
+            conn.commit()
+        if afectadas == 0:
+            return jsonify({"success": False, "error": "No se pudo rechazar (no existe o ya fue procesada)"}), 404
+        return jsonify({"success": True})
+    except Exception as exc:
+        logger.error("api_rechazar: error -> %s", exc)
+        return jsonify({"success": False, "error": str(exc)}), 500
 
 @app.route('/')
 def home():
     return send_from_directory('.', 'inicio.html')
 
-
 @app.route('/<path:filename>')
 def serve_file(filename):
     return send_from_directory('.', filename)
-
 
 @app.route("/health")
 def health():
@@ -817,7 +977,6 @@ def health():
         return jsonify({"status": "ok", "db": "conectado"})
     except Exception as e:
         return jsonify({"status": "error", "detalle": str(e)}), 500
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

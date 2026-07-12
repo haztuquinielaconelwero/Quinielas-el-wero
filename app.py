@@ -25,107 +25,80 @@ def get_connection():
 
 # ── Esto de abajo trabaja con la creacion de todas las tablas  ──────────────────────────────────────────────────────────────────────
 def crear_tablas():
-    conn = get_connection()
-    cur = conn.cursor()
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS todaslasquinielas (
+                    id SERIAL PRIMARY KEY,
+                    nombrecelular TEXT NOT NULL,
+                    nombrequiniela TEXT NOT NULL,
+                    vendedor TEXT NOT NULL,
+                    jornada TEXT NOT NULL,
+                    p1 CHAR(1) CHECK (p1 IN ('L','E','V')),
+                    p2 CHAR(1) CHECK (p2 IN ('L','E','V')),
+                    p3 CHAR(1) CHECK (p3 IN ('L','E','V')),
+                    p4 CHAR(1) CHECK (p4 IN ('L','E','V')),
+                    p5 CHAR(1) CHECK (p5 IN ('L','E','V')),
+                    p6 CHAR(1) CHECK (p6 IN ('L','E','V')),
+                    p7 CHAR(1) CHECK (p7 IN ('L','E','V')),
+                    p8 CHAR(1) CHECK (p8 IN ('L','E','V')),
+                    p9 CHAR(1) CHECK (p9 IN ('L','E','V')),
+                    estado TEXT NOT NULL DEFAULT 'No jugando'
+                        CHECK (estado IN ('No jugando','Jugando','En espera','Rechazada')),
+                    folio TEXT,
+                    fechacreacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+                    llavemaestra TEXT NOT NULL UNIQUE,
+                    dispositivoid TEXT NOT NULL,
+                    CONSTRAINT folio_solo_si_jugando CHECK (
+                        (estado = 'Jugando' AND folio IS NOT NULL) OR
+                        (estado <> 'Jugando' AND folio IS NULL)
+                    )
+                );
+            """)
 
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS todaslasquinielas (
-            id SERIAL PRIMARY KEY,
-            nombrecelular TEXT NOT NULL,
-            nombrequiniela TEXT NOT NULL,
-            vendedor TEXT NOT NULL,
-            jornada TEXT NOT NULL,
-            p1 CHAR(1) CHECK (p1 IN ('L','E','V')),
-            p2 CHAR(1) CHECK (p2 IN ('L','E','V')),
-            p3 CHAR(1) CHECK (p3 IN ('L','E','V')),
-            p4 CHAR(1) CHECK (p4 IN ('L','E','V')),
-            p5 CHAR(1) CHECK (p5 IN ('L','E','V')),
-            p6 CHAR(1) CHECK (p6 IN ('L','E','V')),
-            p7 CHAR(1) CHECK (p7 IN ('L','E','V')),
-            p8 CHAR(1) CHECK (p8 IN ('L','E','V')),
-            p9 CHAR(1) CHECK (p9 IN ('L','E','V')),
-            estado TEXT NOT NULL DEFAULT 'No jugando'
-                CHECK (estado IN ('No jugando','Jugando','En espera','Rechazada')),
-            folio TEXT,
-            fechacreacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
-            llavemaestra TEXT NOT NULL UNIQUE,
-            dispositivoid TEXT NOT NULL
-        );
-    """)
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_llavemaestra
+                ON todaslasquinielas (llavemaestra);
+            """)
 
-    cur.execute("""
-        CREATE INDEX IF NOT EXISTS idx_llavemaestra
-        ON todaslasquinielas (llavemaestra);
-    """)
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_dispositivoid
+                ON todaslasquinielas (dispositivoid);
+            """)
 
-    cur.execute("""
-        CREATE INDEX IF NOT EXISTS idx_dispositivoid
-        ON todaslasquinielas (dispositivoid);
-    """)
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_estado
+                ON todaslasquinielas (estado);
+            """)
 
-    cur.execute("""
-        CREATE INDEX IF NOT EXISTS idx_estado
-        ON todaslasquinielas (estado);
-    """)
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_vendedor_estado
+                ON todaslasquinielas (vendedor, estado);
+            """)
 
-    cur.execute("""
-        CREATE INDEX IF NOT EXISTS idx_vendedor_estado
-        ON todaslasquinielas (vendedor, estado);
-    """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS resultadosdelajornada (
+                    id SERIAL PRIMARY KEY,
+                    partidos INTEGER NOT NULL,
+                    resultados VARCHAR(100) NOT NULL,
+                    resultado CHAR(1) CHECK (resultado IN ('L','E','V')),
+                    marcadorlocal INTEGER,
+                    marcadorvisita INTEGER,
+                    fechaactualizacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+                    UNIQUE (partidos, resultados)
+                );
+            """)
 
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS resultadosdelajornada (
-            id SERIAL PRIMARY KEY,
-            partidos INTEGER NOT NULL,
-            resultados VARCHAR(100) NOT NULL,
-            resultado CHAR(1) CHECK (resultado IN ('L','E','V')),
-            marcadorlocal INTEGER,
-            marcadorvisita INTEGER,
-            fechaactualizacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
-            UNIQUE (partidos, resultados)
-        );
-    """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS clientes (
+                    id SERIAL PRIMARY KEY,
+                    dispositivoid VARCHAR(100) UNIQUE NOT NULL,
+                    nombrecelular VARCHAR(100) NOT NULL,
+                    fecharegistro TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City')
+                );
+            """)
 
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS clientes (
-            id SERIAL PRIMARY KEY,
-            dispositivoid VARCHAR(100) UNIQUE NOT NULL,
-            nombrecelular VARCHAR(100) NOT NULL,
-            fecharegistro TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City')
-        );
-    """)
-
-    conn.commit()
-    cur.close()
-    conn.close()
-    # ── Esto de abajo trabaja en el indice que hace mas rapidas las listas del panel y las acciones de confirmar/rechazar ──────────────────────
-    cur.execute("""
-        CREATE INDEX IF NOT EXISTS idx_vendedor_estado
-        ON todaslasquinielas (vendedor, estado);
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS resultadosdelajornada (
-            id SERIAL PRIMARY KEY,
-            "partidos" INTEGER NOT NULL,
-            "resultados" VARCHAR(100) NOT NULL,
-            resultado CHAR(1) CHECK (resultado IN ('L','E','V')),
-            marcador_local INTEGER,
-            marcador_visita INTEGER,
-            fecha_actualizacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
-            UNIQUE (partidos,resultados)
-        );
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS clientes (
-            id SERIAL PRIMARY KEY,
-            dispositivoid VARCHAR(100) UNIQUE NOT NULL,
-            nombrecelular VARCHAR(100) NOT NULL,
-            fecha_registro TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City')
-        );
-    """)
-    conn.commit()
-    cur.close()
-    conn.close()
+        conn.commit()
 
 # ── Esto de abajo trabaja con la informacion de la Jornada ───────────────────────────────────────────────────────────────────────────────────────────────
 JORNADA_ACTUAL = "Jornada 1"

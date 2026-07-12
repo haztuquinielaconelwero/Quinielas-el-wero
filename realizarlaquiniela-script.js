@@ -298,12 +298,11 @@ return `
 <div class="rq-mini-partido">
 <img src="${p.localLogo}" alt="${p.local}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
 <span class="rq-mini-equipo local">${p.local}</span>
-<span class="rq-mini-marcador">${marcador}</span>
+<span class="mq-mini-chip mq-mini-chip-neutro">${marcador}</span>
 <span class="rq-mini-equipo visitante">${p.visitante}</span>
 <img src="${p.visitanteLogo}" alt="${p.visitante}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
 </div>`;
 }).join("");
-
 return `
 <div class="rq-tarjeta-guardada" data-id="${q.id}">
 <button class="rq-tg-eliminar" data-id="${q.id}" aria-label="Eliminar quiniela">❌</button>
@@ -400,7 +399,10 @@ const data = await res.json();
 if (!res.ok || !data.success) {
 throw new Error(data.mensaje || "Error al enviar al servidor");
 }
-enviadasOk.push(q);
+enviadasOk.push({
+...q,
+id: data.id
+});
 contador.textContent = `${i + 1} de ${guardadas.length}`;
 await new Promise(r => setTimeout(r, 350));
 }

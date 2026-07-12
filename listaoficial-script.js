@@ -1,6 +1,10 @@
-/* =====================================  Esto de abajo trabaja en generar las tarjetas de la quiniela                                    ======================= */
+/* =====================================  Esto de abajo trabaja en generar las tarjetas de la quiniela                             ======================= */
 (function () {
 "use strict";
+const API_BASE = window.location.hostname === "localhost"
+? "http://localhost:8000"
+: "";
+const JORNADA_ACTUAL = "Jornada 1";
 const PARTIDOS = [
 { id: 1, local: "Necaxa",    localLogo: "logos/necaxa.png",    visitante: "Atlante",   visitanteLogo: "logos/atlante.png",   resultadoFinal: null },
 { id: 2, local: "Tijuana",   localLogo: "logos/tijuana.png",   visitante: "Tigres",    visitanteLogo: "logos/tigres.png",    resultadoFinal: null },
@@ -12,21 +16,48 @@ const PARTIDOS = [
 { id: 8, local: "Monterrey", localLogo: "logos/monterrey.png", visitante: "Toluca",    visitanteLogo: "logos/toluca.png",    resultadoFinal: null },
 { id: 9, local: "Querétaro", localLogo: "logos/queretaro.png", visitante: "América",   visitanteLogo: "logos/america.png",   resultadoFinal: null }
 ];
-/* =====================================  Esto de abajo trabaja en generar lista falsa de participantes                                    ======================= */
-const PARTICIPANTES = [
-{ folio: "2184", nombre: "Mont",          vendedor: "—",       selecciones: { 1: "E", 2: "L", 3: "E", 4: "L", 5: "L", 6: "L", 7: "L", 8: "E", 9: "L" }, puntos: 8 },
-{ folio: "184",  nombre: "Irving",        vendedor: "Alfonso", selecciones: { 1: "E", 2: "L", 3: "E", 4: "L", 5: "L", 6: "L", 7: "L", 8: "L", 9: "L" }, puntos: 7 },
-{ folio: "151",  nombre: "Kevin 3",       vendedor: "Alfonso", selecciones: { 1: "E", 2: "L", 3: "E", 4: "L", 5: "L", 6: "L", 7: "L", 8: "L", 9: "L" }, puntos: 7 },
-{ folio: "151",  nombre: "Oso 1",         vendedor: "Alfonso", selecciones: { 1: "E", 2: "L", 3: "E", 4: "L", 5: "E", 6: "L", 7: "L", 8: "E", 9: "L" }, puntos: 7 },
-{ folio: "173",  nombre: "Luis Campos 200000", vendedor: "Javier Garcia", selecciones: { 1: "E", 2: "L", 3: "E", 4: "L", 5: "L", 6: "L", 7: "E", 8: "L", 9: "L" }, puntos: 7 },
-{ folio: "1000", nombre: "Luis Campos 20000000", vendedor: "Energeticosssssssss", selecciones: { 1: "E", 2: "L", 3: "E", 4: "L", 5: "L", 6: "L", 7: "E", 8: "L", 9: "L" }, puntos: 7 }
-];
-/* =====================================  Esto de abajo trabaja en el filtro para buscar 1 , 2 lugar etc.                                   ======================= */
+/* =====================================  Esto de abajo trabaja en generar lista real de participantes desde la api                 ======================= */
+let PARTICIPANTES = [];
+/* =====================================  Esto de abajo trabaja en el filtro para buscar 1 , 2 lugar etc.                         ======================= */
 const estado = {
 busqueda: "",
-filtroActivo: "todos" // "todos" | "primero" | "segundo" | `puntos-N` | "ultimos"
+filtroActivo: "todos"
 };
-/* =====================================  Esto de abajo trabaja en el encabezado de la tabla  y su contenido                                  ======================= */
+/* =====================================  Esto de abajo trabaja en convertir picks de la api al formato de la tabla                ======================= */
+function normalizarParticipante(q) {
+const picks = Array.isArray(q?.picks) ? q.picks : [];
+const selecciones = {};
+PARTIDOS.forEach((partido, idx) => {
+selecciones[partido.id] = picks[idx] || "";
+});
+return {
+folio: q?.folio ?? "",
+nombre: q?.nombre ?? "",
+vendedor: q?.vendedor ?? "—",
+selecciones,
+puntos: Number(q?.puntos ?? 0)
+};
+}
+/* =====================================  Esto de abajo trabaja en cargar participantes reales desde la api                        ======================= */
+async function cargarParticipantes() {
+try {
+const jornadaParam = encodeURIComponent(JORNADA_ACTUAL);
+const res = await fetch(`${API_BASE}/api/laapidelalistaoficial?jornada=${jornadaParam}`);
+if (!res.ok) throw new Error("No se pudo cargar la Lista Oficial");
+const data = await res.json();
+PARTICIPANTES = Array.isArray(data?.quinielas)
+? data.quinielas.map(normalizarParticipante)
+: [];
+renderFiltros();
+renderTabla();
+} catch (err) {
+console.error("Lista Oficial:", err);
+PARTICIPANTES = [];
+renderFiltros();
+renderTabla();
+}
+}
+/* =====================================  Esto de abajo trabaja en el encabezado de la tabla  y su contenido                       ======================= */
 function renderEncabezado() {
 const fila = document.getElementById("filaEncabezado");
 if (!fila) return;
@@ -53,11 +84,11 @@ return `<span class="lo-chip-resultado lo-chip-${letra}">${letra}</span>`;
 function renderFilaParticipante(p, esPrimerLugar) {
 const celdasPartidos = PARTIDOS.map((partido) => {
 const letra = p.selecciones?.[partido.id] || "";
-const finalizado = !!partido.resultadoFinal; // true solo si el partido ya tiene resultado oficial
+const finalizado = !!partido.resultadoFinal;
 return `<td class="lo-td lo-td-partido">${renderChipResultado(letra, finalizado)}</td>`;
 }).join("");
 return `
-<tr class="${esPrimerLugar ? "lo-primer-lugar" : ""} lo-fila-resaltada" data-nombre="${p.nombre.toLowerCase()}" data-puntos="${p.puntos ?? 0}">
+<tr class="${esPrimerLugar ? "lo-primer-lugar" : ""} lo-fila-resaltada" data-nombre="${String(p.nombre || "").toLowerCase()}" data-puntos="${p.puntos ?? 0}">
 <td class="lo-td lo-td-folio">${p.folio}</td>
 <td class="lo-td lo-td-nombre" title="${p.nombre}">${p.nombre}</td>
 <td class="lo-td lo-td-vendedor">${p.vendedor || "—"}</td>
@@ -68,21 +99,26 @@ ${celdasPartidos}
 </tr>
 `;
 }
-/* =====================================  Esto de abajo trabaja en ordenar por puntos la lista y en el filtro                                ======================= */
+/* =====================================  Esto de abajo trabaja en ordenar por puntos la lista y en el filtro                      ======================= */
 function ordenarPorPuntos(lista) {
-return [...lista].sort((a, b) => (b.puntos ?? 0) - (a.puntos ?? 0));
+return [...lista].sort((a, b) => {
+const puntosA = Number(a?.puntos ?? 0);
+const puntosB = Number(b?.puntos ?? 0);
+if (puntosB !== puntosA) return puntosB - puntosA;
+return String(a?.folio ?? "").localeCompare(String(b?.folio ?? ""), "es", { numeric: true });
+});
 }
 function obtenerPuntosUnicos() {
-return [...new Set(PARTICIPANTES.map((p) => p.puntos ?? 0))].sort((a, b) => b - a);
+return [...new Set(PARTICIPANTES.map((p) => Number(p?.puntos ?? 0)))].sort((a, b) => b - a);
 }
 function obtenerListaVisible() {
 const ordenados = ordenarPorPuntos(PARTICIPANTES);
 const puntosUnicos = obtenerPuntosUnicos();
-const puntosMinimo = puntosUnicos[puntosUnicos.length - 1];
+const puntosMinimo = puntosUnicos.length ? puntosUnicos[puntosUnicos.length - 1] : 0;
 let lista = ordenados;
 if (estado.busqueda.trim()) {
 const q = estado.busqueda.trim().toLowerCase();
-lista = lista.filter((p) => p.nombre.toLowerCase().includes(q));
+lista = lista.filter((p) => String(p.nombre || "").toLowerCase().includes(q));
 }
 if (estado.filtroActivo === "primero") {
 lista = lista.filter((p) => p.puntos === puntosUnicos[0]);
@@ -96,14 +132,15 @@ lista = lista.filter((p) => p.puntos === puntosMinimo);
 }
 return lista;
 }
-/* =====================================  Esto de abajo trabaja en la tabla                            ======================= */
+/* =====================================  Esto de abajo trabaja en la tabla                                                         ======================= */
 function renderTabla() {
 const cuerpo = document.getElementById("cuerpoTabla");
 const wrap = document.getElementById("tablaWrap");
 const vacio = document.getElementById("mensajeVacio");
 const vacioTexto = document.getElementById("mensajeVacioTexto");
-if (!cuerpo) return;
+if (!cuerpo || !wrap || !vacio || !vacioTexto) return;
 if (!PARTICIPANTES.length) {
+cuerpo.innerHTML = "";
 wrap.hidden = true;
 vacio.hidden = false;
 vacioTexto.textContent = "Aún no hay quinielas en la Lista Oficial.";
@@ -113,6 +150,7 @@ const visibles = obtenerListaVisible();
 const ordenadosTotal = ordenarPorPuntos(PARTICIPANTES);
 const puntosMax = ordenadosTotal[0]?.puntos ?? 0;
 if (!visibles.length) {
+cuerpo.innerHTML = "";
 wrap.hidden = true;
 vacio.hidden = false;
 vacioTexto.textContent = "No se encontraron participantes con esos criterios.";
@@ -124,7 +162,7 @@ cuerpo.innerHTML = visibles
 .map((p) => renderFilaParticipante(p, p.puntos === puntosMax && puntosMax > 0))
 .join("");
 }
-/* =====================================  Esto de abajo trabaja en el buscandor en vivo                           ======================= */
+/* =====================================  Esto de abajo trabaja en el buscandor en vivo                                             ======================= */
 function initBuscador() {
 const input = document.getElementById("inputBuscador");
 if (!input) return;
@@ -133,11 +171,11 @@ estado.busqueda = input.value;
 renderTabla();
 });
 }
-/* =====================================  Esto de abajo trabaja en mostrar la informacion del panel                          ======================= */
+/* =====================================  Esto de abajo trabaja en mostrar la informacion del panel                                 ======================= */
 function construirOpcionesFiltro() {
 const ordenados = ordenarPorPuntos(PARTICIPANTES);
 const puntosUnicos = obtenerPuntosUnicos();
-const puntosMinimo = puntosUnicos[puntosUnicos.length - 1];
+const puntosMinimo = puntosUnicos.length ? puntosUnicos[puntosUnicos.length - 1] : 0;
 const puntosPrimero = puntosUnicos[0];
 const puntosSegundo = puntosUnicos.length > 1 ? puntosUnicos[1] : undefined;
 const opciones = [];
@@ -169,7 +207,7 @@ etiqueta: `Puntos ${pts}`,
 contador: ordenados.filter((p) => p.puntos === pts).length
 });
 });
-if (puntosMinimo !== puntosPrimero && puntosMinimo !== puntosSegundo) {
+if (puntosUnicos.length > 0 && puntosMinimo !== puntosPrimero && puntosMinimo !== puntosSegundo) {
 opciones.push({
 valor: "ultimos",
 etiqueta: "Últimos Lugares",
@@ -202,7 +240,7 @@ cerrarPanelFiltro();
 });
 });
 }
-/* =====================================  Esto de abajo trabaja en mostrar la informacion del panel (Abrir y cerrar)                        ======================= */
+/* =====================================  Esto de abajo trabaja en mostrar la informacion del panel             ======================= */
 let elOverlayFiltro, elBtnAbrirFiltro;
 function abrirPanelFiltro() {
 if (!elOverlayFiltro) return;
@@ -230,12 +268,13 @@ document.addEventListener("keydown", (e) => {
 if (e.key === "Escape" && !elOverlayFiltro.hidden) cerrarPanelFiltro();
 });
 }
-/* =====================================   Esto de abajo trabaja en inicianizacion de nuestra quiniela                                       ======================= */
-document.addEventListener("DOMContentLoaded", () => {
+/* =====================================  Esto de abajo trabaja en inicianizacion de nuestra quiniela                              ======================= */
+document.addEventListener("DOMContentLoaded", async () => {
 renderEncabezado();
 renderFiltros();
 renderTabla();
 initBuscador();
 initPanelFiltro();
+await cargarParticipantes();
 });
 })();

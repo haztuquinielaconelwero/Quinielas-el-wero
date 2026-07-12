@@ -101,7 +101,7 @@ mostrarLoading(true);
 const jornada = 'Jornada 1';
 state.jornada = jornada;
 const jornadaParam = encodeURIComponent(jornada);
-const resL = await fetch(`${API_BASE}/api/lista-oficial?jornada=${jornadaParam}`);
+const resL = await fetch(`${API_BASE}/api/laapidelalistaoficial?jornada=${jornadaParam}`);
 if (!resL.ok) throw new Error('Error de servidor al cargar los datos');
 const dataL = await resL.json();
 state.partidos        = [];
@@ -130,7 +130,7 @@ state.refreshCtrl = new AbortController();
 const { signal } = state.refreshCtrl;
 const jornadaParam = encodeURIComponent(state.jornada);
 try {
-const r1 = await fetch(`${API_BASE}/api/lista-oficial?jornada=${jornadaParam}`, { signal });
+const r1 = await fetch(`${API_BASE}/api/laapidelalistaoficial?jornada=${jornadaParam}`, { signal });
 if (!r1.ok) return;
 const { quinielas: nuevas = [] } = await r1.json();
 const sinCambios = nuevas.length === state.datosOriginales.length &&

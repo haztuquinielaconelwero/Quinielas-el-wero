@@ -755,9 +755,9 @@ def verificarregistro():
         logger.error("verificarregistro: error -> %s", exc)
         return jsonify({"registrado": False, "mensaje": str(exc)}), 500
 
-# ── Esto de abajo trabaja con la api de la lista oficial  ───────────────────────────────────────────────────────────────────────────────────────────
-@app.route("/api/lista-oficial")
-def lista_oficial():
+# ── Esto de abajo trabaja con la api de la lista oficial              ───────────────────────────────────────────────────────────────────────────────────────────
+@app.route("/api/laapidelalistaoficial")
+def laapidelalistaoficial():
     jornada = request.args.get("jornada", JORNADA_ACTUAL)
     try:
         with get_connection() as conn:
@@ -771,6 +771,7 @@ def lista_oficial():
                     ORDER BY folio::int ASC;
                 """, (jornada,))
                 filas = cur.fetchall()
+
         quinielas = []
         for row in filas:
             id_, folio, nombre, vendedor, p1, p2, p3, p4, p5, p6, p7, p8, p9 = row
@@ -781,12 +782,13 @@ def lista_oficial():
                 "vendedor": vendedor,
                 "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
             })
+
         return jsonify({"quinielas": quinielas})
     except Exception as exc:
-        logger.error("lista_oficial: error -> %s", exc)
+        logger.error("laapidelalistaoficial: error -> %s", exc)
         return jsonify({"quinielas": [], "error": str(exc)}), 500
 
-# ── Esto de abajo trabaja con la api de validad pin de los vendedores ───────────────────────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con la api de validad pin de los vendedores   ───────────────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/validarpin", methods=["POST"])
 def validarpin():
     data = request.get_json(silent=True) or {}
@@ -798,7 +800,7 @@ def validarpin():
         return jsonify({"valido": True, "vendedor": vendedor})
     return jsonify({"valido": False, "mensaje": "PIN incorrecto"}), 401
 
-# ── Esto de abajo trabaja con la api de las quinielas del vendedor en administrador ─────────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con la api de las quinielas del vendedor en administrador    ─────────────────────────────────────────────────────────────────────────────
 @app.route("/api/quinielasdelvendedor")
 def quinielasdelvendedor():
     vendedor = (request.args.get("vendedor") or "").strip()
@@ -828,7 +830,7 @@ def quinielasdelvendedor():
         logger.error("quinielasdelvendedor: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
 
-# ── Esto de abajo trabaja con la api de las quinielas No jugando  ─────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con la api de las quinielas No jugando                   ─────────────────────────────────────────────────────────────────────────
 @app.route("/api/nojugando")
 def api_nojugando():
     vendedor = (request.args.get("vendedor") or "").strip()
@@ -860,7 +862,7 @@ def api_nojugando():
         logger.error("api_nojugando: error -> %s", exc)
         return jsonify({"pendientes": [], "error": str(exc)}), 500
 
-# ── Esto de abajo trabaja con la api de las quinielas En espera ─────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con la api de las quinielas En espera                      ─────────────────────────────────────────────────────────────────────────
 @app.route("/api/espera")
 def api_espera():
     vendedor = (request.args.get("vendedor") or "").strip()
@@ -892,7 +894,7 @@ def api_espera():
         logger.error("api_espera: error -> %s", exc)
         return jsonify({"espera": [], "error": str(exc)}), 500
 
-# ── Esto de abajo trabaja con la api de las quinielas Jugando ─────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con la api de las quinielas Jugando                       ─────────────────────────────────────────────────────────────────────────
 @app.route("/api/jugando")
 def api_jugando():
     vendedor = (request.args.get("vendedor") or "").strip()
@@ -925,7 +927,7 @@ def api_jugando():
         logger.error("api_jugando: error -> %s", exc)
         return jsonify({"jugando": [], "error": str(exc)}), 500
 
-# ── Esto de abajo trabaja con la api de contadordequinielas  ─────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con la api de contadordequinielas                   ─────────────────────────────────────────────────────────────────────────
 @app.route("/api/contadordequinielas")
 def contadordequinielas():
     dispositivoid = (request.args.get("dispositivoid") or "").strip()

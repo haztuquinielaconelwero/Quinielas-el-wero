@@ -45,7 +45,6 @@ localStorage.setItem(STORAGE_KEY_ENVIADAS, JSON.stringify(lista));
 function leerDispositivoId() {
 return localStorage.getItem(STORAGE_KEY_DISPOSITIVO) || "";
 }
-
 const MAPA_ESTADO_BACKEND = {
 "No jugando": "no-jugando",
 "Jugando": "jugando",
@@ -62,11 +61,11 @@ if (!res.ok || !data.success) return;
 const enviadas = leerEnviadas();
 let cambio = false;
 const actualizadas = enviadas.map((q) => {
-const remota = data.quinielas.find((r) => r.id === q.id);
+const remota = data.quinielas.find((r) => r.llavemaestra === q.llavemaestra);
 if (!remota) return q;
 const estadoNuevo = MAPA_ESTADO_BACKEND[remota.estado] ?? q.estado;
 if (estadoNuevo !== q.estado || remota.folio !== q.folio) cambio = true;
-return { ...q, estado: estadoNuevo, folio: remota.folio ?? q.folio ?? null };
+return { ...q, id: remota.id, estado: estadoNuevo, folio: remota.folio ?? q.folio ?? null };
 });
 if (cambio) {
 guardarEnviadas(actualizadas);

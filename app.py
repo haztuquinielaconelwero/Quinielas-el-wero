@@ -100,6 +100,15 @@ def crear_tablas():
             """)
 
         conn.commit()
+# ── Esto de abajo trabaja con el boton de modo espera ───────────────────────────────────────────────────────────────────────────────────────────────
+MODO_ESPERA = {"activo": False}
+
+@app.route("/api/togglemodoespera", methods=["POST"])
+def togglemodoespera():
+    data = request.get_json(silent=True) or {}
+    MODO_ESPERA["activo"] = bool(data.get("activar"))
+    return jsonify({"success": True, "modoEspera": MODO_ESPERA["activo"]})
+
 # ── Esto de abajo trabaja con la informacion de la Jornada ───────────────────────────────────────────────────────────────────────────────────────────────
 JORNADA_ACTUAL = "Jornada 1"
 PARTIDOS = [
@@ -772,7 +781,8 @@ def laapidelalistaoficial():
             with conn.cursor() as cur:
                 cur.execute("""
                     SELECT id, folio, nombrequiniela, vendedor,
-                           p1, p2, p3, p4, p5, p6, p7, p8, p9
+                           p1, p2, p3, p4, p5, p6, p7, p8, p9,
+                           dispositivoid, llavemaestra
                     FROM todaslasquinielas
                     WHERE estado = 'Jugando'
                       AND jornada = %s
@@ -780,16 +790,20 @@ def laapidelalistaoficial():
                 """, (jornada,))
                 filas = cur.fetchall()
 
+
         quinielas = []
         for row in filas:
-            id_, folio, nombre, vendedor, p1, p2, p3, p4, p5, p6, p7, p8, p9 = row
+            id_, folio, nombre, vendedor, p1, p2, p3, p4, p5, p6, p7, p8, p9, dispositivoid, llavemaestra = row
             quinielas.append({
                 "id": id_,
                 "folio": folio,
                 "nombre": nombre,
                 "vendedor": vendedor,
                 "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
+                "dispositivoid": dispositivoid,
+                "llavemaestra": llavemaestra,
             })
+
 
         return jsonify({"quinielas": quinielas})
     except Exception as exc:
@@ -984,6 +998,14 @@ def api_confirmar(qid):
                 if estado != "No jugando":
                     return jsonify({"success": False, "error": "Esta quiniela ya fue procesada"}), 409
 
+                if MODO_ESPERA["activo"]:
+                    cur.execute(
+                        "UPDATE todaslasquinielas SET estado = 'En espera' WHERE id = %s",
+                        (qid,),
+                    )
+                    conn.commit()
+                    return jsonify({"success": True, "estado": "espera", "nuevofolio": None})
+
                 rango = LIMITES_VENDEDORES.get(vendedor)
                 if rango is None:
                     return jsonify({"success": False, "error": f"{vendedor} no tiene folios asignados"}), 400
@@ -1051,7 +1073,7 @@ def actualizarmisquinielas():
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    SELECT id, estado, folio
+                    SELECT id, llavemaestra, estado, folio
                     FROM todaslasquinielas
                     WHERE dispositivoid = %s
                     """,
@@ -1060,8 +1082,8 @@ def actualizarmisquinielas():
                 filas = cur.fetchall()
 
         quinielas = [
-            {"id": id_, "estado": estado, "folio": folio}
-            for id_, estado, folio in filas
+            {"id": id_, "llavemaestra": llave, "estado": estado, "folio": folio}
+            for id_, llave, estado, folio in filas
         ]
 
         return jsonify({"success": True, "quinielas": quinielas})
@@ -1139,6 +1161,66 @@ def apiporcentajesactuales():
             "partidos": [],
             "error": str(exc)
         }), 500
+
+# ── Esto de abajo trabaja con archivo para importar de excel ────────────────────────────────────────────────────────────────────────────────
+@app.route("/api/importararchivodeexcel", methods=["POST"])
+def importararchivodeexcel():
+    data = request.get_json(silent=True) or {}
+    jornada = data.get("jornada") or JORNADA_ACTUAL
+    filas = data.get("filas") or []
+    if not filas:
+        return jsonify({"success": False, "mensaje": "El archivo no trae filas"}), 400
+    insertadas = 0
+    rechazadas = []
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                for f in filas:
+                    picks = (f.get("picks") or [])[:9]
+                    if len(picks) < 9 or any(p not in ("L", "E", "V") for p in picks):
+                        rechazadas.append(f.get("folio"))
+                        continue
+                    dispositivoid = f.get("dispositivoid") or "csv-import"
+                    llave = f.get("llavemaestra") or f"IMPORTADO|{jornada}|{f.get('nombre')}|{f.get('folio')}"
+                    cur.execute(
+                        """
+                        INSERT INTO todaslasquinielas
+                        (nombrecelular, nombrequiniela, vendedor, jornada,
+                         p1,p2,p3,p4,p5,p6,p7,p8,p9, estado, folio, llavemaestra, dispositivoid)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'Jugando',%s,%s,%s)
+                        ON CONFLICT (llavemaestra) DO NOTHING
+                        RETURNING id
+                        """,
+                        ("Importado", f.get("nombre"), f.get("vendedor"), jornada,
+                         *picks, f.get("folio"), llave, dispositivoid),
+                    )
+                    if cur.fetchone() is None:
+                        rechazadas.append(f.get("folio"))
+                    else:
+                        insertadas += 1
+            conn.commit()
+        return jsonify({"success": True, "insertadas": insertadas, "rechazadas": len(rechazadas), "foliosrechazados": rechazadas})
+    except Exception as exc:
+        logger.error("importararchivodeexcel: error -> %s", exc)
+        return jsonify({"success": False, "mensaje": str(exc)}), 500
+
+# ── Esto de abajo trabaja con el boton de Nueva jornada────────────────────────────────────────────────────────────────────────────────
+@app.route("/api/nuevajornada", methods=["POST"])
+def nuevajornada():
+    data = request.get_json(silent=True) or {}
+    confirmacion = data.get("confirmacion")
+    if confirmacion != "SI_BORRAR_TODO":
+        return jsonify({"success": False, "mensaje": "Falta confirmación"}), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM todaslasquinielas")
+                cur.execute("DELETE FROM resultadosdelajornada")
+            conn.commit()
+        return jsonify({"success": True, "mensaje": "Quinielas y resultados borrados. Clientes intactos."})
+    except Exception as exc:
+        logger.error("nuevajornada: error -> %s", exc)
+        return jsonify({"success": False, "mensaje": str(exc)}), 500
     
 # ── Esto de abajo trabaja con el home e inicio.html ────────────────────────────────────────────────────────────────────────────────
 @app.route("/")

@@ -1,7 +1,6 @@
 /* =====================================  Esto de abajo trabaja en generar los partidos de la quiniela                                          ======================= */
 (function () {
 "use strict";
-let PARTIDOS = [];
 let MAX_DOBLES = 3;
 let MAX_TRIPLES = 3;
 let JORNADA_ACTUAL = "Jornada 1";
@@ -197,6 +196,7 @@ try {
 const actuales = JSON.parse(localStorage.getItem(STORAGE_KEY_ENVIADAS)) ?? [];
 const nuevas = quinielasEnviadas.map((q) => ({
 id: q.id,
+llavemaestra: q.llavemaestra,
 nombre: q.nombre,
 vendedor: q.vendedor,
 jornada: q.jornada,
@@ -296,39 +296,20 @@ card.addEventListener("click", () => cargarQuinielaGuardada(Number(card.dataset.
 actualizarResumenGuardadas();
 abrirModal("modalGuardadas");
 }
-function renderMiniOpciones(letras) {
-return OPCIONES.map((op) => {
-const activa = letras.includes(op);
-return `<span class="rq-opcion rq-opcion-mini${activa ? " seleccionado" : ""}" aria-hidden="true">${op}</span>`;
+function renderMiniQuiniela(q) {
+if (!Array.isArray(PARTIDOS) || PARTIDOS.length === 0) {
+return `<div class="rq-empty-msg"><span>📋</span><span>No se pudieron cargar los partidos de la jornada.</span></div>`;
+}
+return PARTIDOS.map((p) => {
+const sel = q.selecciones?.[p.id];
+const letras = Array.isArray(sel) ? sel : sel ? [sel] : [];
+const clase = letras.length === 3 ? "triple" : letras.length === 2 ? "doble" : "";
+const texto = letras.length ? letras.join("/") : "—";
+return `<div class="rq-mini-partido"><img src="${p.localLogo}" alt="${p.local}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;"><span class="rq-mini-equipo local">${p.local}</span><span class="rq-mini-marcador ${clase}">${texto}</span><span class="rq-mini-equipo visitante">${p.visitante}</span><img src="${p.visitanteLogo}" alt="${p.visitante}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;"></div>`;
 }).join("");
 }
 function renderTarjetaGuardada(q) {
-const miniPartidos = PARTIDOS.map((p) => {
-const sel = q.selecciones?.[p.id];
-const letras = Array.isArray(sel) ? sel : sel ? [sel] : [];
-return `
-<div class="rq-mini-partido">
-<img src="${p.localLogo}" alt="${p.local}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
-<span class="rq-mini-equipo local">${p.local}</span>
-<div class="rq-mini-opciones" aria-hidden="true">
-${renderMiniOpciones(letras)}
-</div>
-<span class="rq-mini-equipo visitante">${p.visitante}</span>
-<img src="${p.visitanteLogo}" alt="${p.visitante}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
-</div>`;
-}).join("");
-return `
-<div class="rq-tarjeta-guardada" data-id="${q.id}">
-<button class="rq-tg-eliminar" data-id="${q.id}" aria-label="Eliminar quiniela">❌</button>
-<div class="rq-tg-header">
-<span class="rq-tg-nombre">${q.nombre}</span>
-<span class="rq-tg-jornada">${q.jornada || "Jornada 1"}</span>
-<span class="rq-tg-vendedor">Vendedor: ${q.vendedor}</span>
-</div>
-<div class="rq-tg-mini-quiniela">
-${miniPartidos}
-</div>
-</div>`;
+return `<div class="rq-tarjeta-guardada" data-id="${q.id}"><button class="rq-tg-eliminar" data-id="${q.id}" aria-label="Eliminar quiniela">❌</button><div class="rq-tg-header"><span class="rq-tg-nombre">${q.nombre}</span><span class="rq-tg-nombre">Vendedor: ${q.vendedor} - ${q.jornada || "Jornada 1"}</span></div><div class="rq-tg-mini-quiniela">${renderMiniQuiniela(q)}</div></div>`;
 }
 function eliminarQuinielaGuardada(id) {
 const arr = leerStorage().filter((q) => q.id !== id);
@@ -417,7 +398,8 @@ throw new Error(data.mensaje || "Error al enviar al servidor");
 }
 enviadasOk.push({
 ...q,
-id: data.id
+id: data.id,
+llavemaestra: data.llavemaestra
 });
 contador.textContent = `${i + 1} de ${guardadas.length}`;
 await new Promise(r => setTimeout(r, 350));
@@ -561,9 +543,14 @@ document.getElementById("btnEnviarWhatsApp")?.addEventListener("click", enviarAW
 document.querySelectorAll("[data-close]").forEach((btn) => {
 btn.addEventListener("click", () => cerrarModal(btn.dataset.close));
 });
-document.getElementById("nombreInput")?.addEventListener("input", () => {
-const input = document.getElementById("nombreInput");
+document.getElementById("nombreInput")?.addEventListener("input", (e) => {
+const input = e.target;
 const errEl = document.getElementById("nombreError");
+let valor = input.value;
+valor = valor.replace(/(^\s*\w|\s\w)/g, (letra) => letra.toUpperCase());
+const cursor = input.selectionStart;
+input.value = valor;
+input.setSelectionRange(cursor, cursor);
 if (input.value.trim()) {
 input.classList.remove("error");
 if (errEl) errEl.textContent = "";

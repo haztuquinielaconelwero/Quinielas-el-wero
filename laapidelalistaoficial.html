@@ -34,13 +34,15 @@ Modo en espera activo — Las quinielas confirmadas por el vendedor no entrarán
 <span>🏆</span>
 </div>
 <div class="header-actions">
-<button class="btn btn-azul"    onclick="recargarDatos()">Actualizar 🔄</button>
-<button class="btn btn-azul"    onclick="document.getElementById('fileInput').click()">Importar 📤</button>
-<button class="btn btn-verde"   onclick="descargarPlantilla()">Plantilla 📄</button>
+<button class="btn btn-rojo"    onclick="confirmarNuevaJornada()">Nueva Jornada 🗑️</button>
 <button class="btn btn-azul"    onclick="exportarExcel()">Exportar 📥</button>
+<button class="btn btn-bloquear" id="btnBloquear" onclick="toggleBloqueo()">Bloqueo (Desactivado) 🟢</button>
+<button class="btn btn-verde"   onclick="descargarPlantilla()">Plantilla 📄</button>
+<button class="btn btn-azul"    onclick="recargarDatos()">Actualizar 🔄</button>
 <button class="btn btn-rojo" id="btnEliminarTodas" onclick="eliminarTodasLasQuinielas()">Archivar todas 📦</button>
-<button class="btn btn-bloquear" id="btnEspera" onclick="toggleBloqueo()">Modo en espera 🔓</button>
-<input type="file" id="fileInput" accept=".csv" onchange="importarCSV(event)">
+<button class="btn btn-bloquear" id="btnEspera" onclick="toggleModoEspera()">Modo en espera 🔓</button>
+<input type="file" id="fileInput" accept=".csv" onchange="importararchivodeexcel(event)">
+<button class="btn btn-azul"    onclick="document.getElementById('fileInput').click()">Importar 📤</button>
 </div>
 </div>
 <div class="toolbar">
@@ -68,6 +70,34 @@ Modo en espera activo — Las quinielas confirmadas por el vendedor no entrarán
 <div class="stat"><span>🥇 1er lugar:</span> <span class="stat-value" id="firstStat">0</span></div>
 <div class="stat"><span>🥈 2do lugar:</span> <span class="stat-value" id="secondStat">0</span></div>
 <div class="stat"><span>Vendedores:</span>    <span class="stat-value" id="vendedoresStat">0</span></div>
+</div>
+</div>
+<!-- Esto de abajo trabaja con la advertencia para el importador de quinielas -->    <!-- Esto de abajo trabaja con la advertencia para el importador de quinielas --> 
+<div class="modal-overlay" id="modalImportarResultado">
+<div class="modal-caja">
+<div class="modal-header">
+<span id="modalImportarTitulo">Resultado de la importación</span>
+</div>
+<div class="modal-body" id="modalImportarBody"></div>
+<div class="modal-footer">
+<button class="btn btn-azul" onclick="cerrarModalImportar()">Cerrar</button>
+</div>
+</div>
+</div>
+<!-- Esto de abajo trabaja con la advertencia de la nueva jornada -->              <!-- Esto de abajo trabaja con la advertencia de la nueva jornada --> 
+<div class="modal-overlay" id="modalNuevaJornada">
+<div class="modal-caja">
+<div class="modal-header">
+<span>Confirmar nueva jornada ⚠️</span>
+</div>
+<div class="modal-body">
+<p>¿Seguro que quieres eliminar todas las quinielas de esta semana?</p>
+<p style="color:#dc2626;font-weight:700;">Esta acción no se puede revertir.</p>
+</div>
+<div class="modal-footer" style="justify-content:space-between;">
+<button class="btn btn-rojo" onclick="ejecutarNuevaJornada()">Sí, eliminar todo</button>
+<button class="btn btn-azul" onclick="cerrarModalNuevaJornada()">No, cancelar</button>
+</div>
 </div>
 </div>
 <script src="laapidelalistaoficial-script.js"></script>

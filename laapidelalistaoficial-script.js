@@ -16,7 +16,8 @@ segundoPuntos: -1,
 rowDataCache: null,
 enProceso: false,
 refreshCtrl: null,
-bloqueado: false,
+listaBloqueada: false,
+modoEspera: false,
 jornada: null
 };
 let gridApi = null;
@@ -593,33 +594,107 @@ toast('El borrado en lote aun no esta conectado al servidor (siguiente paso)', '
 async function eliminarTodasLasQuinielas() {
 toast('Archivar todas aun no esta conectado al servidor (siguiente paso)', 'warn');
 }
-/* Esto de abajo trabaja en actualizar la interfaz del modo bloqueo o espera */       /* Esto de abajo trabaja en actualizar la interfaz del modo bloqueo o espera */
-function actualizarUIBloqueo() {
+/*                   Esto de abajo trabaja en activar la funcion de bloquear y la de en espera la lista en la apidelalistaoficial                  */
+function actualizarUIBotonBloquear() {
+const btn = document.getElementById('btnBloquear');
+if (!btn) return;
+if (state.listaBloqueada) {
+btn.textContent = 'Bloqueo (Activado) 🔴';
+btn.classList.add('bloqueado');
+} else {
+btn.textContent = 'Bloqueo (Desactivado) 🟢';
+btn.classList.remove('bloqueado');
+}
+}
+function toggleBloqueo() {
+state.listaBloqueada = !state.listaBloqueada;
+actualizarUIBotonBloquear();
+toast(state.listaBloqueada ? '🔒 Lista bloqueada' : '🔓 Lista desbloqueada', 'success');
+}
+/*                              Esto de abajo trabaja en activar o quitar el modo espera                                                                        */
+function actualizarUIBotonEspera() {
 const btn = document.getElementById('btnEspera');
 const banner = document.getElementById('bloqueoBanner');
-if (!btn || !banner) return;
-if (state.bloqueado) {
-btn.textContent = 'Modo en espera ⏳';
+if (!btn) return;
+if (state.modoEspera) {
+btn.textContent = 'Modo en espera 🔒';
 btn.classList.add('bloqueado');
-banner.classList.add('visible');
+if (banner) banner.classList.add('visible');
 } else {
 btn.textContent = 'Modo en espera 🔓';
 btn.classList.remove('bloqueado');
-banner.classList.remove('visible');
+if (banner) banner.classList.remove('visible');
 }
 }
-/* Esto de abajo trabaja en activar o quitar el modo espera desde el servidor y sera conectado despues */ /* Esto de abajo trabaja en activar o quitar el modo espera desde el servidor y sera conectado despues */
-async function toggleBloqueo() {
-toast('Modo en espera aun no esta conectado al servidor (siguiente paso)', 'warn');
+async function toggleModoEspera() {
+await conGuard(async () => {
+const res = await fetch(`${API_BASE}/api/togglemodoespera`, {
+method: 'POST',
+headers: getAuthHeaders(),
+body: JSON.stringify({ activar: !state.modoEspera })
+});
+const data = await res.json();
+if (!res.ok || !data.success) throw new Error(data.mensaje || 'Error al cambiar modo en espera');
+state.modoEspera = data.modoEspera;
+actualizarUIBotonEspera();
+toast(state.modoEspera ? '⏳ Modo en espera activado' : 'Modo en espera desactivado', 'success');
+});
 }
-/* Esto de abajo trabaja en recargar manualmente todos los datos del panel */ /* Esto de abajo trabaja en recargar manualmente todos los datos del panel */
-async function recargarDatos() {
-await cargarDatos();
-}
-/*                                  Esto de abajo trabaja en importar un archivo csv y sera conectado despues                                                     */ 
-async function importarCSV(event) {
-toast('Importar CSV aun no esta conectado al servidor (siguiente paso)', 'warn');
+/*                                                    Esto de abajo trabaja en importar un archivo csv                                                       */ 
+async function importararchivodeexcel(event) {
+const file = event.target.files[0];
 event.target.value = '';
+if (!file) return;
+const jornadaEsperada = (state.jornada || '').toLowerCase().replace(/\s+/g, '');
+const nombreSinExtension = file.name.replace(/\.csv$/i, '').toLowerCase().replace(/\s+/g, '');
+if (nombreSinExtension !== jornadaEsperada) {
+toast(`❌ El archivo debe llamarse exactamente "${state.jornada}.csv". Tu archivo se llama "${file.name}".`, 'error', 8000);
+return;
+}
+const texto = await file.text();
+const lineas = texto.split(/\r?\n/).filter(l => l.trim());
+lineas.shift();
+if (!lineas.length) {
+toast('El archivo no tiene filas', 'error');
+return;
+}
+const numPicks = state.partidos.length || 9;
+const filas = lineas.map(linea => {
+const cols = linea.split(',');
+const inicioExtras = 3 + numPicks;
+return {
+folio: (cols[0] || '').trim(),
+nombre: (cols[1] || '').trim(),
+vendedor: (cols[2] || '').trim(),
+picks: cols.slice(3, inicioExtras).map(p => p.trim().toUpperCase()),
+dispositivoid: (cols[inicioExtras] || '').trim(),
+llavemaestra: (cols[inicioExtras + 2] || '').trim()
+};
+}).filter(f => f.folio && f.nombre && f.vendedor);
+if (!filas.length) {
+toast('El archivo no tiene filas válidas', 'error');
+return;
+}
+await conGuard(async () => {
+const res = await fetch(`${API_BASE}/api/importararchivodeexcel`, {
+method: 'POST',
+headers: getAuthHeaders(),
+body: JSON.stringify({ jornada: state.jornada, filas })
+});
+const data = await res.json();
+if (!res.ok || !data.success) throw new Error(data.mensaje || 'Error al importar');
+const chips = (data.foliosrechazados || []).map(f => `<span class="modal-folio-chip">${f}</span>`).join('');
+const html = `
+<p><strong>Archivo:</strong> ${file.name}</p>
+<p><strong>Jornada:</strong> ${state.jornada}</p>
+<p><strong>Total de filas leídas:</strong> ${filas.length}</p>
+<p style="color:#16a34a;font-weight:700;">✅ Nuevas quinielas insertadas: ${data.insertadas}</p>
+<p style="color:#dc2626;font-weight:700;">⏭️ Ya existían (protegidas, sin duplicar): ${data.rechazadas}</p>
+${chips ? `<p><strong>Folios ya existentes:</strong></p><div>${chips}</div>` : ''}
+`;
+abrirModalImportar(html);
+await cargarDatos();
+});
 }
 /*                                 Esto de abajo trabaja en descargar una plantilla csv de ejemplo para capturar quinielas                           */ 
 function descargarPlantilla() {
@@ -628,9 +703,9 @@ const pickHeaders = Array.from({ length: cols }, (_, i) => `P${i + 1}`);
 const picks1 = Array.from({ length: cols }, (_, i) => ['L', 'E', 'V'][i % 3]).join(',');
 const picks2 = Array.from({ length: cols }, (_, i) => ['V', 'V', 'E', 'L'][i % 4]).join(',');
 descargarCSVBlob(
-`Folio,Nombre,Vendedor,${pickHeaders.join(',')},ID\n` +
-`1,Juan Pérez,Checo,${picks1},1\n` +
-`2,María López,Checo,${picks2},2`,
+`Folio,Nombre,Vendedor,${pickHeaders.join(',')},DispositivoId,Id,LlaveMaestra\n` +
+`1,Juan Pérez,Checo,${picks1},,,\n` +
+`2,María López,Checo,${picks2},,,`,
 'plantilla-quiniela.csv'
 );
 }
@@ -640,7 +715,7 @@ const MAX_FOLIO = 5000;
 const numPartidos = state.partidos.length || (state.datosOriginales[0]?.picks?.length || 9);
 if (!state.datosOriginales.length && !confirm('No hay quinielas cargadas. ¿Exportar de todas formas los 5000 folios vacíos?')) return;
 const pickHeaders = Array.from({ length: numPartidos }, (_, i) => `P${i + 1}`);
-const headers = ['Folio', 'Nombre', 'Vendedor', ...pickHeaders, 'Puntos', 'ID'];
+const headers = ['Folio', 'Nombre', 'Vendedor', ...pickHeaders, 'DispositivoId', 'Id', 'LlaveMaestra'];
 const csvLines = [headers.join(',')];
 const porFolio = {};
 state.datosOriginales.forEach(q => {
@@ -657,18 +732,18 @@ const picks = Array.from({ length: numPartidos }, (_, idx) => {
 const v = Array.isArray(q.picks) ? q.picks[idx] : undefined;
 return (v && v !== '-') ? v : '';
 });
-csvLines.push(`${q.folio ?? i},${nombre},${vendedor},${picks.join(',')},${q.puntos ?? 0},${q.id ?? ''}`);
+csvLines.push(`${q.folio ?? i},${nombre},${vendedor},${picks.join(',')},${q.dispositivoid ?? ''},${q.id ?? ''},${q.llavemaestra ?? ''}`);
 exportadas++;
 } else {
 const vacios = Array(numPartidos).fill('').join(',');
-csvLines.push(`${i},,,${vacios},,`);
+csvLines.push(`${i},,,${vacios},,,`);
 }
 }
-const fecha = new Date().toISOString().split('T')[0];
-descargarCSVBlob(csvLines.join('\n'), `lista-oficial-${fecha}.csv`);
+const nombreArchivo = (state.jornada || 'Jornada').replace(/[\\/:*?"<>|]/g, '');
+descargarCSVBlob(csvLines.join('\n'), `${nombreArchivo}.csv`);
 toast(`✅ Exportado: ${exportadas} quinielas + ${MAX_FOLIO - exportadas} folios vacíos (total ${MAX_FOLIO})`, 'success', 6000);
 }
-/*                                       Esto de abajo trabaja en generar y descargar archivos csv desde el navegador                                           */
+/*                                       Esto de abajo trabaja en generar los archivos de excel                                                       */
 function descargarCSVBlob(csv, filename) {
 if (!csv || !filename) return;
 const bom = '\uFEFF';
@@ -681,6 +756,27 @@ document.body.appendChild(a);
 a.click();
 document.body.removeChild(a);
 setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+/*                                       Esto de abajo trabaja en el boton de Nueva quiniela                                                             */ 
+function confirmarNuevaJornada() {
+document.getElementById('modalNuevaJornada').classList.add('visible');
+}
+function cerrarModalNuevaJornada() {
+document.getElementById('modalNuevaJornada').classList.remove('visible');
+}
+async function ejecutarNuevaJornada() {
+cerrarModalNuevaJornada();
+await conGuard(async () => {
+const res = await fetch(`${API_BASE}/api/nuevajornada`, {
+method: 'POST',
+headers: getAuthHeaders(),
+body: JSON.stringify({ confirmacion: 'SI_BORRAR_TODO' })
+});
+const data = await res.json();
+if (!res.ok || !data.success) throw new Error(data.mensaje || 'Error al iniciar nueva jornada');
+toast('✅ ' + data.mensaje, 'success', 7000);
+await cargarDatos();
+});
 }
 /*                                 Esto de abajo trabaja en actualizar las estadisticas generales de la lista oficial                                         */ 
 function actualizarEstadisticas() {

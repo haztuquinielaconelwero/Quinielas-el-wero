@@ -109,7 +109,7 @@ PARTIDOS = [
         "visitante": "Atlante", "visitanteLogo": "/logos/atlante.png",
         "horario": "Jueves 16 de julio 7:00 pm",
         "televisora": "TV Azteca",
-        "televisionLogo": "/logos/azteca.png",
+        "televisionLogo": "/logos/tv-azteca.png",
         "kickoff": "2026-07-16T19:00:00-06:00",
     },
     {
@@ -118,7 +118,7 @@ PARTIDOS = [
         "visitante": "Tigres", "visitanteLogo": "/logos/tigres.png",
         "horario": "Jueves 16 de julio 9:00 pm",
         "televisora": "TV Azteca",
-        "televisionLogo": "/logos/azteca.png",
+        "televisionLogo": "/logos/fox-sports.png",
         "kickoff": "2026-07-16T21:00:00-06:00",
     },
     {
@@ -127,7 +127,7 @@ PARTIDOS = [
         "visitante": "Cruz Azul", "visitanteLogo": "/logos/cruz-azul.png",
         "horario": "Viernes 17 de julio 7:00 pm",
         "televisora": "FOX Sports",
-        "televisionLogo": "/logos/fox.png",
+        "televisionLogo": "/logos/espn.png",
         "kickoff": "2026-07-17T19:00:00-06:00",
     },
     {
@@ -145,7 +145,7 @@ PARTIDOS = [
         "visitante": "Puebla", "visitanteLogo": "/logos/puebla.png",
         "horario": "Viernes 17 de julio 9:00 pm",
         "televisora": "TV Azteca",
-        "televisionLogo": "/logos/azteca.png",
+        "televisionLogo": "/logos/tv-azteca.png",
         "kickoff": "2026-07-17T21:00:00-06:00",
     },
     {
@@ -172,7 +172,7 @@ PARTIDOS = [
         "visitante": "Toluca", "visitanteLogo": "/logos/toluca.png",
         "horario": "Sábado 18 de julio 7:07 pm",
         "televisora": "Amazon Prime Video / Chivas TV",
-        "televisionLogo": "/logos/prime.png",
+        "televisionLogo": "/logos/amazon-prime.png",
         "kickoff": "2026-07-18T19:07:00-06:00",
     },
     {
@@ -181,7 +181,7 @@ PARTIDOS = [
         "visitante": "América", "visitanteLogo": "/logos/america.png",
         "horario": "Sábado 18 de julio 9:00 pm",
         "televisora": "TV Azteca",
-        "televisionLogo": "/logos/azteca.png",
+        "televisionLogo": "/logos/tv-azteca.png",
         "kickoff": "2026-07-18T21:00:00-06:00",
     },
 ]

@@ -297,37 +297,30 @@ actualizarResumenGuardadas();
 abrirModal("modalGuardadas");
 }
 function renderMiniOpciones(letras) {
-return OPCIONES.map((op) => {
-const activa = letras.includes(op);
-return `
-<span
-class="rq-opcion rq-opcion-mini ${activa ? "seleccionado" : ""}"
-aria-hidden="true"
->${op}</span>
-`;
-}).join("");
+if (!letras.length) {
+return `<span class="rq-resultado-chip rq-resultado-vacio" aria-hidden="true">—</span>`;
+}
+return letras.map((letra) => `
+<span class="rq-resultado-chip rq-resultado-${letra}" aria-hidden="true">${letra}</span>
+`).join("");
 }
 function renderTarjetaGuardada(q) {
 const miniPartidos = PARTIDOS.map((p) => {
 const sel = q.selecciones?.[p.id];
 const letras = Array.isArray(sel) ? sel : sel ? [sel] : [];
 return `
-<div class="rq-mini-partido">
-<imgsrc="${p.localLogo}"
-alt="${p.local}"
-class="rq-mini-logo"
-loading="lazy"
-onerror="this.style.visibility='hidden';this.onerror=null;">
-<span class="rq-mini-equipo local">${p.local}</span>
-<div class="rq-mini-opciones" aria-hidden="true">
+<div class="mq-mini-partido">
+<div class="mq-mini-lado">
+<img src="${p.localLogo}" alt="${p.local}" class="mq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
+<span class="mq-mini-equipo">${p.local}</span>
+</div>
+<div class="mq-mini-chips" aria-hidden="true">
 ${renderMiniOpciones(letras)}
 </div>
-<span class="rq-mini-equipo visitante">${p.visitante}</span>
-<imgsrc="${p.visitanteLogo}"
-alt="${p.visitante}"
-class="rq-mini-logo"
-loading="lazy"
-onerror="this.style.visibility='hidden';this.onerror=null;">
+<div class="mq-mini-lado">
+<span class="mq-mini-equipo visitante">${p.visitante}</span>
+<img src="${p.visitanteLogo}" alt="${p.visitante}" class="mq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
+</div>
 </div>`;
 }).join("");
 return `
@@ -338,7 +331,7 @@ return `
 <span class="rq-tg-jornada">${q.jornada || "Jornada 1"}</span>
 <span class="rq-tg-vendedor">Vendedor: ${q.vendedor}</span>
 </div>
-<div class="rq-tg-mini-quiniela">
+<div class="mq-mini-quiniela">
 ${miniPartidos}
 </div>
 </div>`;

@@ -129,16 +129,17 @@ background: linear-gradient(160deg, rgba(0,163,108,0.14), rgba(0,122,77,0.05));
 border-color: rgba(0,163,108,0.4);
 box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,163,108,0.15);
 }
-.mq-tarjeta.no-jugando {
+.mq-tarjeta.no-jugando,
+.mq-tarjeta.rechazada {
 background: linear-gradient(160deg, rgba(206,17,38,0.14), rgba(154,13,30,0.05));
 border-color: rgba(206,17,38,0.4);
 box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(206,17,38,0.15);
 }
 .mq-tarjeta.espera {
-background: linear-gradient(160deg, #ffffff, #f8fafc);
-border: 1px solid rgba(17, 24, 39, 0.08);
-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
-color: #111827;
+background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+border: 1px solid rgba(255,255,255,0.14);
+box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.06);
+color: #ffffff;
 }
 @keyframes mqCardIn {
 from { opacity: 0; transform: translateY(18px); }
@@ -159,7 +160,7 @@ min-width: 0;
 .mq-tarjeta-nombre {
 font-size: 0.95rem;
 font-weight: 800;
-color: var(--text-main);
+color: #ffffff;
 overflow: hidden;
 text-overflow: ellipsis;
 white-space: nowrap;
@@ -168,12 +169,12 @@ white-space: nowrap;
 font-size: 0.92rem;
 font-weight: 500;
 line-height: 1.35;
-color: var(--texto-secundario, #6b7280);
+color: #ffffff;
 }
 .mq-tarjeta-folio {
 font: inherit;
 font-weight: 600;
-color: var(--texto-principal, #111827);
+color: #ffffff;
 }
 .mq-estado-badge {
 display: inline-flex;
@@ -200,9 +201,9 @@ color: #ff7080;
 border-color: rgba(206,17,38,0.4);
 }
 .mq-estado-espera {
-background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
-color: var(--text-main);
-border-color: rgba(255,255,255,0.18);
+background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
+color: #d1d5db;
+border-color: rgba(255,255,255,0.22);
 }
 .mq-mini-quiniela {
 display: flex;

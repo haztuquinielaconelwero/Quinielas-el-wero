@@ -20,7 +20,7 @@ const data = await res.json();
 if (!res.ok || !data?.partidos || !Array.isArray(data.partidos)) {
 throw new Error("No se pudo cargar la jornada oficial");
 }
-JORNADA_ACTUAL = data.jornada || "";
+JORNADA_ACTUAL = data.jornadaActual || "";
 PARTIDOS = data.partidos.map((p) => ({
 id: Number(p.id),
 local: p.local,

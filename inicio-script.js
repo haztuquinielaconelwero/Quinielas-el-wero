@@ -149,7 +149,23 @@ this.btn?.addEventListener("click", () => this.confirmar());
 this.input?.addEventListener("keydown", (e) => {
 if (e.key === "Enter") { e.preventDefault(); this.confirmar(); }
 });
+this.input?.addEventListener("input", () => this.capitalizarPrimeraLetra());
 this.mostrarSiEsNecesario();
+},
+capitalizarPrimeraLetra() {
+const input = this.input;
+const LIMITE_CARACTERES = 35;
+let posCursor = input.selectionStart;
+let valorOriginal = input.value;
+if (valorOriginal.length > LIMITE_CARACTERES) {
+valorOriginal = valorOriginal.slice(0, LIMITE_CARACTERES);
+posCursor = Math.min(posCursor, LIMITE_CARACTERES);
+}
+const valorCapitalizado = valorOriginal.replace(/(^\s*\p{L}|(?<=\s)\p{L})/gu, (letra) => letra.toUpperCase());
+if (valorCapitalizado !== input.value) {
+input.value = valorCapitalizado;
+input.setSelectionRange(posCursor, posCursor);
+}
 },
 leerIdentidad() {
 return localStorage.getItem(this.STORAGE_KEY_IDENTIDAD) || "";
@@ -189,6 +205,24 @@ this.modal.hidden = true;
 this.errEl.hidden = false;
 this.errEl.textContent = "No se pudo guardar, intenta de nuevo.";
 console.error(err);
+}
+}
+};
+/* =============                      Esto de abajo trabaja en la actualizacion del Jornada en varios escritos                  ============================ */
+const JornadaHero = {
+elementos: document.querySelectorAll("[data-jornada-label]"),
+async init() {
+if (!this.elementos.length) return;
+try {
+const res = await fetch("/api/apijornadaactual");
+const data = await res.json();
+if (res.ok && data.jornadaActual) {
+this.elementos.forEach((el) => {
+el.textContent = `${data.jornadaActual} - Liga MX`;
+});
+}
+} catch (err) {
+console.error("No se pudo actualizar la jornada", err);
 }
 }
 };

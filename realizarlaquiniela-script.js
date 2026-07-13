@@ -26,8 +26,6 @@ const STORAGE_KEY = "quinielasElWero_guardadas";
 const nombreCelularActual = localStorage.getItem("quinielasElWero_identidad") || "";
 const OPCIONES = ["L", "E", "V"];
 const PRECIO_UNITARIO = 30;
-const MAX_DOBLES = 3;
-const MAX_TRIPLES = 3;
 const APIBASE = window.location.hostname === "localhost" ? "http://localhost:8000" : "";
 let VENDEDOR_WHATSAPP = {};
 const estado = {

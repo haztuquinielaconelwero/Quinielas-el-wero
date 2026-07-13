@@ -109,7 +109,23 @@ def togglemodoespera():
     MODO_ESPERA["activo"] = bool(data.get("activar"))
     return jsonify({"success": True, "modoEspera": MODO_ESPERA["activo"]})
 
+# ── Esto de abajo trabaja con el boton de modo espera ───────────────────────────────────────────────────────────────────────────────────────────────
+LISTA_BLOQUEADA = False
+
+@app.route("/api/togglebloqueo", methods=["POST"])
+def togglebloqueo():
+    global LISTA_BLOQUEADA
+    data = request.get_json(silent=True) or {}
+    LISTA_BLOQUEADA = bool(data.get("activar"))
+    return jsonify(success=True, listaBloqueada=LISTA_BLOQUEADA)
+
+@app.route("/api/quinielas/int:qid/confirmar", methods=["PATCH"])
+def apiconfirmarqid(qid):
+    if LISTA_BLOQUEADA:
+        return jsonify(success=False, error="Estamos trabajando en las listas, favor de intentarlo mañana"), 423
+    
 # ── Esto de abajo trabaja con la informacion de la Jornada ───────────────────────────────────────────────────────────────────────────────────────────────
+WHATSAPP_GRUPO_URL = "https://chat.whatsapp.com/JKFSN3hDRBA91iy9T7GLPh"
 JORNADA_ACTUAL = "Jornada 1"
 PARTIDOS = [
     {
@@ -203,6 +219,7 @@ if _total_especiales > len(PARTIDOS):
         f"MAX_DOBLES ({MAX_DOBLES}) + MAX_TRIPLES ({MAX_TRIPLES}) = "
         f"{_total_especiales} excede el numero de partidos ({len(PARTIDOS)})"
     )
+
 @app.route("/api/apijornadaactual")
 def apijornadaactual():
     return jsonify({
@@ -210,6 +227,7 @@ def apijornadaactual():
         "partidos": PARTIDOS,
         "maxDobles": MAX_DOBLES,
         "maxTriples": MAX_TRIPLES,
+        "whatsappUrl": WHATSAPP_GRUPO_URL
     })
 
 # ── Esto de abajo trabaja en el direccionario de pins de los vendedores────────────────────────────────────────────────────────────────────────────────
@@ -980,7 +998,7 @@ def contadordequinielas():
         logger.error("contadordequinielas error: %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
 
-# ── Esto de abajo trabaja con la api de confirmar una quiniela pasa de No jugando a Jugando o En espera ────────────────────────────────────────────────
+# ── Esto de abajo trabaja con la api de confirmar una quiniela pasa de no jugando a jugando o en espera ────────────────────────────────────────────────
 @app.route("/api/quinielas/<int:qid>/confirmar", methods=["PATCH"])
 def api_confirmar(qid):
     try:
@@ -1042,7 +1060,7 @@ def api_confirmar(qid):
         logger.error("api_confirmar: error -> %s", exc)
         return jsonify({"success": False, "error": str(exc)}), 500
 
-# ── Esto de abajo trabaja con la api de rechazar una quiniela pasa de No jugando a Rechazada ────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con la api de rechazar una quiniela pasa de no jugando a rechazada ────────────────────────────────────────────────────────────────
 @app.route("/api/quinielas/<int:qid>/rechazar", methods=["PATCH"])
 def api_rechazar(qid):
     try:

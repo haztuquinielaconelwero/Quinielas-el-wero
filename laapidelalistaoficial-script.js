@@ -609,21 +609,17 @@ btn.classList.remove('bloqueado');
 function toggleBloqueo() {
 state.listaBloqueada = !state.listaBloqueada;
 actualizarUIBotonBloquear();
-toast(state.listaBloqueada ? '🔒 Lista bloqueada' : '🔓 Lista desbloqueada', 'success');
+toast(state.listaBloqueada ? 'Lista bloqueada 🔒' : 'Lista desbloqueada 🔓', 'success');
 }
 /*                              Esto de abajo trabaja en activar o quitar el modo espera                                                                        */
 function actualizarUIBotonEspera() {
 const btn = document.getElementById('btnEspera');
-const banner = document.getElementById('bloqueoBanner');
-if (!btn) return;
 if (state.modoEspera) {
-btn.textContent = 'Modo en espera 🔒';
+btn.textContent = 'En espera (Activado) 🔴';
 btn.classList.add('bloqueado');
-if (banner) banner.classList.add('visible');
 } else {
-btn.textContent = 'Modo en espera 🔓';
+btn.textContent = 'En espera (Desactivado) 🟢';
 btn.classList.remove('bloqueado');
-if (banner) banner.classList.remove('visible');
 }
 }
 async function toggleModoEspera() {
@@ -637,7 +633,7 @@ const data = await res.json();
 if (!res.ok || !data.success) throw new Error(data.mensaje || 'Error al cambiar modo en espera');
 state.modoEspera = data.modoEspera;
 actualizarUIBotonEspera();
-toast(state.modoEspera ? '⏳ Modo en espera activado' : 'Modo en espera desactivado', 'success');
+toast(state.modoEspera ? 'Modo en espera activado ⏳' : 'Modo en espera desactivado ⏳', 'success');
 });
 }
 /*                                                    Esto de abajo trabaja en importar un archivo csv                                                       */ 

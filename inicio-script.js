@@ -210,22 +210,31 @@ console.error(err);
 };
 /* =============                      Esto de abajo trabaja en la actualizacion del Jornada en varios escritos                  ============================ */
 const JornadaHero = {
-elementos: document.querySelectorAll("[data-jornada-label]"),
+elementosLabel: document.querySelectorAll("[data-jornada-label]"),
+linkWsp: document.querySelector("[data-whatsapp-link]"),
 async init() {
-if (!this.elementos.length) return;
+if (!this.elementosLabel.length && !this.linkWsp) return;
 try {
 const res = await fetch("/api/apijornadaactual");
 const data = await res.json();
 if (res.ok && data.jornadaActual) {
-this.elementos.forEach((el) => {
+this.elementosLabel.forEach((el) => {
 el.textContent = `${data.jornadaActual} - Liga MX`;
 });
+if (this.linkWsp && data.whatsappUrl) {
+this.linkWsp.href = data.whatsappUrl;
+const label = this.linkWsp.querySelector("[data-whatsapp-label]");
+if (label) {
+label.textContent = `Únete al grupo de la ${data.jornadaActual} - Liga MX`;
+}
+}
 }
 } catch (err) {
 console.error("No se pudo actualizar la jornada", err);
 }
 }
 };
+JornadaHero.init();
 /* =============                                Esto de abajo trabaja en eliminar el service worker                               ============================ */
 if ('serviceWorker' in navigator) {
 navigator.serviceWorker.getRegistrations().then(function(registrations) {

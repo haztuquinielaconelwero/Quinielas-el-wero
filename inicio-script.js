@@ -241,6 +241,7 @@ NavegacionExplora.init();
 StatsQuinielas.init();
 TimerPremium.init();
 IdentidadCliente.init();
+JornadaHero.init();
 setInterval(() => StatsQuinielas.init(), 15000);
 });
 })();

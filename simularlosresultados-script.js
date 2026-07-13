@@ -1,31 +1,72 @@
-/* Esto de abajo trabaja en la quiniela para el simuladorderesultados*/                    /* Esto de abajo trabaja en la quiniela para el simuladorderesultados*/  
+/* Esto de abajo trabaja en la quiniela para el simuladorderesultados*/                     /* Esto de abajo trabaja en la quiniela para el simuladorderesultados*/
 (function () {
 "use strict";
-const PARTIDOS = [
-{ id: 1, local: "Necaxa", localLogo: "logos/necaxa.png", visitante: "Atlante", visitanteLogo: "logos/atlante.png" },
-{ id: 2, local: "Tijuana", localLogo: "logos/tijuana.png", visitante: "Tigres", visitanteLogo: "logos/tigres.png" },
-{ id: 3, local: "San Luis", localLogo: "logos/san-luis.png", visitante: "Cruz Azul", visitanteLogo: "logos/cruz-azul.png" },
-{ id: 4, local: "León", localLogo: "logos/leon.png", visitante: "Atlas", visitanteLogo: "logos/atlas.png" },
-{ id: 5, local: "FC Juárez", localLogo: "logos/juarez.png", visitante: "Puebla", visitanteLogo: "logos/puebla.png" },
-{ id: 6, local: "Pumas", localLogo: "logos/pumas.png", visitante: "Santos", visitanteLogo: "logos/santos.png" },
-{ id: 7, local: "Chivas", localLogo: "logos/chivas.png", visitante: "Pachuca", visitanteLogo: "logos/pachuca.png" },
-{ id: 8, local: "Monterrey", localLogo: "logos/monterrey.png", visitante: "Toluca", visitanteLogo: "logos/toluca.png" },
-{ id: 9, local: "Querétaro", localLogo: "logos/queretaro.png", visitante: "América", visitanteLogo: "logos/america.png" }
-];
-/*                                   Esto de abajo trabaja en la datos para la tabla de participantes para el simuladorderesultados                          */                  
-const PARTICIPANTES = [
-{ folio: "2184", nombre: "Mont", vendedor: "—", selecciones: { 1: "E", 2: "L", 3: "E", 4: "L", 5: "L", 6: "L", 7: "L", 8: "E", 9: "L" } },
-{ folio: "184", nombre: "Irving", vendedor: "Alfonso", selecciones: { 1: "E", 2: "L", 3: "E", 4: "L", 5: "L", 6: "L", 7: "L", 8: "L", 9: "L" } },
-{ folio: "151", nombre: "Kevin 3", vendedor: "Alfonso", selecciones: { 1: "E", 2: "L", 3: "E", 4: "L", 5: "L", 6: "L", 7: "L", 8: "L", 9: "L" } },
-{ folio: "151", nombre: "Oso 1", vendedor: "Alfonso", selecciones: { 1: "E", 2: "L", 3: "E", 4: "L", 5: "E", 6: "L", 7: "L", 8: "E", 9: "L" } },
-{ folio: "173", nombre: "Luis Campos 2", vendedor: "Chaneke", selecciones: { 1: "E", 2: "L", 3: "E", 4: "L", 5: "L", 6: "L", 7: "E", 8: "L", 9: "L" } }
-];
-/* Esto de abajo trabaja en el estado para el simuladorderesultados */          /* Esto de abajo trabaja en el estado para el simuladorderesultados */ 
+const API_BASE = window.location.hostname === "localhost"
+? "http://localhost:8000"
+: "";
+let JORNADA_ACTUAL = "";
+let PARTIDOS = [];
+let PARTICIPANTES = [];
+/* Esto de abajo trabaja en el estado para el simuladorderesultados */          /* Esto de abajo trabaja en el estado para el simuladorderesultados */
 const estado = {
-simulacion: {},      
+simulacion: {},
 busqueda: "",
 filtroActivo: "todos"
 };
+function normalizarSrcLogo(src) {
+if (!src) return "";
+if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
+return src;
+}
+return `/${src.replace(/^\.?\//, "")}`;
+}
+function normalizarParticipanteSim(q) {
+const picks = Array.isArray(q?.picks) ? q.picks : [];
+const selecciones = {};
+PARTIDOS.forEach((partido, idx) => {
+selecciones[partido.id] = picks[idx] || "";
+});
+return {
+id: q?.id ?? null,
+folio: q?.folio ?? "",
+nombre: q?.nombre ?? "",
+vendedor: q?.vendedor ?? "—",
+selecciones
+};
+}
+async function cargarDatosSimulador() {
+try {
+const resJornada = await fetch(`${API_BASE}/api/apijornadaactual`);
+const dataJornada = await resJornada.json();
+if (!resJornada.ok || !dataJornada?.partidos || !Array.isArray(dataJornada.partidos)) {
+throw new Error("No se pudo cargar la jornada oficial");
+}
+JORNADA_ACTUAL = dataJornada.jornada || "";
+PARTIDOS = dataJornada.partidos.map((p) => ({
+id: Number(p.id),
+local: p.local,
+localLogo: normalizarSrcLogo(p.localLogo),
+visitante: p.visitante,
+visitanteLogo: normalizarSrcLogo(p.visitanteLogo)
+}));
+const jornadaParam = encodeURIComponent(JORNADA_ACTUAL);
+const resLista = await fetch(`${API_BASE}/api/lista-oficial?jornada=${jornadaParam}`);
+const dataLista = await resLista.json();
+if (!resLista.ok) {
+throw new Error("No se pudo cargar la Lista Oficial");
+}
+PARTICIPANTES = Array.isArray(dataLista?.quinielas)
+? dataLista.quinielas.map(normalizarParticipanteSim)
+: [];
+return true;
+} catch (err) {
+console.error("Simulador:", err);
+JORNADA_ACTUAL = "";
+PARTIDOS = [];
+PARTICIPANTES = [];
+return false;
+}
+}
 /* Esto de abajo trabaja en la quiniela para el simuladorderesultados */          /* Esto de abajo trabaja en la quiniela para el simuladorderesultados */
 function renderPartidos() {
 const grid = document.getElementById("listaPartidosSim");
@@ -50,7 +91,7 @@ grid.querySelectorAll(".rq-opcion").forEach((btn) => {
 btn.addEventListener("click", manejarSeleccion);
 });
 }
-/*                     Esto de abajo trabaja en seleccion de L E V y el Overlay de carga para el simuladorderesultados                                               */
+/*                      Esto de abajo trabaja en seleccion de L E V y el Overlay de carga para el simuladorderesultados                                        */
 function manejarSeleccion(e) {
 const btn = e.currentTarget;
 const partidoId = Number(btn.dataset.partido);
@@ -72,7 +113,7 @@ function ocultarOverlaySimulando() {
 const overlay = document.getElementById("srOverlaySimulando");
 if (overlay) overlay.hidden = true;
 }
-/*                     Calculo de puntos para el simuladorderesultados                                               */
+/*   Calculo de puntos para el simuladorderesultados              */                             /*   Calculo de puntos para el simuladorderesultados              */
 function calcularPuntos(participante) {
 let puntos = 0;
 PARTIDOS.forEach((p) => {
@@ -102,8 +143,9 @@ requestAnimationFrame(() => el.classList.add("sr-pulse"));
 function renderEncabezado() {
 const fila = document.getElementById("filaEncabezadoSim");
 if (!fila) return;
+fila.querySelectorAll(".lo-th-partido").forEach((el) => el.remove());
 const thPuntos = fila.querySelector(".lo-th-puntos");
-if (!thPuntos || fila.querySelector(".lo-th-partido")) return;
+if (!thPuntos) return;
 const columnasPartidos = PARTIDOS.map((p) => `
 <th class="lo-th lo-th-partido" scope="col" aria-label="${p.local} vs ${p.visitante}">
 <span class="lo-th-logo-vs">
@@ -126,7 +168,7 @@ return `<span class="lo-chip-resultado ${clase}">${letra}</span>`;
 function renderFilaParticipante(p, esPrimerLugar) {
 const celdasPartidos = PARTIDOS.map((partido) => {
 const letra = p.selecciones?.[partido.id] || "";
-const simulado = estado.simulacion[partido.id]; // NUEVO: se lee el resultado simulado
+const simulado = estado.simulacion[partido.id];
 return `<td class="lo-td lo-td-partido">${renderChipResultado(letra, simulado)}</td>`;
 }).join("");
 return `
@@ -145,7 +187,7 @@ function obtenerListaVisible() {
 const conPuntos = obtenerParticipantesConPuntos();
 const ordenados = ordenarPorPuntos(conPuntos);
 const puntosUnicos = obtenerPuntosUnicos(conPuntos);
-const puntosMinimo = puntosUnicos[puntosUnicos.length - 1];
+const puntosMinimo = puntosUnicos.length ? puntosUnicos[puntosUnicos.length - 1] : 0;
 let lista = ordenados;
 if (estado.busqueda.trim()) {
 const q = estado.busqueda.trim().toLowerCase();
@@ -168,8 +210,9 @@ const cuerpo = document.getElementById("cuerpoTablaSim");
 const wrap = document.getElementById("tablaWrapSim");
 const vacio = document.getElementById("mensajeVacioSim");
 const vacioTexto = document.getElementById("mensajeVacioTextoSim");
-if (!cuerpo) return;
+if (!cuerpo || !wrap || !vacio || !vacioTexto) return;
 if (!PARTICIPANTES.length) {
+cuerpo.innerHTML = "";
 wrap.hidden = true;
 vacio.hidden = false;
 vacioTexto.textContent = "Aún no hay quinielas registradas.";
@@ -179,6 +222,7 @@ const visibles = obtenerListaVisible();
 const ordenadosTotal = ordenarPorPuntos(obtenerParticipantesConPuntos());
 const puntosMax = ordenadosTotal[0]?.puntos ?? 0;
 if (!visibles.length) {
+cuerpo.innerHTML = "";
 wrap.hidden = true;
 vacio.hidden = false;
 vacioTexto.textContent = "No se encontraron participantes con esos criterios.";
@@ -204,7 +248,7 @@ function construirOpcionesFiltro() {
 const conPuntos = obtenerParticipantesConPuntos();
 const ordenados = ordenarPorPuntos(conPuntos);
 const puntosUnicos = obtenerPuntosUnicos(conPuntos);
-const puntosMinimo = puntosUnicos[puntosUnicos.length - 1];
+const puntosMinimo = puntosUnicos.length ? puntosUnicos[puntosUnicos.length - 1] : 0;
 const puntosPrimero = puntosUnicos[0];
 const puntosSegundo = puntosUnicos.length > 1 ? puntosUnicos[1] : undefined;
 const opciones = [{ valor: "todos", etiqueta: "Todos", contador: PARTICIPANTES.length }];
@@ -219,7 +263,7 @@ puntosUnicos
 .forEach((pts) => {
 opciones.push({ valor: `puntos-${pts}`, etiqueta: `Puntos ${pts}`, contador: ordenados.filter((p) => p.puntos === pts).length });
 });
-if (puntosMinimo !== puntosPrimero && puntosMinimo !== puntosSegundo) {
+if (puntosUnicos.length > 0 && puntosMinimo !== puntosPrimero && puntosMinimo !== puntosSegundo) {
 opciones.push({ valor: "ultimos", etiqueta: "Últimos Lugares", contador: ordenados.filter((p) => p.puntos === puntosMinimo).length });
 }
 return opciones;
@@ -266,7 +310,7 @@ btnCerrar.addEventListener("click", cerrarPanelFiltro);
 elOverlayFiltro.addEventListener("click", (e) => { if (e.target === elOverlayFiltro) cerrarPanelFiltro(); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !elOverlayFiltro.hidden) cerrarPanelFiltro(); });
 }
-/*                                 Esto de abajo trabaja en el boton de reiniciar pronosticos para el simuladorderesultados                                      */
+/*                                  Esto de abajo trabaja en el boton de reiniciar pronosticos para el simuladorderesultados                                      */
 function inicializarBotonReiniciar() {
 const btn = document.getElementById("btnReiniciarSim");
 if (!btn) return;
@@ -283,7 +327,7 @@ mostrarNotificacion("Pronósticos reiniciados correctamente.");
 }, 650);
 });
 }
-/*                                 Esto de abajo trabaja en las notificaciones para el simuladorderesultados                                      */
+/*                                  Esto de abajo trabaja en las notificaciones para el simuladorderesultados                                      */
 function mostrarNotificacion(texto) {
 const contenedor = document.getElementById("notifContainer");
 if (!contenedor) return;
@@ -293,22 +337,27 @@ notif.textContent = texto;
 contenedor.appendChild(notif);
 setTimeout(() => notif.remove(), 3200);
 }
-/*                                 Esto de abajo trabaja en acciones globales  para el simuladorderesultados                                      */
+/*                                  Esto de abajo trabaja en acciones globales  para el simuladorderesultados                                      */
 function recalcularYRenderizarTodo() {
 const conPuntos = obtenerParticipantesConPuntos();
-const ordenados = ordenarPorPuntos(conPuntos);
-actualizarContador("statPrimerLugar", ordenados[0]?.puntos ?? 0);
-actualizarContador("statSegundoLugar", ordenados[1]?.puntos ?? 0);
+const puntosUnicos = obtenerPuntosUnicos(conPuntos);
+actualizarContador("statPrimerLugar", puntosUnicos[0] ?? 0);
+actualizarContador("statSegundoLugar", puntosUnicos[1] ?? 0);
 actualizarContador("statTotalQuinielas", PARTICIPANTES.length);
 renderFiltros();
 renderTabla();
 }
-/* =============                                Esto de abajo trabaja en el inicio de simularlosresultados                       ============================ */
-document.addEventListener("DOMContentLoaded", () => {
+/* =============                                 Esto de abajo trabaja en el inicio de simularlosresultados                        ============================ */
+document.addEventListener("DOMContentLoaded", async () => {
+const ok = await cargarDatosSimulador();
 renderPartidos();
 renderEncabezado();
 recalcularYRenderizarTodo();
 initBuscador();
 initPanelFiltro();
+inicializarBotonReiniciar();
+if (!ok) {
+console.warn("No se pudieron cargar los datos reales del simulador.");
+}
 });
 })();

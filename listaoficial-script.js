@@ -4,18 +4,37 @@
 const API_BASE = window.location.hostname === "localhost"
 ? "http://localhost:8000"
 : "";
-const JORNADA_ACTUAL = "Jornada 1";
-const PARTIDOS = [
-{ id: 1, local: "Necaxa",    localLogo: "logos/necaxa.png",    visitante: "Atlante",   visitanteLogo: "logos/atlante.png",   resultadoFinal: null },
-{ id: 2, local: "Tijuana",   localLogo: "logos/tijuana.png",   visitante: "Tigres",    visitanteLogo: "logos/tigres.png",    resultadoFinal: null },
-{ id: 3, local: "San Luis",  localLogo: "logos/san-luis.png",  visitante: "Cruz Azul", visitanteLogo: "logos/cruz-azul.png", resultadoFinal: null },
-{ id: 4, local: "León",      localLogo: "logos/leon.png",      visitante: "Atlas",     visitanteLogo: "logos/atlas.png",     resultadoFinal: null },
-{ id: 5, local: "FC Juárez", localLogo: "logos/juarez.png",    visitante: "Puebla",    visitanteLogo: "logos/puebla.png",    resultadoFinal: null },
-{ id: 6, local: "Pumas",     localLogo: "logos/pumas.png",     visitante: "Santos",    visitanteLogo: "logos/santos.png",    resultadoFinal: null },
-{ id: 7, local: "Chivas",    localLogo: "logos/chivas.png",    visitante: "Pachuca",   visitanteLogo: "logos/pachuca.png",   resultadoFinal: null },
-{ id: 8, local: "Monterrey", localLogo: "logos/monterrey.png", visitante: "Toluca",    visitanteLogo: "logos/toluca.png",    resultadoFinal: null },
-{ id: 9, local: "Querétaro", localLogo: "logos/queretaro.png", visitante: "América",   visitanteLogo: "logos/america.png",   resultadoFinal: null }
-];
+let JORNADA_ACTUAL = "";
+let PARTIDOS = [];
+function normalizarSrcLogo(src) {
+if (!src) return "";
+if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
+return src;
+}
+return `/${src.replace(/^\.?\//, "")}`;
+}
+async function cargarJornadaOficialLista() {
+try {
+const res = await fetch(`${API_BASE}/api/apijornadaactual`);
+const data = await res.json();
+if (!res.ok || !data?.partidos || !Array.isArray(data.partidos)) {
+throw new Error("No se pudo cargar la jornada oficial");
+}
+JORNADA_ACTUAL = data.jornada || "";
+PARTIDOS = data.partidos.map((p) => ({
+id: Number(p.id),
+local: p.local,
+localLogo: normalizarSrcLogo(p.localLogo),
+visitante: p.visitante,
+visitanteLogo: normalizarSrcLogo(p.visitanteLogo),
+resultadoFinal: p.resultadoFinal ?? null
+}));
+} catch (err) {
+console.error("Jornada oficial Lista Oficial:", err);
+JORNADA_ACTUAL = "";
+PARTIDOS = [];
+}
+}
 /* =====================================  Esto de abajo trabaja en generar lista real de participantes desde la api                 ======================= */
 let PARTICIPANTES = [];
 /* =====================================  Esto de abajo trabaja en el filtro para buscar 1 , 2 lugar etc.                         ======================= */
@@ -61,8 +80,9 @@ renderTabla();
 function renderEncabezado() {
 const fila = document.getElementById("filaEncabezado");
 if (!fila) return;
+fila.querySelectorAll(".lo-th-partido").forEach((el) => el.remove());
 const thPuntos = fila.querySelector(".lo-th-puntos");
-if (!thPuntos || fila.querySelector(".lo-th-partido")) return;
+if (!thPuntos) return;
 const columnasPartidos = PARTIDOS.map((p) => `
 <th class="lo-th lo-th-partido" scope="col" aria-label="${p.local} vs ${p.visitante}">
 <span class="lo-th-logo-vs">
@@ -270,11 +290,10 @@ if (e.key === "Escape" && !elOverlayFiltro.hidden) cerrarPanelFiltro();
 }
 /* =====================================  Esto de abajo trabaja en inicianizacion de nuestra quiniela                              ======================= */
 document.addEventListener("DOMContentLoaded", async () => {
+await cargarJornadaOficialLista();
 renderEncabezado();
-renderFiltros();
-renderTabla();
+await cargarParticipantes();
 initBuscador();
 initPanelFiltro();
-await cargarParticipantes();
 });
 })();

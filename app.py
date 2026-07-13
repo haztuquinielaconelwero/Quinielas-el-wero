@@ -100,7 +100,6 @@ def crear_tablas():
             """)
 
         conn.commit()
-
 # ── Esto de abajo trabaja con la informacion de la Jornada ───────────────────────────────────────────────────────────────────────────────────────────────
 JORNADA_ACTUAL = "Jornada 1"
 PARTIDOS = [
@@ -195,6 +194,15 @@ if _total_especiales > len(PARTIDOS):
         f"MAX_DOBLES ({MAX_DOBLES}) + MAX_TRIPLES ({MAX_TRIPLES}) = "
         f"{_total_especiales} excede el numero de partidos ({len(PARTIDOS)})"
     )
+@app.route("/api/apijornadaactual")
+def apijornadaactual():
+    return jsonify({
+        "jornadaActual": JORNADA_ACTUAL,
+        "partidos": PARTIDOS,
+        "maxDobles": MAX_DOBLES,
+        "maxTriples": MAX_TRIPLES,
+    })
+
 # ── Esto de abajo trabaja en el direccionario de pins de los vendedores────────────────────────────────────────────────────────────────────────────────
 VENDEDOR_PIN = {
     "Alexander":    "0229",
@@ -1060,6 +1068,77 @@ def actualizarmisquinielas():
     except Exception as exc:
         logger.error("actualizarmisquinielas: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
+    
+    # ── Esto de abajo trabaja con la api de porcentajes actuales de la lista oficial ─────────────────────────────────────────────────────────────────────
+@app.route("/api/apiporcentajesactuales")
+def apiporcentajesactuales():
+    jornada = request.args.get("jornada", JORNADA_ACTUAL)
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT p1, p2, p3, p4, p5, p6, p7, p8, p9
+                    FROM todaslasquinielas
+                    WHERE estado = 'Jugando'
+                      AND jornada = %s
+                """, (jornada,))
+                filas = cur.fetchall()
+
+        partidos = []
+        total_participantes = len(filas)
+
+        for i, partido in enumerate(PARTIDOS):
+            conteoL = 0
+            conteoE = 0
+            conteoV = 0
+
+            for fila in filas:
+                pick = fila[i]
+                if pick == "L":
+                    conteoL += 1
+                elif pick == "E":
+                    conteoE += 1
+                elif pick == "V":
+                    conteoV += 1
+
+            if total_participantes > 0:
+                porcL = round((conteoL / total_participantes) * 100)
+                porcE = round((conteoE / total_participantes) * 100)
+                porcV = round((conteoV / total_participantes) * 100)
+            else:
+                porcL = 0
+                porcE = 0
+                porcV = 0
+
+            partidos.append({
+                "id": partido["id"],
+                "local": partido["local"],
+                "localLogo": partido["localLogo"],
+                "visitante": partido["visitante"],
+                "visitanteLogo": partido["visitanteLogo"],
+                "horario": f"Porcentajes basados a {total_participantes} participantes",
+                "porcL": porcL,
+                "porcE": porcE,
+                "porcV": porcV
+            })
+
+        return jsonify({
+            "success": True,
+            "jornadaActual": jornada,
+            "totalParticipantes": total_participantes,
+            "partidos": partidos
+        })
+
+    except Exception as exc:
+        logger.error("apiporcentajesactuales: error -> %s", exc)
+        return jsonify({
+            "success": False,
+            "jornadaActual": jornada,
+            "totalParticipantes": 0,
+            "partidos": [],
+            "error": str(exc)
+        }), 500
     
 # ── Esto de abajo trabaja con el home e inicio.html ────────────────────────────────────────────────────────────────────────────────
 @app.route("/")

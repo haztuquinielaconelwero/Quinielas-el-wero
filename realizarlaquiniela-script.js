@@ -1,17 +1,26 @@
 /* =====================================  Esto de abajo trabaja en generar los partidos de la quiniela                                          ======================= */
 (function () {
 "use strict";
-const PARTIDOS = [
-{ id: 1, local: "Necaxa",     localLogo: "logos/necaxa.png",     visitante: "Atlante",   visitanteLogo: "logos/atlante.png" },
-{ id: 2, local: "Tijuana",    localLogo: "logos/tijuana.png",    visitante: "Tigres",    visitanteLogo: "logos/tigres.png" },
-{ id: 3, local: "San Luis",   localLogo: "logos/san-luis.png",   visitante: "Cruz Azul", visitanteLogo: "logos/cruz-azul.png" },
-{ id: 4, local: "León",       localLogo: "logos/leon.png",       visitante: "Atlas",     visitanteLogo: "logos/atlas.png" },
-{ id: 5, local: "FC Juárez",  localLogo: "logos/juarez.png",     visitante: "Puebla",    visitanteLogo: "logos/puebla.png" },
-{ id: 6, local: "Pumas",      localLogo: "logos/pumas.png",      visitante: "Santos",    visitanteLogo: "logos/santos.png" },
-{ id: 7, local: "Chivas",     localLogo: "logos/chivas.png",     visitante: "Pachuca",   visitanteLogo: "logos/pachuca.png" },
-{ id: 8, local: "Monterrey",  localLogo: "logos/monterrey.png",  visitante: "Toluca",    visitanteLogo: "logos/toluca.png" },
-{ id: 9, local: "Querétaro",  localLogo: "logos/queretaro.png",  visitante: "América",   visitanteLogo: "logos/america.png" }
-];
+let PARTIDOS = [];
+let MAX_DOBLES = 3;
+let MAX_TRIPLES = 3;
+let JORNADA_ACTUAL = "Jornada 1";
+async function cargarJornadaActual() {
+try {
+const res = await fetch(`${APIBASE}/api/apijornadaactual`);
+const data = await res.json();
+if (!res.ok || !data?.partidos?.length) {
+throw new Error("No se pudo cargar la jornada actual");
+}
+PARTIDOS = data.partidos;
+MAX_DOBLES = Number(data.maxDobles ?? 3);
+MAX_TRIPLES = Number(data.maxTriples ?? 3);
+JORNADA_ACTUAL = data.jornadaActual || "Jornada 1";
+} catch (err) {
+console.error("Error cargando jornada actual", err);
+tarjetaroja("No se pudo cargar la jornada actual.");
+}
+}
 /* =====================================  Esto de abajo trabaja en donde encontrar las quinielas , precio y maximo de dobles y triples         ======================= */
 const STORAGE_KEY = "quinielasElWero_guardadas";
 const nombreCelularActual = localStorage.getItem("quinielasElWero_nombreCelular") || "";
@@ -161,7 +170,7 @@ quinielas.push({
 id: base + idx,
 nombre,
 vendedor,
-jornada: "Jornada 1",
+jornada: JORNADA_ACTUAL,
 firma: firmaBoleto(nombre, vendedor, combo),
 selecciones: combo
 });
@@ -289,18 +298,38 @@ card.addEventListener("click", () => cargarQuinielaGuardada(Number(card.dataset.
 actualizarResumenGuardadas();
 abrirModal("modalGuardadas");
 }
+function renderMiniOpciones(letras) {
+return OPCIONES.map((op) => {
+const activa = letras.includes(op);
+return `
+<span
+class="rq-opcion rq-opcion-mini ${activa ? "seleccionado" : ""}"
+aria-hidden="true"
+>${op}</span>
+`;
+}).join("");
+}
 function renderTarjetaGuardada(q) {
 const miniPartidos = PARTIDOS.map((p) => {
 const sel = q.selecciones?.[p.id];
 const letras = Array.isArray(sel) ? sel : sel ? [sel] : [];
-const marcador = letras.length ? letras.join("") : "—";
 return `
 <div class="rq-mini-partido">
-<img src="${p.localLogo}" alt="${p.local}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
+<imgsrc="${p.localLogo}"
+alt="${p.local}"
+class="rq-mini-logo"
+loading="lazy"
+onerror="this.style.visibility='hidden';this.onerror=null;">
 <span class="rq-mini-equipo local">${p.local}</span>
-<span class="mq-mini-chip mq-mini-chip-neutro">${marcador}</span>
+<div class="rq-mini-opciones" aria-hidden="true">
+${renderMiniOpciones(letras)}
+</div>
 <span class="rq-mini-equipo visitante">${p.visitante}</span>
-<img src="${p.visitanteLogo}" alt="${p.visitante}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
+<imgsrc="${p.visitanteLogo}"
+alt="${p.visitante}"
+class="rq-mini-logo"
+loading="lazy"
+onerror="this.style.visibility='hidden';this.onerror=null;">
 </div>`;
 }).join("");
 return `
@@ -311,7 +340,9 @@ return `
 <span class="rq-tg-jornada">${q.jornada || "Jornada 1"}</span>
 <span class="rq-tg-vendedor">Vendedor: ${q.vendedor}</span>
 </div>
-<div class="rq-tg-mini-quiniela">${miniPartidos}</div>
+<div class="rq-tg-mini-quiniela">
+${miniPartidos}
+</div>
 </div>`;
 }
 function eliminarQuinielaGuardada(id) {
@@ -390,7 +421,7 @@ body: JSON.stringify({
 nombrecelular: nombreCelularActual || q.nombre,
 nombrequiniela: q.nombre,
 vendedor: q.vendedor || detectarVendedor() || (() => { throw new Error("SIN_VENDEDOR"); })(),
-jornada: q.jornada || "Jornada 1",
+jornada: q.jornada || JORNADA_ACTUAL,
 dispositivoid: dispositivoid,
 selecciones: q.selecciones
 })
@@ -475,7 +506,7 @@ const iconos = { exito: "✅", error: "🟥", aviso: "⚠️", info: "ℹ️" };
 const el = document.createElement("div");
 el.className = `rq-notif ${tipos[tipo] ?? tipos.info}`;
 el.setAttribute("role", "status");
-el.innerHTML = `<span class="rq-notif-icono" aria-hidden="true">${iconos[tipo] ?? "ℹ️"}</span><span>${mensaje}</span>`;
+el.innerHTML = `<span>${mensaje}</span><span class="rq-notif-icono" aria-hidden="true">${iconos[tipo] ?? "ℹ️"}</span>`;
 container.appendChild(el);
 setTimeout(() => {
 el.classList.add("saliendo");

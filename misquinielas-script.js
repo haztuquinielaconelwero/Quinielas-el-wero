@@ -1,17 +1,34 @@
 /* =====================================  Esto de abajo trabaja en generar las tarjetas de la quiniela                                    ======================= */
 (function () {
 "use strict";
-const PARTIDOS = [
-{ id: 1, local: "Necaxa", localLogo: "logos/necaxa.png", visitante: "Atlante", visitanteLogo: "logos/atlante.png" },
-{ id: 2, local: "Tijuana", localLogo: "logos/tijuana.png", visitante: "Tigres", visitanteLogo: "logos/tigres.png" },
-{ id: 3, local: "San Luis", localLogo: "logos/san-luis.png", visitante: "Cruz Azul", visitanteLogo: "logos/cruz-azul.png" },
-{ id: 4, local: "León", localLogo: "logos/leon.png", visitante: "Atlas", visitanteLogo: "logos/atlas.png" },
-{ id: 5, local: "FC Juárez", localLogo: "logos/juarez.png", visitante: "Puebla", visitanteLogo: "logos/puebla.png" },
-{ id: 6, local: "Pumas", localLogo: "logos/pumas.png", visitante: "Santos", visitanteLogo: "logos/santos.png" },
-{ id: 7, local: "Chivas", localLogo: "logos/chivas.png", visitante: "Pachuca", visitanteLogo: "logos/pachuca.png" },
-{ id: 8, local: "Monterrey", localLogo: "logos/monterrey.png", visitante: "Toluca", visitanteLogo: "logos/toluca.png" },
-{ id: 9, local: "Querétaro", localLogo: "logos/queretaro.png", visitante: "América", visitanteLogo: "logos/america.png" }
-];
+let PARTIDOS = [];
+async function cargarPartidosOficiales() {
+try {
+const res = await fetch("/api/apijornadaactual");
+const data = await res.json();
+if (!res.ok || !data?.partidos || !Array.isArray(data.partidos)) {
+return false;
+}
+PARTIDOS = data.partidos.map((p) => ({
+id: Number(p.id),
+local: p.local,
+localLogo: normalizarSrcLogo(p.localLogo),
+visitante: p.visitante,
+visitanteLogo: normalizarSrcLogo(p.visitanteLogo)
+}));
+return true;
+} catch (err) {
+console.error("Error en cargarPartidosOficiales:", err);
+return false;
+}
+}
+function normalizarSrcLogo(src) {
+if (!src) return "";
+if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
+return src;
+}
+return `/${src.replace(/^\.?\//, "")}`;
+}
 /* =====================================  Esto de abajo trabaja en el almacenimiento de las quinielas en el celular                  ======================= */
 const STORAGE_KEY_ENVIADAS = "quinielasElWero_enviadas";
 const STORAGE_KEY_DISPOSITIVO = "quinielasElWero_dispositivoid";
@@ -95,6 +112,14 @@ espera: { clase: "mq-estado-espera", texto: "En espera ⏳" },
 rechazada: { clase: "mq-estado-no-jugando", texto: "Rechazada ❌" }
 };
 function renderMiniQuiniela(q) {
+if (!Array.isArray(PARTIDOS) || PARTIDOS.length === 0) {
+return `
+<div class="mq-empty-msg">
+<span class="mq-empty-icon">📋</span>
+<span>No se pudieron cargar los partidos de la jornada.</span>
+</div>
+`;
+}
 return PARTIDOS.map((p) => {
 const sel = q.selecciones?.[p.id];
 const letras = Array.isArray(sel) ? sel : sel ? [sel] : [];
@@ -106,13 +131,13 @@ const multTag = mult !== "S" ? `<span class="mq-mini-mult">${mult}</span>` : "";
 return `
 <div class="mq-mini-partido">
 <div class="mq-mini-lado">
-<img src="${p.localLogo}" alt="${p.local}" class="mq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden'">
+<img src="${normalizarSrcLogo(p.localLogo)}" alt="${p.local}" class="mq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden'">
 <span class="mq-mini-equipo">${p.local}</span>
 </div>
 <span class="mq-mini-chips">${chips}${multTag}</span>
 <div class="mq-mini-lado">
 <span class="mq-mini-equipo visitante">${p.visitante}</span>
-<img src="${p.visitanteLogo}" alt="${p.visitante}" class="mq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden'">
+<img src="${normalizarSrcLogo(p.visitanteLogo)}" alt="${p.visitante}" class="mq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden'">
 </div>
 </div>
 `;
@@ -120,7 +145,9 @@ return `
 }
 function renderTarjeta(q) {
 const info = ESTADO_INFO[q.estado] ?? ESTADO_INFO.espera;
-const folioTexto = q.folio ? `<span class="mq-tarjeta-folio">Folio: ${q.folio}</span>` : "";
+const folioTexto = q.folio
+? `<span class="mq-tarjeta-meta mq-tarjeta-folio">Folio: ${q.folio}</span>`
+: "";
 return `
 <article class="mq-tarjeta ${q.estado || 'espera'}" role="listitem" data-id="${q.id}">
 <div class="mq-tarjeta-header">
@@ -208,7 +235,8 @@ if (e.key === STORAGE_KEY_ENVIADAS) renderLista();
 });
 }
 /* =============                                Esto de abajo trabaja en el inicio del mis quinielas                                    ============================ */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+await cargarPartidosOficiales();
 renderLista();
 initFiltro();
 initSincronizacion();

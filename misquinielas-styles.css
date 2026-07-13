@@ -135,9 +135,10 @@ border-color: rgba(206,17,38,0.4);
 box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(206,17,38,0.15);
 }
 .mq-tarjeta.espera {
-background: linear-gradient(160deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02));
-border-color: rgba(255,255,255,0.22);
-box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.08);
+background: linear-gradient(160deg, #ffffff, #f8fafc);
+border: 1px solid rgba(17, 24, 39, 0.08);
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+color: #111827;
 }
 @keyframes mqCardIn {
 from { opacity: 0; transform: translateY(18px); }
@@ -164,9 +165,15 @@ text-overflow: ellipsis;
 white-space: nowrap;
 }
 .mq-tarjeta-meta {
-font-size: 0.72rem;
-color: var(--text-muted-soft);
-display: block;
+font-size: 0.92rem;
+font-weight: 500;
+line-height: 1.35;
+color: var(--texto-secundario, #6b7280);
+}
+.mq-tarjeta-folio {
+font: inherit;
+font-weight: 600;
+color: var(--texto-principal, #111827);
 }
 .mq-estado-badge {
 display: inline-flex;

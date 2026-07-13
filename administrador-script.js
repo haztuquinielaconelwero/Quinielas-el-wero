@@ -15,18 +15,52 @@ return null;
 let partidos = [];
 let jornadaActual = { nombre: "Jornada 1", cierre: null };
 let officialResults = {};
+function normalizarSrcLogo(src) {
+if (!src) return "";
+if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
+return src;
+}
+return `/${src.replace(/^\.?\//, "")}`;
+}
 async function cargarPartidos() {
-partidos = [
-{ id: 1, local: "Necaxa", localLogo: "logos/necaxa.png", visitante: "Atlante", visitanteLogo: "logos/atlante.png" },
-{ id: 2, local: "Tijuana", localLogo: "logos/tijuana.png", visitante: "Tigres", visitanteLogo: "logos/tigres.png" },
-{ id: 3, local: "San Luis", localLogo: "logos/san-luis.png", visitante: "Cruz Azul", visitanteLogo: "logos/cruz-azul.png" },
-{ id: 4, local: "León", localLogo: "logos/leon.png", visitante: "Atlas", visitanteLogo: "logos/atlas.png" },
-{ id: 5, local: "FC Juárez", localLogo: "logos/juarez.png", visitante: "Puebla", visitanteLogo: "logos/puebla.png" },
-{ id: 6, local: "Pumas", localLogo: "logos/pumas.png", visitante: "Santos", visitanteLogo: "logos/santos.png" },
-{ id: 7, local: "Chivas", localLogo: "logos/chivas.png", visitante: "Pachuca", visitanteLogo: "logos/pachuca.png" },
-{ id: 8, local: "Monterrey", localLogo: "logos/monterrey.png", visitante: "Toluca", visitanteLogo: "logos/toluca.png" },
-{ id: 9, local: "Querétaro", localLogo: "logos/queretaro.png", visitante: "América", visitanteLogo: "logos/america.png" }
-];
+try {
+const url = apiUrl("api/apijornadaactual");
+if (!url) throw new Error("URL inválida para api/apijornadaactual");
+const response = await _fetchConTimeout(url, { headers: { Accept: "application/json" } }, 10000);
+if (!response.ok) throw new Error(`HTTP ${response.status}`);
+const data = await response.json();
+if (!Array.isArray(data?.partidos)) {
+throw new Error("La respuesta no contiene partidos válidos");
+}
+jornadaActual = {
+nombre: data?.jornada || "Jornada 1",
+cierre: data?.cierre || null
+};
+partidos = data.partidos.map((p) => ({
+id: Number(p.id),
+local: p.local || "",
+localLogo: normalizarSrcLogo(p.localLogo),
+visitante: p.visitante || "",
+visitanteLogo: normalizarSrcLogo(p.visitanteLogo),
+horario: p.horario || "",
+televisora: p.televisora || "",
+televisionLogo: normalizarSrcLogo(p.televisionLogo || ""),
+kickoff: p.kickoff || null,
+resultadoFinal: p.resultadoFinal ?? null
+}));
+officialResults = {};
+partidos.forEach((p) => {
+if (p.resultadoFinal) {
+officialResults[String(p.id)] = p.resultadoFinal;
+}
+});
+} catch (err) {
+if (ENV?.isDev) console.error("❌ cargarPartidos:", err);
+partidos = [];
+jornadaActual = { nombre: "Jornada 1", cierre: null };
+officialResults = {};
+throw err;
+}
 }
 /* Esto de abajo trabaja en los datos del vendedor para que el navegador sepa quien es*/ /* Esto de abajo trabaja en los datos del vendedor para que el navegador sepa quien es*/ 
 function getVendedorAdmin() {
@@ -442,11 +476,16 @@ tdNombre.className = "col-name"; tdNombre.textContent = q.nombre ?? "-";
 tr.appendChild(tdNombre);
 const picks = Array.isArray(q.picks) ? q.picks : [];
 picks.forEach((pick, i) => {
-const resultado = (officialResults ?? {})[String(i)];
+const partidoId = partidos[i]?.id;
+const resultado = (officialResults ?? {})[String(partidoId)];
 const cls = !resultado ? "pending" : pick === resultado ? "correct" : "incorrect";
-const td = document.createElement("td"); td.className = "col-match";
-const span = document.createElement("span"); span.className = "result-cell " + cls; span.textContent = pick ?? "-";
-td.appendChild(span); tr.appendChild(td);
+const td = document.createElement("td");
+td.className = "col-match";
+const span = document.createElement("span");
+span.className = "result-cell " + cls;
+span.textContent = pick ?? "-";
+td.appendChild(span);
+tr.appendChild(td);
 });
 const tdAcciones = document.createElement("td");
 tdAcciones.className = "col-actions";
@@ -516,11 +555,16 @@ tdNombre.className = "col-name"; tdNombre.textContent = q.nombre ?? "-";
 tr.appendChild(tdNombre);
 const picks = Array.isArray(q.picks) ? q.picks : [];
 picks.forEach((pick, i) => {
-const resultado = (officialResults ?? {})[String(i)];
+const partidoId = partidos[i]?.id;
+const resultado = (officialResults ?? {})[String(partidoId)];
 const cls = !resultado ? "pending" : pick === resultado ? "correct" : "incorrect";
-const td = document.createElement("td"); td.className = "col-match";
-const span = document.createElement("span"); span.className = "result-cell " + cls; span.textContent = pick ?? "-";
-td.appendChild(span); tr.appendChild(td);
+const td = document.createElement("td");
+td.className = "col-match";
+const span = document.createElement("span");
+span.className = "result-cell " + cls;
+span.textContent = pick ?? "-";
+td.appendChild(span);
+tr.appendChild(td);
 });
 const tdAcciones = document.createElement("td");
 tdAcciones.className = "col-actions";
@@ -591,13 +635,18 @@ tr.append(tdFolio, tdNombre, tdVendedor);
 const picks = Array.isArray(q.picks) ? q.picks : [];
 let puntos = 0;
 picks.forEach((pick, i) => {
-const resultado = (officialResults ?? {})[String(i)];
-const acierto = resultado && pick === resultado;
+const partidoId = partidos[i]?.id;
+const resultado = (officialResults ?? {})[String(partidoId)];
+const acierto = !!resultado && pick === resultado;
 if (acierto) puntos += 1;
 const cls = !resultado ? "pending" : acierto ? "correct" : "incorrect";
-const td = document.createElement("td"); td.className = "col-match";
-const span = document.createElement("span"); span.className = "result-cell " + cls; span.textContent = pick ?? "-";
-td.appendChild(span); tr.appendChild(td);
+const td = document.createElement("td");
+td.className = "col-match";
+const span = document.createElement("span");
+span.className = "result-cell " + cls;
+span.textContent = pick ?? "-";
+td.appendChild(span);
+tr.appendChild(td);
 });
 const tdPuntos = document.createElement("td");
 tdPuntos.className = "col-points";
@@ -681,9 +730,12 @@ alerta.addEventListener("click", () => mostrarSeccion(alerta.dataset.filterTarge
 function actualizarKPIs() {
 const jornadaNombreEl = document.getElementById("jornadaNombre");
 if (jornadaNombreEl) jornadaNombreEl.textContent = jornadaActual?.nombre ?? "Jornada 1";
-TimerPanelAdmin.init();
+const weekCard = document.getElementById("weekCard");
+if (weekCard && jornadaActual?.cierre) {
+weekCard.setAttribute("data-close-date", jornadaActual.cierre);
 }
-/* Esto de abajo trabaja en la tarjeta del cierre de jornada del administrador*/                  /* Esto de abajo trabaja en la iniciazion del administrador*/      
+TimerPanelAdmin.init();
+}  
 const TimerPanelAdmin = (() => {
 let card = null, barFill = null, progressLabel = null, statusEl = null;
 let intervalId = null, totalDurationMs = null, closeDate = null, _iniciado = false;
@@ -694,7 +746,12 @@ barFill = document.getElementById("progressFill");
 progressLabel = document.getElementById("progressLabel");
 statusEl = document.getElementById("jornadaCierre");
 const closeDateAttr = card.getAttribute("data-close-date");
-closeDate = new Date(closeDateAttr).getTime();
+const parsed = new Date(closeDateAttr).getTime();
+if (!closeDateAttr || Number.isNaN(parsed)) {
+if (statusEl) statusEl.textContent = "Cierre no disponible";
+return;
+}
+closeDate = parsed;
 const DIAS_JORNADA = 7;
 totalDurationMs = DIAS_JORNADA * 24 * 60 * 60 * 1000;
 if (intervalId) clearInterval(intervalId);

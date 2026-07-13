@@ -100,7 +100,17 @@ def crear_tablas():
             """)
 
         conn.commit()
-# ── Esto de abajo trabaja con el boton de modo espera ───────────────────────────────────────────────────────────────────────────────────────────────
+    
+# ── Esto de abajo trabaja con  el modo bloqueado y modo en espera───────────────────────────────────────────────────────────────────────────────────────────────
+@app.route("/api/estadoadmin")
+def estadoadmin():
+    return jsonify({
+        "success": True,
+        "listaBloqueada": LISTA_BLOQUEADA,
+        "modoEspera": MODO_ESPERA["activo"]
+    })
+
+# ── Esto de abajo trabaja con el boton de modo en espera ───────────────────────────────────────────────────────────────────────────────────────────────
 MODO_ESPERA = {"activo": False}
 
 @app.route("/api/togglemodoespera", methods=["POST"])
@@ -109,7 +119,7 @@ def togglemodoespera():
     MODO_ESPERA["activo"] = bool(data.get("activar"))
     return jsonify({"success": True, "modoEspera": MODO_ESPERA["activo"]})
 
-# ── Esto de abajo trabaja con el boton de modo espera ───────────────────────────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con el boton de modo Bloqueado ───────────────────────────────────────────────────────────────────────────────────────────────
 LISTA_BLOQUEADA = False
 
 @app.route("/api/togglebloqueo", methods=["POST"])
@@ -1022,13 +1032,16 @@ def api_confirmar(qid):
                         (qid,),
                     )
                     conn.commit()
-                    return jsonify({"success": True, "estado": "espera", "nuevofolio": None})
+                    return jsonify({"success": True, "estado": "espera", "motivo": "sin_folios", "nuevofolio": None})
+
 
                 rango = LIMITES_VENDEDORES.get(vendedor)
                 if rango is None:
                     return jsonify({"success": False, "error": f"{vendedor} no tiene folios asignados"}), 400
 
+
                 folioinicio, foliofin = rango
+
 
                 cur.execute(
                     "SELECT folio::int FROM todaslasquinielas WHERE vendedor = %s AND estado = 'Jugando' ORDER BY folio::int ASC FOR UPDATE",
@@ -1041,13 +1054,14 @@ def api_confirmar(qid):
                         foliolibre = candidato
                         break
 
+
                 if foliolibre is None:
                     cur.execute(
                         "UPDATE todaslasquinielas SET estado = 'En espera' WHERE id = %s",
                         (qid,),
                     )
                     conn.commit()
-                    return jsonify({"success": True, "estado": "espera", "nuevofolio": None})
+                    return jsonify({"success": True, "estado": "espera", "motivo": "sin_folios", "nuevofolio": None})
 
                 cur.execute(
                     "UPDATE todaslasquinielas SET estado = 'Jugando', folio = %s WHERE id = %s RETURNING folio",
@@ -1266,3 +1280,4 @@ def health():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+    

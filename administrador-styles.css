@@ -754,13 +754,16 @@ pointer-events: none;
 /* ====================                               Esto de abajo trabaja con las alertas                                      ==================== */
 .adm-toast-container { 
 position: fixed; 
-bottom: 24px; 
-right: 18px; 
+top: 24px; 
+left: 18px; 
+right: auto;
+bottom: auto;
 z-index: 9997;
 display: flex; 
 flex-direction: column; 
 gap: 10px; 
 pointer-events: none; 
+align-items: flex-start;
 }
 .adm-toast {
 display: flex; 
@@ -774,11 +777,14 @@ max-width: 300px;
 animation: admToastIn 0.3s var(--ease) both;
 }
 @keyframes admToastIn { 
-from { opacity: 0; 
-transform: translateX(30px); 
+from { 
+opacity: 0; 
+transform: translateX(-30px); 
 } 
 to { 
-opacity: 1; transform: translateX(0); }}
+opacity: 1; 
+transform: translateX(0); 
+}}
 .adm-toast--success { 
 background: rgba(0,99,65,0.92); 
 border: 1px solid rgba(0,163,108,0.4); 

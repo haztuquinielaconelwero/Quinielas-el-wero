@@ -21,6 +21,19 @@ modoEspera: false,
 jornada: null
 };
 let gridApi = null;
+/*                                     Esto de abajo trabaja en el estado en espera y estado bloqueado                                                 */
+async function cargarEstadoAdmin(signal) {
+const res = await fetch(`${API_BASE}/api/estadoadmin`, {
+headers: getAuthHeaders(),
+signal
+});
+if (!res.ok) throw new Error('No se pudo cargar el estado del panel');
+const data = await res.json();
+state.listaBloqueada = !!data.listaBloqueada;
+state.modoEspera = !!data.modoEspera;
+actualizarUIBotonBloquear();
+actualizarUIBotonEspera();
+}
 /*                   Esto de abajo trabaja en mostrar alertas visuales y mensajes rapidos dentro del panel                                                   */
 function toast(msg, tipo = 'success', ms = 4500) {
 if (!msg || typeof msg !== 'string') return;
@@ -176,6 +189,7 @@ state.datosOriginales = data?.quinielas || [];
 async function cargarDatos() {
 try {
 mostrarLoading(true);
+await cargarEstadoAdmin();
 await cargarJornadaActual();
 await cargarListaOficial();
 state.marcadores = {};
@@ -205,15 +219,20 @@ const snapshotAnterior = JSON.stringify({
 jornada: state.jornada,
 partidos: state.partidos,
 resultados: state.resultados,
-quinielas: state.datosOriginales
+quinielas: state.datosOriginales,
+listaBloqueada: state.listaBloqueada,
+modoEspera: state.modoEspera
 });
+await cargarEstadoAdmin(signal);
 await cargarJornadaActual(signal);
 await cargarListaOficial(signal);
 const snapshotNuevo = JSON.stringify({
 jornada: state.jornada,
 partidos: state.partidos,
 resultados: state.resultados,
-quinielas: state.datosOriginales
+quinielas: state.datosOriginales,
+listaBloqueada: state.listaBloqueada,
+modoEspera: state.modoEspera
 });
 if (snapshotNuevo === snapshotAnterior) return;
 state.rowDataCache = null;

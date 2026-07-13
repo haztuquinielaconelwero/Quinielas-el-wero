@@ -272,14 +272,14 @@ throw err;
 }
 }
 /* Esto de abajo trabaja en las alertas*/                                                                      /* Esto de abajo trabaja en las alertas*/       
-function showToast(texto, tipo = "success") {
+function showToast(texto, tipo = "success", ms = 5000) {
 const contenedor = document.getElementById("toastContainer");
 if (!contenedor) return;
 const toast = document.createElement("div");
 toast.className = `adm-toast adm-toast--${tipo}`;
-toast.textContent = texto;
+toast.innerHTML = String(texto).replace(/\n/g, "<br>");
 contenedor.appendChild(toast);
-setTimeout(() => toast.remove(), 3200);
+setTimeout(() => toast.remove(), ms);
 }
 /* Esto de abajo trabaja aceptar las quinielas o rechazar*/                                                    /* Esto de abajo trabaja en las alertas*/       
 const QuinielasAdmin = (() => {
@@ -373,13 +373,26 @@ const modalEl = document.getElementById("modalConfirmar");
 if (modalEl) modalEl.classList.add("loading");
 try {
 const response = await _safeFetch(`${API_BASE}/api/quinielas/${id}/confirmar`, {
-method: "PATCH", headers: { "Content-Type": "application/json" }
+method: "PATCH",
+headers: { "Content-Type": "application/json" }
 });
 const result = await _safeJson(response);
 _cerrarModalConfirmar();
 if (result.success) {
 if (result.estado === "espera") {
-showToast(`${nombre} fue a espera (límite alcanzado ⏸️)`, "warning");
+if (result.motivo === "modo_espera") {
+showToast(
+"En espera (Activado manualmente por el vendedor)\nLa quiniela fue enviada a En espera. El vendedor deberá esperar a que le asignes un folio para que su jugada quede registrada oficialmente.",
+"warning"
+);
+} else if (result.motivo === "sin_folios") {
+showToast(
+"En espera (Activado por falta de espacios)\nSe alcanzó el límite de espacios disponibles. La quiniela permanecerá En espera hasta que haya un lugar disponible y se le pueda asignar un folio al participante.",
+"warning"
+);
+} else {
+showToast("La quiniela quedó en espera", "warning");
+}
 } else {
 const folio = result.quiniela?.folio;
 showToast(folio ? `${nombre} — Folio: ${folio} ✅` : `${nombre} ✅`, "success");
@@ -392,7 +405,10 @@ showToast(`Error: ${result.error || "No se pudo confirmar"}`, "error");
 _cerrarModalConfirmar();
 const isTimeout = err.name === "AbortError";
 if (ENV?.isDev) console.error("❌ ejecutarConfirmar:", err);
-showToast(isTimeout ? `⏱ Tiempo de espera agotado al confirmar "${nombre}"` : "Error de conexión", "error");
+showToast(
+isTimeout ? `⏱ Tiempo de espera agotado al confirmar "${nombre}"` : "Error de conexión",
+"error"
+);
 }
 }
 async function ejecutarRechazo() {

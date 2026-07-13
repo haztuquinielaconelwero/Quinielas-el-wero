@@ -101,7 +101,7 @@ def crear_tablas():
 
         conn.commit()
 # ── Esto de abajo trabaja con la informacion de la Jornada ───────────────────────────────────────────────────────────────────────────────────────────────
-JORNADA_ACTUAL = "Jornada 12"
+JORNADA_ACTUAL = "Jornada 1"
 PARTIDOS = [
     {
         "id": 1,

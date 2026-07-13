@@ -23,7 +23,7 @@ tarjetaroja("No se pudo cargar la jornada actual.");
 }
 /* =====================================  Esto de abajo trabaja en donde encontrar las quinielas , precio y maximo de dobles y triples         ======================= */
 const STORAGE_KEY = "quinielasElWero_guardadas";
-const nombreCelularActual = localStorage.getItem("quinielasElWero_nombreCelular") || "";
+const nombreCelularActual = localStorage.getItem("quinielasElWero_identidad") || "";
 const OPCIONES = ["L", "E", "V"];
 const PRECIO_UNITARIO = 30;
 const MAX_DOBLES = 3;
@@ -586,11 +586,11 @@ if (errEl) errEl.textContent = "";
 });
 }
 /* =====================================   Esto de abajo trabaja en inicianizacion de nuestra quiniela                                       ======================= */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 const vendedor = detectarVendedor();
-if (!vendedor) {
-tarjetaroja("Verifica tu link para poder añadir quinielas correctamente.");}
+if (!vendedor) { tarjetaroja("Verifica tu link para poder añadir quinielas correctamente."); }
 cargarVendedores();
+await cargarJornadaActual();
 renderPartidos();
 actualizarPrecio();
 actualizarBadgeGuardadas();

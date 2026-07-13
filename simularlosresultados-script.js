@@ -50,7 +50,7 @@ visitante: p.visitante,
 visitanteLogo: normalizarSrcLogo(p.visitanteLogo)
 }));
 const jornadaParam = encodeURIComponent(JORNADA_ACTUAL);
-const resLista = await fetch(`${API_BASE}/api/lista-oficial?jornada=${jornadaParam}`);
+const resLista = await fetch(`${API_BASE}/api/laapidelalistaoficial?jornada=${jornadaParam}`);
 const dataLista = await resLista.json();
 if (!resLista.ok) {
 throw new Error("No se pudo cargar la Lista Oficial");

@@ -49,7 +49,8 @@ const MAPA_ESTADO_BACKEND = {
 "No jugando": "no-jugando",
 "Jugando": "jugando",
 "En espera": "espera",
-"Rechazada": "rechazada"
+"Rechazada": "rechazada",
+"Archivada": "no-jugando"
 };
 async function sincronizarConBackend() {
 const dispositivoId = leerDispositivoId();
@@ -60,13 +61,18 @@ const data = await res.json();
 if (!res.ok || !data.success) return;
 const enviadas = leerEnviadas();
 let cambio = false;
-const actualizadas = enviadas.map((q) => {
+const actualizadas = enviadas
+.map((q) => {
 const remota = data.quinielas.find((r) => r.llavemaestra === q.llavemaestra);
-if (!remota) return q;
+if (!remota) {
+cambio = true;
+return null;
+}
 const estadoNuevo = MAPA_ESTADO_BACKEND[remota.estado] ?? q.estado;
 if (estadoNuevo !== q.estado || remota.folio !== q.folio) cambio = true;
 return { ...q, id: remota.id, estado: estadoNuevo, folio: remota.folio ?? q.folio ?? null };
-});
+})
+.filter(Boolean);
 if (cambio) {
 guardarEnviadas(actualizadas);
 renderLista();

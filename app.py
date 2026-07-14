@@ -81,7 +81,7 @@ def crear_tablas():
                 CREATE TABLE IF NOT EXISTS resultadosdelajornada (
                     id SERIAL PRIMARY KEY,
                     jornada TEXT NOT NULL,
-                    partido_id INTEGER NOT NULL REFERENCES partidos(id),
+                    partido_id INTEGER NOT NULL,
                     resultado CHAR(1) CHECK (resultado IN ('L','E','V')),
                     marcador_local INTEGER,
                     marcador_visita INTEGER,
@@ -1278,6 +1278,64 @@ def nuevajornada():
         return jsonify({"success": True, "mensaje": "Quinielas y resultados borrados. Clientes intactos."})
     except Exception as exc:
         logger.error("nuevajornada: error -> %s", exc)
+        return jsonify({"success": False, "mensaje": str(exc)}), 500
+    
+
+# ── Esto de abajo trabaja con archivo para importar de excel ────────────────────────────────────────────────────────────────────────────────
+@app.route("/api/apiparaactualizarlosresultados", methods=["POST"])
+def apiparaactualizarlosresultados():
+    data = request.get_json(silent=True) or {}
+    jornada = data.get("jornada") or JORNADA_ACTUAL
+    resultados = data.get("resultados") or []
+
+    if not resultados:
+        return jsonify({"success": False, "mensaje": "No se recibieron resultados"}), 400
+
+    actualizados = 0
+    rechazados = []
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                for r in resultados:
+                    partido_id = r.get("partido_id")
+                    resultado = r.get("resultado")
+                    marcador_local = r.get("marcador_local")
+                    marcador_visita = r.get("marcador_visita")
+
+                    if not partido_id:
+                        rechazados.append({"partido_id": partido_id, "motivo": "Falta partido_id"})
+                        continue
+
+                    if resultado not in ("L", "E", "V"):
+                        rechazados.append({"partido_id": partido_id, "motivo": "Resultado inválido"})
+                        continue
+
+                    cur.execute(
+                        """
+                        INSERT INTO resultadosdelajornada
+                        (jornada, partido_id, resultado, marcador_local, marcador_visita)
+                        VALUES (%s, %s, %s, %s, %s)
+                        ON CONFLICT (jornada, partido_id) DO UPDATE SET
+                            resultado = EXCLUDED.resultado,
+                            marcador_local = EXCLUDED.marcador_local,
+                            marcador_visita = EXCLUDED.marcador_visita
+                        """,
+                        (jornada, partido_id, resultado, marcador_local, marcador_visita),
+                    )
+                    actualizados += 1
+
+            conn.commit()
+
+        return jsonify({
+            "success": True,
+            "mensaje": "Resultados guardados correctamente",
+            "actualizados": actualizados,
+            "rechazados": rechazados
+        })
+
+    except Exception as exc:
+        logger.error("apiparaactualizarlosresultados: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
     
 # ── Esto de abajo trabaja con el home e inicio.html ────────────────────────────────────────────────────────────────────────────────

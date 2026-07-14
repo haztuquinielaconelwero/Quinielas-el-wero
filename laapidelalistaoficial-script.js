@@ -142,9 +142,10 @@ visitanteLogo: normalizarSrcLogo(p.visitanteLogo),
 resultadoFinal: p.resultadoFinal ?? null
 }));
 state.resultados = {};
-state.partidos.forEach((p, idx) => {
+state.partidos.forEach((p) => {
+const key = String(p.id);
 if (p.resultadoFinal) {
-state.resultados[String(idx)] = p.resultadoFinal;
+state.resultados[key] = p.resultadoFinal;
 }
 });
 }
@@ -266,7 +267,12 @@ state.datosOriginales = state.datosOriginales.map(q => {
 let puntos = 0;
 if (hayResultados && Array.isArray(q.picks)) {
 q.picks.forEach((pick, idx) => {
-if (state.resultados[String(idx)] && pick === state.resultados[String(idx)]) puntos++;
+const partido = state.partidos[idx];
+if (!partido) return;
+const key = String(partido.id);
+if (state.resultados[key] && pick === state.resultados[key]) {
+puntos++;
+}
 });
 }
 return { ...q, puntos };
@@ -297,8 +303,11 @@ return (!v || v === '-' || v === '') ? 'cell-empty' : '';
 },
 cellRenderer: params => {
 const v = params.value;
-if (!v || v === '-' || v === '') return '<span style="color:#fca5a5">—</span>';
-const r = state.resultados[String(idx)];
+if (!v || v === '-' || v === '') {
+return '<span style="color:#fca5a5">—</span>';
+}
+const key = String(partido.id);
+const r = state.resultados[key];
 if (r && v === r) return `<span class="pick-correct">${escHtml(v)}</span>`;
 if (r) return `<span class="pick-incorrect">${escHtml(v)}</span>`;
 return `<span>${escHtml(v)}</span>`;
@@ -413,8 +422,9 @@ const container = document.getElementById('resultadosGrid');
 if (!container) return;
 container.innerHTML = '';
 state.partidos.forEach((partido, idx) => {
-const curRes = state.resultados[String(idx)] || '';
-const curMarcador = state.marcadores[String(idx)] || { local: '', visita: '' };
+const key = String(partido.id);
+const curRes = state.resultados[key] || '';
+const curMarcador = state.marcadores[key] || { local: '', visita: '' };
 const grupo = document.createElement('div');
 grupo.className = 'resultado-input-group';
 const num = document.createElement('span');
@@ -495,9 +505,9 @@ const estaActivo = btn.classList.contains('active');
 btns.querySelectorAll('.resultado-btn').forEach(b => b.classList.remove('active'));
 if (!estaActivo) {
 btn.classList.add('active');
-state.resultados[String(idx)] = val;
+state.resultados[key] = val;
 } else {
-delete state.resultados[String(idx)];
+delete state.resultados[key];
 }
 actualizarResaltado(inputLocal, inputVisita, btns);
 procesarDatos();
@@ -523,7 +533,7 @@ inpV.classList.add('ganador');
 function onMarcadorChange() {
 const gl = parseInt(inputLocal.value, 10);
 const gv = parseInt(inputVisita.value, 10);
-state.marcadores[String(idx)] = {
+state.marcadores[key] = {
 local: inputLocal.value,
 visita: inputVisita.value
 };
@@ -559,9 +569,41 @@ grupo.appendChild(oficial);
 container.appendChild(grupo);
 });
 }
-/*                                  Esto de abajo trabaja en guardar resultados al servidor y sera conectado despues                                      */ 
+/* Esto de abajo trabaja en guardar los resultados finales */                                          /* Esto de abajo trabaja en guardar los resultados finales */
 async function guardarResultados() {
-toast('Guardar resultados aun no esta conectado al servidor (siguiente paso)', 'warn');
+await conGuard(async () => {
+const resultadosPayload = state.partidos
+.map((partido) => {
+const key = String(partido.id);
+const resultado = state.resultados[key];
+const marcador = state.marcadores[key] || {};
+if (!resultado) return null;
+return {
+partido_id: partido.id,
+resultado,
+marcador_local: marcador.local === '' || marcador.local == null ? null : Number(marcador.local),
+marcador_visita: marcador.visita === '' || marcador.visita == null ? null : Number(marcador.visita)
+};
+})
+.filter(Boolean);
+if (!resultadosPayload.length) {
+throw new Error('No hay resultados capturados para guardar');
+}
+const res = await fetch(`${API_BASE}/api/apiparaactualizarlosresultados`, {
+method: 'POST',
+headers: getAuthHeaders(),
+body: JSON.stringify({
+jornada: state.jornada,
+resultados: resultadosPayload
+})
+});
+const data = await res.json();
+if (!res.ok || !data.success) {
+throw new Error(data.mensaje || data.error || 'Error al guardar resultados');
+}
+toast(data.mensaje || 'Resultados guardados correctamente', 'success');
+await cargarDatos();
+}, ['btnGuardarResultados']);
 }
 /*                   Esto de abajo trabaja en limpiar resultados cargados en pantalla y recalcular puntos                                        */ 
 async function limpiarResultados() {
@@ -796,26 +838,6 @@ set('totalStat', datos.length);
 set('firstStat', c1);
 set('secondStat', c2);
 set('vendedoresStat', cv);
-}
-/* Esto de abajo trabaja en guardar los resultados finales */                                          /* Esto de abajo trabaja en guardar los resultados finales */
-async function guardarResultados() {
-await conGuardar(async () => {
-const res = await fetch(`${APIBASE}/api/guardarresultados`, {
-method: 'POST',
-headers: getAuthHeaders(),
-body: JSON.stringify({
-jornada: state.jornada,
-resultados: state.resultados,
-marcadores: state.marcadores
-})
-});
-const data = await res.json();
-if (!res.ok || !data.success) {
-throw new Error(data.mensaje || data.error || 'Error al guardar resultados');
-}
-toast('Resultados guardados correctamente', 'success');
-await cargarDatos();
-}, ['btnGuardarResultados']);
 }
 /* Esto de abajo trabaja en mostrar u ocultar la capa de carga del sistema */           /* Esto de abajo trabaja en mostrar u ocultar la capa de carga del sistema */
 function mostrarLoading(show) {

@@ -936,203 +936,76 @@ gap: 0;
    Compactar tablas admin (No jugando / En espera / Jugando)
    ==================== */
 
+.table-wrapper {
+  overflow-x: hidden;
+}
+
 .results-table {
   width: 100%;
-  min-width: 640px;
-  border-collapse: separate;
-  border-spacing: 0;
+  min-width: 100%;
   table-layout: fixed;
 }
 
-/* Encabezados compactos */
-.results-table thead th {
-  font-size: 0.5rem;           /* antes ~0.62rem */
-  font-weight: 700;
-  padding: 4px 2px;            /* antes 9px 6px */
-  line-height: 1.05;
-  white-space: nowrap;
-}
-
-/* Columna de partido más angosta */
-.results-table thead th.col-match {
-  width: 26px;
-  min-width: 26px;
-  max-width: 26px;
+.results-table thead th.col-match,
+.results-table td.col-match {
+  width: 18px;
+  min-width: 18px;
+  max-width: 18px;
   padding: 2px 0;
 }
 
-/* Celdas del cuerpo compactas */
-.results-table tbody td {
-  padding: 3px 2px;            /* antes 8px 6px */
-  font-size: 0.52rem;          /* antes 0.76rem */
-  line-height: 1.05;
-}
-
-/* Nombre / vendedor / folio con ancho fijo y ellipsis */
 .results-table th.col-name,
 .results-table td.col-name {
-  width: 70px;
-  max-width: 70px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 52px;
+  max-width: 52px;
 }
 
 .results-table th.col-vendor,
 .results-table td.col-vendor {
-  width: 60px;
-  max-width: 60px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 48px;
+  max-width: 48px;
 }
 
 .results-table th.col-folio,
 .results-table td.col-folio {
-  width: 34px;
-  max-width: 34px;
-  font-size: 0.5rem;
-  font-weight: 800;
+  width: 24px;
+  max-width: 24px;
 }
 
-/* Puntos y acciones más contenidos */
 .results-table th.col-points,
 .results-table td.col-points {
-  width: 28px;
-  max-width: 28px;
+  width: 22px;
+  max-width: 22px;
 }
 
 .results-table th.col-actions,
-results-table td.col-actions {
-  width: 86px;
-  max-width: 86px;
-}
-
-/* Header de logos muy compacto */
-.match-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  white-space: normal;
+.results-table td.col-actions {
+  width: 64px;
+  max-width: 64px;
 }
 
 .match-logo {
-  width: 14px;                 /* antes 20px */
-  height: 14px;
-  object-fit: contain;
+  width: 11px;
+  height: 11px;
 }
 
-.match-vs {
-  display: none;               /* quitar el texto "vs" para ahorrar espacio */
-}
-
-/* Chips de resultado del tamaño de los de la Lista Oficial */
 .result-cell {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 14px;             /* antes 30px */
-  width: 14px;
-  height: 14px;                /* antes 30px */
-  border-radius: 4px;          /* antes círculo gigante */
-  border: 1px solid transparent;
-  font-size: 0.42rem;          /* antes 0.72rem */
-  font-weight: 900;
-  line-height: 1;
-  background: rgba(255,255,255,0.06);
-  color: var(--text-muted);
-  transition: transform 0.2s var(--ease);
+  min-width: 11px;
+  width: 11px;
+  height: 11px;
+  font-size: 0.34rem;
+  border-radius: 3px;
 }
 
-/* Badge de puntos compacto */
 .puntos-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;             /* antes 40px */
-  padding: 1px 4px;            /* antes 6px 12px */
-  border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.16);
-  color: var(--verde-mx-claro);
-  font-size: 0.44rem;          /* antes 0.85rem */
-  line-height: 1;
+  min-width: 14px;
+  padding: 1px 2px;
+  font-size: 0.36rem;
 }
 
-/* Acciones más compactas y con wrap */
-.col-actions-inner {
-  display: flex;
-  width: 100%;
-  box-sizing: border-box;
-  gap: 3px;                    /* antes 6px */
-  padding: 3px;                /* antes 6px */
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-/* Botones de Confirmar / Rechazar del tamaño justo */
 .btn-confirmar,
 .btn-rechazar {
-  padding: 3px 6px;            /* antes 6px 12px */
-  border-radius: 7px;
-  border: none;
-  font-size: 0.48rem;          /* antes 0.7rem */
-  font-weight: 800;
-  cursor: pointer;
-  transition: transform 0.2s var(--ease), filter 0.2s var(--ease);
-}
-
-/* Badge "En espera" más chico */
-.admin-espera-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;                    /* antes 6px */
-  color: var(--dorado-premium);
-  font-size: 0.5rem;           /* antes 0.72rem */
-  font-weight: 800;
-  white-space: nowrap;
-  padding: 3px 6px;
-}
-
-/* Ajuste adicional en mobile (por si acaso) */
-@media (max-width: 640px) {
-  .results-table {
-    min-width: 100%;
-    width: 100%;
-    table-layout: fixed;
-  }
-
-  .results-table thead th {
-    font-size: 0.46rem;
-    padding: 3px 1px;
-  }
-
-  .results-table tbody td {
-    font-size: 0.46rem;
-    padding: 2px 1px;
-  }
-
-  .result-cell {
-    min-width: 12px;
-    width: 12px;
-    height: 12px;
-    font-size: 0.36rem;
-    border-radius: 3px;
-  }
-
-  .puntos-badge {
-    min-width: 16px;
-    padding: 1px 3px;
-    font-size: 0.4rem;
-  }
-
-  .btn-confirmar,
-  .btn-rechazar {
-    font-size: 0.42rem;
-    padding: 2px 5px;
-  }
+  padding: 2px 4px;
+  font-size: 0.38rem;
+  border-radius: 6px;
 }

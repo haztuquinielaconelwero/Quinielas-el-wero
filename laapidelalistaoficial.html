@@ -23,11 +23,6 @@
 <div class="bloqueo-banner" id="bloqueoBanner">
 Modo en espera activo — Las quinielas confirmadas por el vendedor no entrarán a la lista oficial ⏳
 </div>
-<div class="selection-bar" id="selectionBar">
-<span class="sel-count" id="selCount">0 seleccionadas</span>
-<button class="btn-sel-delete" onclick="archivarJugando()">Archivar seleccionadas 📦</button>
-<button class="btn-sel-clear"  onclick="limpiarSeleccion()">Cancelar ✕</button>
-</div>
 <div class="header">
 <div class="logo">
 <input type="text" class="document-title" value="Lista Oficial" readonly>
@@ -39,7 +34,7 @@ Modo en espera activo — Las quinielas confirmadas por el vendedor no entrarán
 <button class="btn btn-bloquear" id="btnBloquear" onclick="toggleBloqueo()">Bloqueo (Desactivado) 🟢</button>
 <button class="btn btn-verde"   onclick="descargarPlantilla()">Plantilla 📄</button>
 <button class="btn btn-azul"    onclick="recargarDatos()">Actualizar 🔄</button>
-<button class="btn btn-rojo" id="btnArchivarTodas" onclick="archivarTodasLasQuinielas()">Archivar todas 📦</button>
+<button class="btn btn-rojo" id="btnArchivarTodas" onclick="confirmarArchivarTodas()">Archivar todas 📦</button>
 <button class="btn btn-bloquear" id="btnEspera" onclick="toggleModoEspera()">En espera (Desactivado) 🟢</button>
 <input type="file" id="fileInput" accept=".csv" onchange="importararchivodeexcel(event)">
 <button class="btn btn-azul"    onclick="document.getElementById('fileInput').click()">Importar 📤</button>
@@ -97,6 +92,22 @@ Modo en espera activo — Las quinielas confirmadas por el vendedor no entrarán
 <div class="modal-footer" style="justify-content:space-between;">
 <button class="btn btn-rojo" onclick="ejecutarNuevaJornada()">Sí, eliminar todo</button>
 <button class="btn btn-azul" onclick="cerrarModalNuevaJornada()">No, cancelar</button>
+</div>
+</div>
+</div>
+<!-- Esto de abajo trabaja con la advertencia de archivar todas las quinielas -->
+<div class="modal-overlay" id="modalArchivarTodas">
+<div class="modal-caja">
+<div class="modal-header">
+<span>Confirmar archivado ⚠️</span>
+</div>
+<div class="modal-body">
+<p>Esta acción archivará todas las quinielas que están en "Jugando".</p>
+<p style="color:#dc2626;font-weight:700;">¿Seguro?</p>
+</div>
+<div class="modal-footer" style="justify-content:space-between;">
+<button class="btn btn-rojo" onclick="ejecutarArchivarTodas()">Sí, archivar</button>
+<button class="btn btn-azul" onclick="cerrarModalArchivarTodas()">No, cancelar</button>
 </div>
 </div>
 </div>

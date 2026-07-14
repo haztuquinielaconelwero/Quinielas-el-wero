@@ -50,26 +50,6 @@ el.classList.remove('show');
 setTimeout(() => el.remove(), 300);
 }, ms);
 }
-/*                            Esto de abajo trabaja en mi api de archivar jugando                                                                        */
-async function archivarJugando() {
-const seleccionadas = gridApi.getSelectedRows();
-if (!seleccionadas.length) {
-toast('No hay filas seleccionadas', 'warn');
-return;
-}
-if (!confirm(`¿Archivar ${seleccionadas.length} quinielas seleccionadas?`)) return;
-await conGuard(async () => {
-const res = await fetch(`${API_BASE}/api/archivarjugando`, {
-method: 'POST',
-headers: getAuthHeaders()
-});
-const data = await res.json();
-if (!res.ok || !data.success) throw new Error(data.mensaje || 'Error al archivar');
-toast(data.mensaje, 'success');
-limpiarSeleccion();
-await cargarDatos();
-});
-}
 /*                            Esto de abajo trabaja en retrasar filtros para no recargar la tabla en cada tecla                                                    */
 function debounce(fn, delay) {
 let t;
@@ -119,26 +99,6 @@ return src;
 }
 return `/${src.replace(/^\.?\//, '')}`;
 }
-/*                                     Esto de abajo trabaja en actualizar la barra de seleccion de quinielas dentro de la grid                              */ 
-function actualizarBarraSeleccion() {
-if (!gridApi) return;
-const sel = gridApi.getSelectedRows().filter(r => r.folio);
-const bar = document.getElementById('selectionBar');
-const cnt = document.getElementById('selCount');
-if (!bar || !cnt) return;
-if (sel.length > 0) {
-cnt.textContent = `${sel.length} quiniela${sel.length > 1 ? 's' : ''} seleccionada${sel.length > 1 ? 's' : ''}`;
-bar.classList.add('visible');
-} else {
-bar.classList.remove('visible');
-}
-}
-/* Esto de abajo trabaja en limpiar la seleccion actual de la tabla */                           /* Esto de abajo trabaja en limpiar la seleccion actual de la tabla */
-function limpiarSeleccion() {
-if (gridApi) gridApi.deselectAll();
-const bar = document.getElementById('selectionBar');
-if (bar) bar.classList.remove('visible');
-}
 /* Esto de abajo trabaja en inicializar la grid principal de la lista oficial */     /* Esto de abajo trabaja en inicializar la grid principal de la lista oficial */
 function initGrid() {
 const gridOptions = {
@@ -149,10 +109,6 @@ suppressMovableColumns: false,
 rowHeight: 36,
 headerHeight: 38,
 defaultColDef: { resizable: true, sortable: true, filter: false },
-rowSelection: 'multiple',
-suppressRowClickSelection: true,
-isRowSelectable: (params) => !!(params.data && params.data.folio),
-onSelectionChanged: actualizarBarraSeleccion,
 onGridSizeChanged: () => { if (gridApi) gridApi.sizeColumnsToFit(); },
 getRowClass: params => {
 if (!params.data) return '';
@@ -357,9 +313,6 @@ sortable: false,
 resizable: false,
 pinned: 'left',
 cellClass: 'col-numero',
-checkboxSelection: params => !!(params.data && params.data.folio),
-headerCheckboxSelection: true,
-headerCheckboxSelectionFilteredOnly: true,
 },
 {
 field: 'nombre',
@@ -792,7 +745,7 @@ a.click();
 document.body.removeChild(a);
 setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-/*                                       Esto de abajo trabaja en el boton de Nueva quiniela                                                             */ 
+/*                          Esto de abajo trabaja en el boton de Nueva quiniela para empezar de 0                                                           */ 
 function confirmarNuevaJornada() {
 document.getElementById('modalNuevaJornada').classList.add('visible');
 }
@@ -809,6 +762,26 @@ body: JSON.stringify({ confirmacion: 'SI_BORRAR_TODO' })
 });
 const data = await res.json();
 if (!res.ok || !data.success) throw new Error(data.mensaje || 'Error al iniciar nueva jornada');
+toast('✅ ' + data.mensaje, 'success', 7000);
+await cargarDatos();
+});
+}
+/*                                       Esto de abajo trabaja en el modal de confirmar archivar todas las quinielas                                     */ 
+function confirmarArchivarTodas() {
+document.getElementById('modalArchivarTodas').classList.add('visible');
+}
+function cerrarModalArchivarTodas() {
+document.getElementById('modalArchivarTodas').classList.remove('visible');
+}
+async function ejecutarArchivarTodas() {
+cerrarModalArchivarTodas();
+await conGuard(async () => {
+const res = await fetch(`${API_BASE}/api/archivarjugando`, {
+method: 'POST',
+headers: getAuthHeaders()
+});
+const data = await res.json();
+if (!res.ok || !data.success) throw new Error(data.mensaje || 'Error al archivar');
 toast('✅ ' + data.mensaje, 'success', 7000);
 await cargarDatos();
 });

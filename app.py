@@ -115,7 +115,7 @@ def archivarjugando():
                 """)
                 afectadas = cur.rowcount
             conn.commit()
-        return jsonify({"success": True, "mensaje": f"{afectadas} quinielas archivadas"})
+        return jsonify({"success": True, "mensaje": f"{afectadas} quinielas archivadas correctamente"})
     except Exception as exc:
         logger.error("archivarjugando: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500

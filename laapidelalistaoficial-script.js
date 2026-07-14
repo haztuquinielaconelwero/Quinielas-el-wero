@@ -21,7 +21,7 @@ modoEspera: false,
 jornada: null
 };
 let gridApi = null;
-/*                                     Esto de abajo trabaja en el estado en espera y estado bloqueado                                                 */
+/*            Esto de abajo trabaja en el estado en espera y estado bloqueado               (Para que se no se rompan al recargar)                                */
 async function cargarEstadoAdmin(signal) {
 const res = await fetch(`${API_BASE}/api/estadoadmin`, {
 headers: getAuthHeaders(),
@@ -601,18 +601,6 @@ renderTabla();
 actualizarEstadisticas();
 toast('Resultados limpiados localmente', 'success');
 }
-/* Esto de abajo trabaja en eliminar una quiniela individual y sera conectado despues */ 
-async function eliminarQuiniela(folio) {
-toast('El borrado individual aun no esta conectado al servidor (siguiente paso)', 'warn');
-}
-/*          Esto de abajo trabaja en eliminar varias quinielas seleccionadas  y sera conectado despues                                 */ 
-async function eliminarSeleccionadas() {
-toast('El borrado en lote aun no esta conectado al servidor (siguiente paso)', 'warn');
-}
-/*                       Esto de abajo trabaja en archivar o eliminar todas las quinielas y sera conectado despues                                      */ 
-async function eliminarTodasLasQuinielas() {
-toast('Archivar todas aun no esta conectado al servidor (siguiente paso)', 'warn');
-}
 /*                   Esto de abajo trabaja en activar la funcion de bloquear y la de en espera la lista en la apidelalistaoficial                  */
 function actualizarUIBotonBloquear() {
 const btn = document.getElementById('btnBloquear');
@@ -715,8 +703,9 @@ const html = `
 <p><strong>Jornada:</strong> ${state.jornada}</p>
 <p><strong>Total de filas leídas:</strong> ${filas.length}</p>
 <p style="color:#16a34a;font-weight:700;">✅ Nuevas quinielas insertadas: ${data.insertadas}</p>
-<p style="color:#dc2626;font-weight:700;">⏭️ Ya existían (protegidas, sin duplicar): ${data.rechazadas}</p>
-${chips ? `<p><strong>Folios ya existentes:</strong></p><div>${chips}</div>` : ''}
+<p style="color:#2563eb;font-weight:700;">🔄 Reactivadas desde archivadas: ${data.reactivadas}</p>
+<p style="color:#dc2626;font-weight:700;">⏭️ Filas con picks inválidos: ${data.rechazadas}</p>
+${chips ? `<p><strong>Folios con error:</strong></p><div>${chips}</div>` : ''}
 `;
 abrirModalImportar(html);
 await cargarDatos();

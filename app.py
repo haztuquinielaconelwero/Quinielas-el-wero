@@ -45,14 +45,14 @@ def crear_tablas():
                     p8 CHAR(1) CHECK (p8 IN ('L','E','V')),
                     p9 CHAR(1) CHECK (p9 IN ('L','E','V')),
                     estado TEXT NOT NULL DEFAULT 'No jugando'
-                        CHECK (estado IN ('No jugando','Jugando','En espera','Rechazada')),
+                        CHECK (estado IN ('No jugando','Jugando','En espera','Rechazada','Archivada')),
                     folio TEXT,
                     fechacreacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
                     llavemaestra TEXT NOT NULL UNIQUE,
                     dispositivoid TEXT NOT NULL,
                     CONSTRAINT folio_solo_si_jugando CHECK (
                         (estado = 'Jugando' AND folio IS NOT NULL) OR
-                        (estado <> 'Jugando' AND folio IS NULL)
+                        (estado != 'Jugando')
                     )
                 );
             """)
@@ -100,7 +100,26 @@ def crear_tablas():
             """)
 
         conn.commit()
-    
+
+# ── Esto de abajo trabaja con el archivado de todas las quinielas───────────────────────────────────────────────────────────────────────────────────────────────
+
+@app.route("/api/archivarjugando", methods=["POST"])
+def archivarjugando():
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE todaslasquinielas
+                    SET estado = 'Archivada', folio = NULL
+                    WHERE estado = 'Jugando'
+                """)
+                afectadas = cur.rowcount
+            conn.commit()
+        return jsonify({"success": True, "mensaje": f"{afectadas} quinielas archivadas"})
+    except Exception as exc:
+        logger.error("archivarjugando: error -> %s", exc)
+        return jsonify({"success": False, "mensaje": str(exc)}), 500
+
 # ── Esto de abajo trabaja con  el modo bloqueado y modo en espera───────────────────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/estadoadmin")
 def estadoadmin():
@@ -1200,6 +1219,7 @@ def importararchivodeexcel():
     if not filas:
         return jsonify({"success": False, "mensaje": "El archivo no trae filas"}), 400
     insertadas = 0
+    reactivadas = 0
     rechazadas = []
     try:
         with get_connection() as conn:
@@ -1217,18 +1237,31 @@ def importararchivodeexcel():
                         (nombrecelular, nombrequiniela, vendedor, jornada,
                          p1,p2,p3,p4,p5,p6,p7,p8,p9, estado, folio, llavemaestra, dispositivoid)
                         VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'Jugando',%s,%s,%s)
-                        ON CONFLICT (llavemaestra) DO NOTHING
-                        RETURNING id
+                        ON CONFLICT (llavemaestra) DO UPDATE SET
+                            folio = EXCLUDED.folio,
+                            nombrequiniela = EXCLUDED.nombrequiniela,
+                            vendedor = EXCLUDED.vendedor,
+                            estado = 'Jugando'
+                        RETURNING id, (xmax = 0) AS fue_insertada
                         """,
                         ("Importado", f.get("nombre"), f.get("vendedor"), jornada,
                          *picks, f.get("folio"), llave, dispositivoid),
                     )
-                    if cur.fetchone() is None:
+                    fila = cur.fetchone()
+                    if fila is None:
                         rechazadas.append(f.get("folio"))
-                    else:
+                    elif fila[1]:
                         insertadas += 1
+                    else:
+                        reactivadas += 1
             conn.commit()
-        return jsonify({"success": True, "insertadas": insertadas, "rechazadas": len(rechazadas), "foliosrechazados": rechazadas})
+        return jsonify({
+            "success": True,
+            "insertadas": insertadas,
+            "reactivadas": reactivadas,
+            "rechazadas": len(rechazadas),
+            "foliosrechazados": rechazadas
+        })
     except Exception as exc:
         logger.error("importararchivodeexcel: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500

@@ -69,8 +69,20 @@ cambio = true;
 return null;
 }
 const estadoNuevo = MAPA_ESTADO_BACKEND[remota.estado] ?? q.estado;
-if (estadoNuevo !== q.estado || remota.folio !== q.folio) cambio = true;
-return { ...q, id: remota.id, estado: estadoNuevo, folio: remota.folio };
+if (
+estadoNuevo !== q.estado ||
+remota.folio !== q.folio ||
+remota.nombre !== q.nombre ||
+remota.vendedor !== q.vendedor
+) cambio = true;
+return {
+...q,
+id: remota.id,
+estado: estadoNuevo,
+folio: remota.folio,
+nombre: remota.nombre,
+vendedor: remota.vendedor
+};
 })
 .filter(Boolean);
 if (cambio) {

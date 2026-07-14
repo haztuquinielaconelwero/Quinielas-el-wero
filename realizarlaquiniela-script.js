@@ -1,7 +1,6 @@
 /* =====================================  Esto de abajo trabaja en generar los partidos de la quiniela                                          ======================= */
 (function () {
 "use strict";
-let PARTIDOS = [];
 let MAX_DOBLES = 3;
 let MAX_TRIPLES = 3;
 let JORNADA_ACTUAL = "Jornada 1";

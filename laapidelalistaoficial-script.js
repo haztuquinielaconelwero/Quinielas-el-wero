@@ -50,6 +50,26 @@ el.classList.remove('show');
 setTimeout(() => el.remove(), 300);
 }, ms);
 }
+/*                            Esto de abajo trabaja en mi api de archivar jugando                                                                        */
+async function archivarJugando() {
+const seleccionadas = gridApi.getSelectedRows();
+if (!seleccionadas.length) {
+toast('No hay filas seleccionadas', 'warn');
+return;
+}
+if (!confirm(`¿Archivar ${seleccionadas.length} quinielas seleccionadas?`)) return;
+await conGuard(async () => {
+const res = await fetch(`${API_BASE}/api/archivarjugando`, {
+method: 'POST',
+headers: getAuthHeaders()
+});
+const data = await res.json();
+if (!res.ok || !data.success) throw new Error(data.mensaje || 'Error al archivar');
+toast(data.mensaje, 'success');
+limpiarSeleccion();
+await cargarDatos();
+});
+}
 /*                            Esto de abajo trabaja en retrasar filtros para no recargar la tabla en cada tecla                                                    */
 function debounce(fn, delay) {
 let t;

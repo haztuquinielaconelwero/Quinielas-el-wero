@@ -625,10 +625,21 @@ btn.textContent = 'Bloqueo (Desactivado) 🟢';
 btn.classList.remove('bloqueado');
 }
 }
-function toggleBloqueo() {
-state.listaBloqueada = !state.listaBloqueada;
+async function toggleBloqueo() {
+await conGuard(async () => {
+const res = await fetch(`${API_BASE}/api/togglebloqueo`, {
+method: 'POST',
+headers: getAuthHeaders(),
+body: JSON.stringify({ activar: !state.listaBloqueada })
+});
+const data = await res.json();
+if (!res.ok || !data.success) {
+throw new Error(data.mensaje || data.error || 'Error al cambiar modo bloqueo');
+}
+state.listaBloqueada = !!data.listaBloqueada;
 actualizarUIBotonBloquear();
 toast(state.listaBloqueada ? 'Lista bloqueada 🔒' : 'Lista desbloqueada 🔓', 'success');
+}, ['btnBloquear']);
 }
 /*                              Esto de abajo trabaja en activar o quitar el modo espera                                                                        */
 function actualizarUIBotonEspera() {

@@ -382,12 +382,12 @@ if (result.success) {
 if (result.estado === "espera") {
 if (result.motivo === "modo_espera") {
 showToast(
-"En espera (Activado manualmente por el vendedor)\nLa quiniela fue enviada a En espera. El vendedor deberá esperar a que le asignes un folio para que su jugada quede registrada oficialmente.",
+"En espera (Limite de tiempo)\nLa quiniela fue enviada a en espera",
 "warning"
 );
 } else if (result.motivo === "sin_folios") {
 showToast(
-"En espera (Activado por falta de espacios)\nSe alcanzó el límite de espacios disponibles. La quiniela permanecerá En espera hasta que haya un lugar disponible y se le pueda asignar un folio al participante.",
+"En espera (Falta de espacios)\nSe alcanzó el límite de espacios disponibles.",
 "warning"
 );
 } else {

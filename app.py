@@ -128,11 +128,6 @@ def togglebloqueo():
     data = request.get_json(silent=True) or {}
     LISTA_BLOQUEADA = bool(data.get("activar"))
     return jsonify(success=True, listaBloqueada=LISTA_BLOQUEADA)
-
-@app.route("/api/quinielas/int:qid/confirmar", methods=["PATCH"])
-def apiconfirmarqid(qid):
-    if LISTA_BLOQUEADA:
-        return jsonify(success=False, error="Estamos trabajando en las listas, favor de intentarlo mañana"), 423
     
 # ── Esto de abajo trabaja con la informacion de la Jornada ───────────────────────────────────────────────────────────────────────────────────────────────
 WHATSAPP_GRUPO_URL = "https://chat.whatsapp.com/JKFSN3hDRBA91iy9T7GLPh"
@@ -1026,22 +1021,25 @@ def api_confirmar(qid):
                 if estado != "No jugando":
                     return jsonify({"success": False, "error": "Esta quiniela ya fue procesada"}), 409
 
+                if LISTA_BLOQUEADA:
+                    return jsonify({
+                        "success": False,
+                        "error": "Estamos trabajando en las listas, favor de intentarlo mañana"
+                    }), 423
+
                 if MODO_ESPERA["activo"]:
                     cur.execute(
                         "UPDATE todaslasquinielas SET estado = 'En espera' WHERE id = %s",
                         (qid,),
                     )
                     conn.commit()
-                    return jsonify({"success": True, "estado": "espera", "motivo": "sin_folios", "nuevofolio": None})
-
+                    return jsonify({"success": True, "estado": "espera", "motivo": "modo_espera", "nuevofolio": None})
 
                 rango = LIMITES_VENDEDORES.get(vendedor)
                 if rango is None:
                     return jsonify({"success": False, "error": f"{vendedor} no tiene folios asignados"}), 400
 
-
                 folioinicio, foliofin = rango
-
 
                 cur.execute(
                     "SELECT folio::int FROM todaslasquinielas WHERE vendedor = %s AND estado = 'Jugando' ORDER BY folio::int ASC FOR UPDATE",
@@ -1053,7 +1051,6 @@ def api_confirmar(qid):
                     if candidato not in foliosocupados:
                         foliolibre = candidato
                         break
-
 
                 if foliolibre is None:
                     cur.execute(

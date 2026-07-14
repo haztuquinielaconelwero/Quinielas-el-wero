@@ -541,14 +541,14 @@ if (isNaN(gl) || isNaN(gv) || inputLocal.value === '' || inputVisita.value === '
 inputLocal.classList.remove('ganador', 'perdedor');
 inputVisita.classList.remove('ganador', 'perdedor');
 btns.querySelectorAll('.resultado-btn').forEach(b => b.classList.remove('active'));
-delete state.resultados[String(idx)];
+delete state.resultados[key];
 procesarDatos();
 renderTabla();
 actualizarEstadisticas();
 return;
 }
 const resultado = gl > gv ? 'L' : gl === gv ? 'E' : 'V';
-state.resultados[String(idx)] = resultado;
+state.resultados[key] = resultado;
 btns.querySelectorAll('.resultado-btn').forEach(b => {
 b.classList.toggle('active', b.dataset.val === resultado);
 });

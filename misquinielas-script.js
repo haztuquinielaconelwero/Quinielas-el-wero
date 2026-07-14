@@ -50,7 +50,7 @@ const MAPA_ESTADO_BACKEND = {
 "Jugando": "jugando",
 "En espera": "espera",
 "Rechazada": "rechazada",
-"Archivada": "no-jugando"
+"Archivada": "archivada"
 };
 async function sincronizarConBackend() {
 const dispositivoId = leerDispositivoId();
@@ -70,7 +70,7 @@ return null;
 }
 const estadoNuevo = MAPA_ESTADO_BACKEND[remota.estado] ?? q.estado;
 if (estadoNuevo !== q.estado || remota.folio !== q.folio) cambio = true;
-return { ...q, id: remota.id, estado: estadoNuevo, folio: remota.folio ?? q.folio ?? null };
+return { ...q, id: remota.id, estado: estadoNuevo, folio: remota.folio };
 })
 .filter(Boolean);
 if (cambio) {
@@ -82,7 +82,7 @@ console.error("Error en sincronizarConBackend:", err);
 }
 }
 /* =====================================  Esto de abajo trabaja en ordenar las quinielas para mostrarlas correctamente                     ======================= */
-const ORDEN_ESTADO = { jugando: 0, "no-jugando": 1, "rechazada": 1, espera: 2 };
+const ORDEN_ESTADO = { jugando: 0, "no-jugando": 1, "rechazada": 1, archivada: 1, espera: 2 };
 function ordenarQuinielas(lista) {
 return [...lista].sort((a, b) => {
 const estadoA = ORDEN_ESTADO[a.estado] ?? 2;
@@ -98,7 +98,7 @@ switch (filtroActivo) {
 case "jugando":
 return lista.filter((q) => q.estado === "jugando");
 case "no-jugando":
-return lista.filter((q) => q.estado === "no-jugando" || q.estado === "rechazada");
+return lista.filter((q) => q.estado === "no-jugando" || q.estado === "rechazada" || q.estado === "archivada");
 case "espera":
 return lista.filter((q) => q.estado === "espera");
 case "mayor-puntos":
@@ -114,7 +114,8 @@ const ESTADO_INFO = {
 jugando: { clase: "mq-estado-jugando", texto: "Jugando ✅" },
 "no-jugando": { clase: "mq-estado-no-jugando", texto: "No jugando ❌" },
 espera: { clase: "mq-estado-espera", texto: "En espera ⏳" },
-rechazada: { clase: "mq-estado-no-jugando", texto: "Rechazada ❌" }
+rechazada: { clase: "mq-estado-no-jugando", texto: "Rechazada ❌" },
+archivada: { clase: "mq-estado-archivada", texto: "Archivada 📦" }
 };
 function renderMiniQuiniela(q) {
 if (!Array.isArray(PARTIDOS) || PARTIDOS.length === 0) {

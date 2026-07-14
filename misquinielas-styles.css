@@ -145,6 +145,16 @@ color: #ffffff;
 from { opacity: 0; transform: translateY(18px); }
 to { opacity: 1; transform: translateY(0); }
 }
+.mq-tarjeta.archivada {
+background: linear-gradient(160deg, rgba(139,94,60,0.16), rgba(94,62,38,0.06));
+border-color: rgba(139,94,60,0.4);
+box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(139,94,60,0.15);
+}
+.mq-estado-archivada {
+background: linear-gradient(135deg, rgba(139,94,60,0.24), rgba(94,62,38,0.15));
+color: #d9a86c;
+border-color: rgba(139,94,60,0.45);
+}
 .mq-tarjeta-header {
 display: flex;
 align-items: flex-start;

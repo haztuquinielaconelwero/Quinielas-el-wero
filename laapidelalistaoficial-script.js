@@ -797,6 +797,26 @@ set('firstStat', c1);
 set('secondStat', c2);
 set('vendedoresStat', cv);
 }
+/* Esto de abajo trabaja en guardar los resultados finales */                                          /* Esto de abajo trabaja en guardar los resultados finales */
+async function guardarResultados() {
+await conGuardar(async () => {
+const res = await fetch(`${APIBASE}/api/guardarresultados`, {
+method: 'POST',
+headers: getAuthHeaders(),
+body: JSON.stringify({
+jornada: state.jornada,
+resultados: state.resultados,
+marcadores: state.marcadores
+})
+});
+const data = await res.json();
+if (!res.ok || !data.success) {
+throw new Error(data.mensaje || data.error || 'Error al guardar resultados');
+}
+toast('Resultados guardados correctamente', 'success');
+await cargarDatos();
+}, ['btnGuardarResultados']);
+}
 /* Esto de abajo trabaja en mostrar u ocultar la capa de carga del sistema */           /* Esto de abajo trabaja en mostrar u ocultar la capa de carga del sistema */
 function mostrarLoading(show) {
 document.getElementById('loadingOverlay')?.classList.toggle('show', show);

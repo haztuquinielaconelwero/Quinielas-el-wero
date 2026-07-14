@@ -80,13 +80,12 @@ def crear_tablas():
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS resultadosdelajornada (
                     id SERIAL PRIMARY KEY,
-                    partidos INTEGER NOT NULL,
-                    resultados VARCHAR(100) NOT NULL,
+                    jornada TEXT NOT NULL,
+                    partido_id INTEGER NOT NULL REFERENCES partidos(id),
                     resultado CHAR(1) CHECK (resultado IN ('L','E','V')),
-                    marcadorlocal INTEGER,
-                    marcadorvisita INTEGER,
-                    fechaactualizacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
-                    UNIQUE (partidos, resultados)
+                    marcador_local INTEGER,
+                    marcador_visita INTEGER,
+                    UNIQUE (jornada, partido_id)
                 );
             """)
 

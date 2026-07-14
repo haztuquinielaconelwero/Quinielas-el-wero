@@ -80,8 +80,8 @@ return {
 id: remota.id,
 estado: estadoNuevo,
 folio: remota.folio,
-nombre: remota.nombre,
-vendedor: remota.vendedor
+nombre: remota.nombre ?? q.nombre,
+vendedor: remota.vendedor ?? q.vendedor
 };
 })
 .filter(Boolean);

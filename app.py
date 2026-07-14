@@ -1115,28 +1115,22 @@ def actualizarmisquinielas():
     dispositivoid = (request.args.get("dispositivoid") or "").strip()
     if not dispositivoid:
         return jsonify({"success": False, "mensaje": "Falta dispositivoid"}), 400
-
-
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    SELECT id, llavemaestra, estado, folio, nombre, vendedor
+                    SELECT id, llavemaestra, estado, folio, nombrequiniela, vendedor
                     FROM todaslasquinielas
                     WHERE dispositivoid = %s
                     """,
                     (dispositivoid,),
                 )
                 filas = cur.fetchall()
-
-
         quinielas = [
             {"id": id_, "llavemaestra": llave, "estado": estado, "folio": folio, "nombre": nombre, "vendedor": vendedor}
             for id_, llave, estado, folio, nombre, vendedor in filas
         ]
-
-
         return jsonify({"success": True, "quinielas": quinielas})
     except Exception as exc:
         logger.error("actualizarmisquinielas: error -> %s", exc)

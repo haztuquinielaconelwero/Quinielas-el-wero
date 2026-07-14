@@ -684,19 +684,6 @@ abrirModalImportar(html);
 await cargarDatos();
 });
 }
-/*                                 Esto de abajo trabaja en descargar una plantilla csv de ejemplo para capturar quinielas                           */ 
-function descargarPlantilla() {
-const cols = state.partidos.length || 9;
-const pickHeaders = Array.from({ length: cols }, (_, i) => `P${i + 1}`);
-const picks1 = Array.from({ length: cols }, (_, i) => ['L', 'E', 'V'][i % 3]).join(',');
-const picks2 = Array.from({ length: cols }, (_, i) => ['V', 'V', 'E', 'L'][i % 4]).join(',');
-descargarCSVBlob(
-`Folio,Nombre,Vendedor,${pickHeaders.join(',')},DispositivoId,Id,LlaveMaestra\n` +
-`1,Juan Pérez,Checo,${picks1},,,\n` +
-`2,María López,Checo,${picks2},,,`,
-'plantilla-quiniela.csv'
-);
-}
 /* Esto de abajo trabaja en exportar la lista oficial completa a archivo csv */ /* Esto de abajo trabaja en exportar la lista oficial completa a archivo csv */
 function exportarExcel() {
 const MAX_FOLIO = 5000;

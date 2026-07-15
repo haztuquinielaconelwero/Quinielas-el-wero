@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista en Espera ⏳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/styles/ag-grid.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/styles/ag-theme-alpine.css">
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/dist/ag-grid-community.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="loading-overlay show" id="loadingOverlay">
+<div class="loading-content">
+<div class="spinner"></div>
+<div style="font-size:14px;color:#5f6368;">Cargando quinielas en espera...</div>
+</div>
+</div>
+<div class="header">
+<div class="logo">
+<span>&#x23F3;</span>
+<input type="text" class="document-title" value="Lista en Espera" readonly>
+</div>
+<div class="header-actions">
+<button class="btn btn-azul" onclick="actualizarYVerificar()">Actualizar &#x1F504;</button>
+<button class="btn btn-verde" onclick="exportarCSV()">Exportar &#x1F4E5;</button>
+</div>
+</div>
+<div class="toolbar">
+<span class="toolbar-label">&#x1F50D;</span>
+<input type="text" class="search-input" id="searchInput" placeholder="Buscar nombre o vendedor..." oninput="aplicarFiltros()">
+<select class="filter-select" id="filterVendedor" onchange="aplicarFiltros()">
+<option value="">Todos los vendedores</option>
+</select>
+<span class="rows-counter" id="rowsCounter">0 registros</span>
+</div>
+<div class="container">
+<div class="banner-espera">
+Estas quinielas est&aacute;n en <strong>&nbsp;espera&nbsp;</strong> &mdash; descarga el CSV, c&aacute;ptalas manualmente en la Lista Oficial (incluyendo su <strong>Dispositivo ID</strong>, <strong>ID</strong> y <strong>Llave Maestra</strong>) y luego presiona <strong>Actualizar</strong> para verificar cu&aacute;les ya entraron &#x2705;
+</div>
+<div class="stats-bar">
+<div class="stat"><span>Total en espera:</span><span class="stat-value" id="totalStat">0</span></div>
+<div class="stat"><span>Vendedores:</span><span class="stat-value" id="vendedoresStat">0</span></div>
+<div class="stat"><span>Ya en Lista Oficial:</span><span class="stat-value" id="verificadasStat">0</span></div>
+</div>
+<div class="grid-wrapper">
+<div id="myGrid" class="ag-theme-alpine"></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

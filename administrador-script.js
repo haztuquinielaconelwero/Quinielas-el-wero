@@ -258,6 +258,27 @@ sessionStorage.removeItem("adm_token");
 }
 return { init, abrir, cerrar };
 })();
+
+
+
+
+
+
+
+const vendedorBase = vendedorURL || vendedorGuardado;
+let textoCabecera;
+
+if (vendedorBase) {
+  textoCabecera = vendedorBase;              // Ej: "Juan"
+} else {
+  textoCabecera = "Vendedor · Pin 1 3 7 9";  // Sin nombre fijo
+}
+
+const pinVendorText = document.getElementById("pinVendorText");
+if (pinVendorText) pinVendorText.textContent = textoCabecera;
+
+
+
 /* Esto de abajo trabaja en las utilidades de red*/                                            /* Esto de abajo trabaja en las utilidades de red*/    
 async function _fetchConTimeout(url, opciones = {}, ms = 10000) {
 const controller = new AbortController();

@@ -288,7 +288,7 @@ VENDEDOR_PIN = {
     "Ranita":       "2307",
     "Rolando":      "1982",
     "Taliban":      "6881",
-    "•":            "1379",
+    "Vendedor":     "1379",
 }
 # ── Esto de abajo trabaja en el diccionario de los vendedores ────────────────────────────────────────────────────────────────────────────────
 VENDEDOR_WHATSAPP = {
@@ -324,7 +324,7 @@ VENDEDOR_WHATSAPP = {
     "Ranita":       "5218281432398",
     "Rolando":      "5214891009110",
     "Taliban":      "5218287685754",
-    "•":            "5218281011650",
+    "Vendedor":     "5218281011650",
 }
 # ── Esto de abajo trabaja en los links de cada vendedor────────────────────────────────────────────────────────────────────────────────
 VENDEDOR_LINKS = {
@@ -345,7 +345,6 @@ VENDEDOR_LINKS = {
     "Gera":         "https://www.quinielaselwero.com/?vendedor=Gera",
     "GioSoto":      "https://www.quinielaselwero.com/?vendedor=GioSoto",
     "Guerrero":     "https://www.quinielaselwero.com/?vendedor=Guerrero",
-    "Javier Garcia": "https://www.quinielaselwero.com/?vendedor=Javier+Garcia",
     "Jose Luis":    "https://www.quinielaselwero.com/?vendedor=Jose+Luis",
     "Juanillo":     "https://www.quinielaselwero.com/?vendedor=Juanillo",
     "Kany":         "https://www.quinielaselwero.com/?vendedor=Kany",
@@ -361,11 +360,12 @@ VENDEDOR_LINKS = {
     "Rolando":      "https://www.quinielaselwero.com/?vendedor=Rolando",
     "Taliban":      "https://www.quinielaselwero.com/?vendedor=Taliban",
     "•":            "https://www.quinielaselwero.com/?vendedor=%E2%80%A2",
+    "Vendedor":     "https://www.parachecar.work/?vendedor=Vendedor",
 }
 # ── Esto de abajo trabaja en los limites de folio asignados por vendedor ────────────────────────────────────────────────────────────────────────────────
 LIMITES_VENDEDORES = {
     "Alfonso":        (1,    60),
-    "•":              (61,   70),
+    "Vendedor":       (61,   70),
     "Choneke":        (71,   100),
     "Rifa":           (101,  200),
     "Azael":          (201,  250),

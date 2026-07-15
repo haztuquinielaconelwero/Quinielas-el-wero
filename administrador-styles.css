@@ -283,6 +283,9 @@ white-space: nowrap;
 .results-table thead th.col-match {
 min-width: 60px;
 }
+.results-table thead th.col-name {
+min-width: 78px;
+}
 .results-table thead th:first-child {
 border-top-left-radius: 0;
 }
@@ -339,10 +342,12 @@ border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 .results-table .col-name {
 font-weight: 700;
-font-size: 0.46rem;
+font-size: 0.42rem;
 white-space: nowrap;
 overflow: hidden;
 text-overflow: ellipsis;
+min-width: 78px;
+max-width: 78px;
 }
 .results-table td.col-folio {
 color: var(--text-main);
@@ -925,7 +930,7 @@ gap: 0;
 .results-table {table-layout: fixed;min-width: 100%;width: 100%;}
 .results-table thead th {font-size: 0.5rem;padding: 4px 2px;letter-spacing: 0;line-height: 1.1;white-space: nowrap;}
 .results-table th.col-name,
-.results-table td.col-name {width: 60px;max-width: 60px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;padding-left: 6px;}
+.results-table td.col-name {width: 78px;max-width: 78px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;padding-left: 6px;}
 .results-table th.col-vendor,
 .results-table td.col-vendor {width: 70px;max-width: 70px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
 .results-table th.col-folio,.results-table td.col-folio {width: 30px;max-width: 30px;}
@@ -936,6 +941,7 @@ gap: 0;
 .match-logo { width: 14px; height: 14px; }
 .match-vs { display: none; }
 .results-table td {padding: 4px 2px;font-size: 0.58rem;line-height: 1.1;}
+.results-table td.col-name {font-size: 0.42rem;}
 .results-table td.col-actions {padding: 0;}
 .result-cell {min-width: 18px;width: 18px;height: 18px;font-size: 0.52rem;border-radius: 6px;}
 .puntos-badge {min-width: 22px;padding: 2px 6px;font-size: 0.56rem;}

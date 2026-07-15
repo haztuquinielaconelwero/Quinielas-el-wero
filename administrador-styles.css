@@ -16,13 +16,13 @@ text-align: left;
 padding: 0;
 transition: opacity 0.2s var(--ease);
 }
-.adm-brand-trigger:hover 
+.adm-brand-trigger:hover
 { opacity: 0.85; }
-.adm-brand-trigger:active 
+.adm-brand-trigger:active
 { transform: scale(0.99); }
-.adm-header .header-inner 
+.adm-header .header-inner
 { padding-bottom: 7px; }
-.adm-header .brand-subtitle 
+.adm-header .brand-subtitle
 { line-height: 1.45; padding-bottom: 1px; }
 /* ====================          Esto de abajo trabaja en la activacion del Header para seccion administrador para los candaditos            ==================== */
 .tap-candado-badge {
@@ -81,14 +81,14 @@ border: 1px solid var(--glass-border);
 border-radius: 22px;
 padding: 22px 22px;
 }
-.hero-title { 
-font-size: 1.6rem; 
-font-weight: 900; 
-color: var(--text-main); 
+.hero-title {
+font-size: 1.6rem;
+font-weight: 900;
+color: var(--text-main);
 }
-.hero-subtitle { 
-font-size: 0.82rem; 
-color: var(--text-muted); 
+.hero-subtitle {
+font-size: 0.82rem;
+color: var(--text-muted);
 margin-top: 3px; }
 .hero-vendor {
 display: inline-flex;
@@ -119,65 +119,65 @@ transition: transform 0.25s var(--ease), border-color 0.25s var(--ease);
 cursor: pointer;
 animation: admCardIn 0.4s var(--ease) both;
 }
-@keyframes admCardIn { 
-from { 
-opacity: 0; 
-transform: translateY(10px); 
-} 
-to { 
-opacity: 1; 
-transform: translateY(0); 
+@keyframes admCardIn {
+from {
+opacity: 0;
+transform: translateY(10px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
 }}
-.alert:hover { 
-transform: translateY(-2px); 
+.alert:hover {
+transform: translateY(-2px);
 }
 .alert--danger {
-border-color: rgba(206,17,38,0.28); 
+border-color: rgba(206,17,38,0.28);
 }
-.alert--danger .alert__icon { 
-color: #ff7080; background: rgba(206,17,38,0.14); 
+.alert--danger .alert__icon {
+color: #ff7080; background: rgba(206,17,38,0.14);
 }
-.alert--success { 
-border-color: rgba(0,163,108,0.28); 
+.alert--success {
+border-color: rgba(0,163,108,0.28);
 }
-.alert--success .alert__icon { 
-color: var(--verde-mx-claro); background: rgba(0,163,108,0.14); 
+.alert--success .alert__icon {
+color: var(--verde-mx-claro); background: rgba(0,163,108,0.14);
 }
-.alert--info { 
-border-color: rgba(212,175,55,0.28); 
+.alert--info {
+border-color: rgba(212,175,55,0.28);
 }
-.alert--info .alert__icon { 
-color: var(--dorado-premium); background: rgba(212,175,55,0.14); 
+.alert--info .alert__icon {
+color: var(--dorado-premium); background: rgba(212,175,55,0.14);
 }
-.alert__icon { 
-flex-shrink: 0; 
-width: 38px; 
-height: 38px; 
-border-radius: 
-12px; display: 
-flex; align-items: 
-center; justify-content: center; 
+.alert__icon {
+flex-shrink: 0;
+width: 38px;
+height: 38px;
+border-radius:
+12px; display:
+flex; align-items:
+center; justify-content: center;
 }
-.alert__content { 
-flex: 1; 
-min-width: 0; 
+.alert__content {
+flex: 1;
+min-width: 0;
 }
-.alert__title { 
-font-size: 0.95rem; 
-font-weight: 900; 
-color: var(--text-main); 
+.alert__title {
+font-size: 0.95rem;
+font-weight: 900;
+color: var(--text-main);
 }
-.alert__text { 
-font-size: 0.66rem; 
-color: var(--text-muted); 
-margin-top: 1px; 
+.alert__text {
+font-size: 0.66rem;
+color: var(--text-muted);
+margin-top: 1px;
 }
-.alert__action { 
-flex-shrink: 0; 
-color: var(--text-muted); 
-background: none; 
-border: none; 
-cursor: pointer; 
+.alert__action {
+flex-shrink: 0;
+color: var(--text-muted);
+background: none;
+border: none;
+cursor: pointer;
 }
 /* ====================                  Esto de abajo trabaja con la tarjeta de Jornada actual                                ==================== */
 .section-header.section-header--centrado {
@@ -193,10 +193,10 @@ border: 1px solid var(--glass-border);
 border-radius: 20px;
 padding: 18px;
 }
-.week-card__header { 
-display: flex; 
-align-items: center; 
-gap: 14px; 
+.week-card__header {
+display: flex;
+align-items: center;
+gap: 14px;
 margin-bottom: 8px; }
 .week-card__jornada {
 width: 46px; height: 46px;
@@ -209,22 +209,22 @@ color: var(--verde-mx-claro);
 font-size: 0.9rem;
 flex-shrink: 0;
 }
-.week-card__range { 
-font-size: 0.9rem; 
-font-weight: 800; 
-color: var(--text-main); 
+.week-card__range {
+font-size: 0.9rem;
+font-weight: 800;
+color: var(--text-main);
 }
-.week-card__status { 
-font-size: 0.74rem; 
-color: var(--dorado-premium); 
-font-weight: 700; 
-margin-top: 1px; 
+.week-card__status {
+font-size: 0.74rem;
+color: var(--dorado-premium);
+font-weight: 700;
+margin-top: 1px;
 }
-.progress-bar { 
-height: 8px; 
-border-radius: 999px; 
-background: rgba(255,255,255,0.08); 
-overflow: hidden; 
+.progress-bar {
+height: 8px;
+border-radius: 999px;
+background: rgba(255,255,255,0.08);
+overflow: hidden;
 }
 .progress-bar__fill {
 height: 100%;
@@ -233,12 +233,12 @@ background: linear-gradient(90deg, #006341, var(--verde-mx-claro));
 border-radius: 999px;
 transition: width 0.6s var(--ease);
 }
-.progress-labels { 
-display: flex; 
-justify-content: space-between; 
-margin-top: 4px; 
-font-size: 0.65rem; 
-color: var(--text-muted-soft); 
+.progress-labels {
+display: flex;
+justify-content: space-between;
+margin-top: 4px;
+font-size: 0.65rem;
+color: var(--text-muted-soft);
 font-weight: 600; }
 /* ====================                  Esto de abajo trabaja con las Tablas de No jugando , En espera , Jugando                      ==================== */
 .table-container {
@@ -247,23 +247,23 @@ border-radius: 0;
 background: rgba(0,0,0,0.18);
 overflow: hidden;
 }
-.table-wrapper { 
-overflow-x: auto; 
-scrollbar-width: thin; 
-scrollbar-color: rgba(0,163,108,0.5) transparent; 
+.table-wrapper {
+overflow-x: auto;
+scrollbar-width: thin;
+scrollbar-color: rgba(0,163,108,0.5) transparent;
 }
-.table-wrapper::-webkit-scrollbar { 
-height: 6px; 
+.table-wrapper::-webkit-scrollbar {
+height: 6px;
 }
-.table-wrapper::-webkit-scrollbar-thumb { 
-background: rgba(0,163,108,0.45); 
-border-radius: 999px; 
+.table-wrapper::-webkit-scrollbar-thumb {
+background: rgba(0,163,108,0.45);
+border-radius: 999px;
 }
-.results-table { 
-width: 100%; 
-min-width: 700px; 
-border-collapse: separate; 
-border-spacing: 0; 
+.results-table {
+width: 100%;
+min-width: 700px;
+border-collapse: separate;
+border-spacing: 0;
 }
 .results-table thead {
 position: sticky;
@@ -283,14 +283,14 @@ white-space: nowrap;
 .results-table thead th.col-match {
 min-width: 60px;
 }
-.results-table thead th:first-child { 
-border-top-left-radius: 0; 
+.results-table thead th:first-child {
+border-top-left-radius: 0;
 }
-.results-table thead th:last-child { 
-border-top-right-radius: 0; 
+.results-table thead th:last-child {
+border-top-right-radius: 0;
 }
-.results-table .col-name { 
-text-align: center; 
+.results-table .col-name {
+text-align: center;
 }
 .match-header {
 display: flex;
@@ -300,29 +300,29 @@ justify-content: center;
 gap: 3px;
 white-space: nowrap;
 }
-.match-logo { 
-width: 20px; 
-height: 20px; 
-object-fit: contain; 
+.match-logo {
+width: 20px;
+height: 20px;
+object-fit: contain;
 }
-.match-vs { 
-font-size: 0.5rem; 
-color: var(--text-muted-soft); 
+.match-vs {
+font-size: 0.5rem;
+color: var(--text-muted-soft);
 }
-.results-table tbody tr { 
-background: rgba(255,255,255,0.02); 
-transition: background 0.25s var(--ease), 
-transform 0.25s var(--ease), 
-box-shadow 0.25s var(--ease); 
-animation: admRowIn 0.3s 
-var(--ease) both; 
+.results-table tbody tr {
+background: rgba(255,255,255,0.02);
+transition: background 0.25s var(--ease),
+transform 0.25s var(--ease),
+box-shadow 0.25s var(--ease);
+animation: admRowIn 0.3s
+var(--ease) both;
 }
 @keyframes admRowIn {
 from { opacity: 0; }
 to { opacity: 1; }
 }
-.results-table tbody tr:nth-child(even) { 
-background: rgba(255,255,255,0.03); 
+.results-table tbody tr:nth-child(even) {
+background: rgba(255,255,255,0.03);
 }
 .results-table tbody tr:hover {
 background: rgba(0,163,108,0.1);
@@ -330,68 +330,79 @@ transform: scale(1.004);
 box-shadow: inset 0 0 0 1px rgba(0,163,108,0.25);
 }
 .results-table td {
-padding: 8px 6px;
+padding: 2px 0;
 text-align: center;
-font-size: 0.76rem;
+font-size: 0.44rem;
+line-height: 1.1;
 color: var(--text-main);
 border-bottom: 1px solid rgba(255,255,255,0.05);
 }
-.results-table .col-name { 
-font-weight: 700; 
+.results-table .col-name {
+font-weight: 700;
+font-size: 0.46rem;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
 }
-.results-table td.col-folio { 
-color: var(--text-main); 
-font-weight: 800; 
-font-size: 0.76rem; 
+.results-table td.col-folio {
+color: var(--text-main);
+font-weight: 800;
+font-size: 0.42rem;
 }
-.results-table td.col-vendor { 
-color: var(--text-main); 
-font-weight: 700; 
-font-size: 0.76rem; 
+.results-table td.col-vendor {
+color: var(--text-main);
+font-weight: 700;
+font-size: 0.4rem;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
 }
-.results-table .col-points { 
-font-weight: 900; 
+.results-table .col-points {
+font-weight: 900;
 }
 .puntos-badge {
 display: inline-flex;
 align-items: center;
 justify-content: center;
-min-width: 40px;
-padding: 6px 12px;
+min-width: 18px;
+padding: 1px 4px;
 border-radius: 999px;
 background: rgba(255,255,255,0.08);
 border: 1px solid rgba(255,255,255,0.16);
 color: var(--verde-mx-claro);
-font-size: 0.85rem;
+font-size: 0.46rem;
 }
 .result-cell {
 display: inline-flex;
 align-items: center;
 justify-content: center;
-min-width: 30px;
-height: 30px;
-border-radius: 50%;
+min-width: 13px;
+width: 13px;
+height: 13px;
+padding: 0;
+border-radius: 4px;
 border: 1px solid transparent;
-font-size: 0.72rem;
+font-size: 0.4rem;
+line-height: 1;
 font-weight: 900;
 background: rgba(255,255,255,0.06);
 color: var(--text-muted);
 transition: transform 0.2s var(--ease);
 }
-.results-table tbody tr:hover .result-cell { 
-transform: scale(1.08); 
+.results-table tbody tr:hover .result-cell {
+transform: scale(1.08);
 }
-.result-cell.pending { 
-background: rgba(255,255,255,0.06); 
-color: var(--text-muted); 
+.result-cell.pending {
+background: rgba(255,255,255,0.06);
+color: var(--text-muted);
 }
-.result-cell.correct { 
-background: rgba(0,163,108,0.22); 
-color: #3ddc84; 
+.result-cell.correct {
+background: rgba(0,163,108,0.22);
+color: #3ddc84;
 }
-.result-cell.incorrect { 
-background: rgba(206,17,38,0.2); 
-color: #ff7080; 
+.result-cell.incorrect {
+background: rgba(206,17,38,0.2);
+color: #ff7080;
 }
 .col-actions {
 text-align: center;
@@ -401,31 +412,31 @@ padding: 0;
 display: flex;
 width: 100%;
 box-sizing: border-box;
-gap: 6px;
-padding: 6px;
+gap: 3px;
+padding: 3px;
 justify-content: center;
 align-items: center;
 }
 .btn-confirmar, .btn-rechazar {
-padding: 6px 12px;
+padding: 3px 7px;
 border-radius: 9px;
 border: none;
-font-size: 0.7rem;
+font-size: 0.42rem;
 font-weight: 800;
 cursor: pointer;
 transition: transform 0.2s var(--ease), filter 0.2s var(--ease);
 }
-.btn-confirmar { 
-background: linear-gradient(135deg, #006341, #00a36c); 
-color: #fff; 
+.btn-confirmar {
+background: linear-gradient(135deg, #006341, #00a36c);
+color: #fff;
 }
-.btn-rechazar { 
-background: #dc2626; 
-color: #fff; 
+.btn-rechazar {
+background: #dc2626;
+color: #fff;
 }
-.btn-confirmar:hover, .btn-rechazar:hover { 
-transform: translateY(-1px); 
-filter: brightness(1.1); 
+.btn-confirmar:hover, .btn-rechazar:hover {
+transform: translateY(-1px);
+filter: brightness(1.1);
 }
 .admin-espera-badge {
 display: inline-flex;
@@ -498,9 +509,9 @@ justify-content: center;
 padding: 20px;
 animation: admFadeIn 0.25s ease both;
 }
-.adm-pin-overlay[hidden] { 
+.adm-pin-overlay[hidden] {
 display: none; }
-@keyframes admFadeIn { from { opacity: 0; } to { opacity: 1; } 
+@keyframes admFadeIn { from { opacity: 0; } to { opacity: 1; }
 }
 .adm-pin-box {
 position: relative;
@@ -514,7 +525,7 @@ text-align: center;
 box-shadow: 0 30px 70px rgba(0,0,0,0.6);
 animation: admPinIn 0.35s var(--ease) both;
 }
-@keyframes admPinIn { from { opacity: 0; transform: scale(0.92) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } 
+@keyframes admPinIn { from { opacity: 0; transform: scale(0.92) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); }
 }
 .adm-pin-close {
 position: absolute;
@@ -527,30 +538,29 @@ color: var(--text-muted);
 cursor: pointer;
 transition: background 0.2s, color 0.2s;
 }
-.adm-pin-close:hover { 
-background: rgba(255,255,255,0.14); 
-color: var(--text-main); 
+.adm-pin-close:hover {
+background: rgba(255,255,255,0.14);
+color: var(--text-main);
 }
-.adm-pin-icon { 
-font-size: 2rem; 
-margin-bottom: 10px; 
+.adm-pin-icon {
+font-size: 2rem;
+margin-bottom: 10px;
 }
-.adm-pin-title { 
-font-size: 1.05rem; 
-font-weight: 800; color: var(--text-main); 
-margin-bottom: 4px; 
+.adm-pin-title {
+font-size: 1.05rem;
+font-weight: 800; color: var(--text-main);
+margin-bottom: 4px;
 }
-.adm-pin-subtitle { 
-font-size: 0.8rem; 
-color: var(--text-muted); 
-margin-bottom: 22px; 
+.adm-pin-subtitle {
+font-size: 0.8rem;
+color: var(--text-muted);
+margin-bottom: 22px;
 }
-
-.adm-pin-dots { 
-display: flex; 
-justify-content: center; 
-gap: 14px; 
-margin-bottom: 8px; 
+.adm-pin-dots {
+display: flex;
+justify-content: center;
+gap: 14px;
+margin-bottom: 8px;
 }
 .adm-pin-dot {
 width: 16px; height: 16px;
@@ -559,22 +569,22 @@ border: 2px solid rgba(255,255,255,0.25);
 background: transparent;
 transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.2s var(--ease);
 }
-.adm-pin-dot.lleno { 
+.adm-pin-dot.lleno {
 background: var(--verde-mx-claro);
-border-color: var(--verde-mx-claro); 
-transform: scale(1.1); 
+border-color: var(--verde-mx-claro);
+transform: scale(1.1);
 }
-.adm-pin-dot.error-shake { 
-animation: admShake 0.4s; 
+.adm-pin-dot.error-shake {
+animation: admShake 0.4s;
 }
-@keyframes admShake { 
-0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} 
+@keyframes admShake {
+0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);}
 }
-.adm-pin-input-hidden { 
-position: absolute; 
-opacity: 0; 
-pointer-events: none; 
-height: 0; width: 0; 
+.adm-pin-input-hidden {
+position: absolute;
+opacity: 0;
+pointer-events: none;
+height: 0; width: 0;
 }
 .adm-pin-error {
 font-size: 0.76rem;
@@ -583,8 +593,8 @@ font-weight: 700;
 margin: 10px 0 0;
 min-height: 16px;
 }
-.adm-pin-error[hidden] { 
-display: none; 
+.adm-pin-error[hidden] {
+display: none;
 }
 .adm-pin-keypad {
 display: grid;
@@ -603,21 +613,21 @@ font-weight: 700;
 cursor: pointer;
 transition: background 0.2s var(--ease), transform 0.15s var(--ease), border-color 0.2s var(--ease);
 }
-.adm-pin-key:hover { 
-background: rgba(0,163,108,0.14); 
-border-color: rgba(0,163,108,0.3); 
+.adm-pin-key:hover {
+background: rgba(0,163,108,0.14);
+border-color: rgba(0,163,108,0.3);
 }
-.adm-pin-key:active { 
-transform: scale(0.92); 
+.adm-pin-key:active {
+transform: scale(0.92);
 }
-.adm-pin-key--empty { 
-background: transparent; border: none; cursor: default; 
+.adm-pin-key--empty {
+background: transparent; border: none; cursor: default;
 }
-.adm-pin-key--borrar { 
-color: #ff8f9a; font-size: 1rem; 
+.adm-pin-key--borrar {
+color: #ff8f9a; font-size: 1rem;
 }
 /* ====================                        Esto de abajo trabaja con las medidas para la pagina de administrador                       ==================== */
-.adm-page { min-height: 100vh; 
+.adm-page { min-height: 100vh;
 }
 .admin-root {
 max-width: 900px;
@@ -627,31 +637,31 @@ display: flex;
 flex-direction: column;
 gap: 26px;
 }
-.section-header { 
-display: flex; 
-align-items: center; 
-justify-content: space-between; 
-margin-bottom: 12px; 
+.section-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 12px;
 }
-.section-title { 
-font-size: 0.95rem; 
-font-weight: 800; 
-color: var(--text-main); 
+.section-title {
+font-size: 0.95rem;
+font-weight: 800;
+color: var(--text-main);
 }
-.section-count { 
-font-size: 0.72rem; 
-font-weight: 700; 
-color: var(--text-muted); 
-background: rgba(255,255,255,0.05); 
-padding: 4px 10px; 
-border-radius: 999px; 
+.section-count {
+font-size: 0.72rem;
+font-weight: 700;
+color: var(--text-muted);
+background: rgba(255,255,255,0.05);
+padding: 4px 10px;
+border-radius: 999px;
 }
 /* ====================                        Esto de abajo trabaja con la barra de No jugando , Jugando , En espera                       ==================== */
-.filters-bar { 
-display: flex; 
+.filters-bar {
+display: flex;
 }
-.filter-buttons { 
-display: flex; gap: 8px; width: 100%; 
+.filter-buttons {
+display: flex; gap: 8px; width: 100%;
 }
 .filter-btn {
 flex: 1;
@@ -674,7 +684,7 @@ background: linear-gradient(135deg, rgba(0,163,108,0.22), rgba(0,122,77,0.12));
 border-color: rgba(0,163,108,0.5);
 color: #3ddc84;
 }
-.filter-emoji { font-size: 0.85rem; 
+.filter-emoji { font-size: 0.85rem;
 }
 /* ====================                        Esto de abajo trabaja con Rechazar y confirmar                       ==================== */
 .adm-modal-overlay {
@@ -688,9 +698,9 @@ align-items: center;
 justify-content: center;
 padding: 20px;
 }
-.adm-modal-overlay.show { 
-display: flex; 
-animation: admFadeIn 0.2s ease both; 
+.adm-modal-overlay.show {
+display: flex;
+animation: admFadeIn 0.2s ease both;
 }
 .adm-modal-box {
 width: 100%;
@@ -703,53 +713,53 @@ text-align: center;
 box-shadow: 0 30px 70px rgba(0,0,0,0.6);
 animation: admPinIn 0.3s var(--ease) both;
 }
-.adm-modal-icon { 
+.adm-modal-icon {
 font-size: 2.2rem;
-margin-bottom: 10px; 
+margin-bottom: 10px;
 }
-.adm-modal-title { 
-font-size: 1.02rem; 
-font-weight: 800; 
-color: var(--text-main); 
-margin-bottom: 8px; 
+.adm-modal-title {
+font-size: 1.02rem;
+font-weight: 800;
+color: var(--text-main);
+margin-bottom: 8px;
 }
-.adm-modal-message { 
-font-size: 0.84rem; 
-color: var(--text-muted); 
-line-height: 1.5; 
-margin-bottom: 22px; 
+.adm-modal-message {
+font-size: 0.84rem;
+color: var(--text-muted);
+line-height: 1.5;
+margin-bottom: 22px;
 }
-.adm-modal-actions { 
-display: flex; gap: 10px; 
+.adm-modal-actions {
+display: flex; gap: 10px;
 }
-.adm-modal-btn { 
-flex: 1; 
-padding: 11px 0; 
-border-radius: 12px; 
-border: none; 
-font-size: 0.82rem; 
-font-weight: 800; 
-cursor: pointer; 
-transition: transform 0.2s var(--ease), filter 0.2s var(--ease); 
+.adm-modal-btn {
+flex: 1;
+padding: 11px 0;
+border-radius: 12px;
+border: none;
+font-size: 0.82rem;
+font-weight: 800;
+cursor: pointer;
+transition: transform 0.2s var(--ease), filter 0.2s var(--ease);
 }
-.adm-modal-btn:hover { 
-transform: translateY(-1px); 
+.adm-modal-btn:hover {
+transform: translateY(-1px);
 }
-.adm-modal-btn--secundario { 
-background: rgba(255,255,255,0.08); 
-color: var(--text-main); 
+.adm-modal-btn--secundario {
+background: rgba(255,255,255,0.08);
+color: var(--text-main);
 }
-.adm-modal-btn--exito { 
-background: linear-gradient(135deg, #006341, #00a36c); 
-color: #fff; 
+.adm-modal-btn--exito {
+background: linear-gradient(135deg, #006341, #00a36c);
+color: #fff;
 }
-.adm-modal-btn--peligro { 
-background: #dc2626; 
-color: #fff; 
+.adm-modal-btn--peligro {
+background: #dc2626;
+color: #fff;
 }
-.adm-modal-overlay.loading .adm-modal-btn { 
-opacity: 0.6; 
-pointer-events: none; 
+.adm-modal-overlay.loading .adm-modal-btn {
+opacity: 0.6;
+pointer-events: none;
 }
 /* ====================                               Esto de abajo trabaja con las alertas                                      ==================== */
 .adm-toast-container {
@@ -784,78 +794,78 @@ width: 100%;
 text-align: center;
 animation: admToastIn 0.3s var(--ease) both;
 }
-@keyframes admToastIn { 
-from { 
-opacity: 0; 
-transform: translateX(-30px); 
-} 
-to { 
-opacity: 1; 
-transform: translateX(0); 
+@keyframes admToastIn {
+from {
+opacity: 0;
+transform: translateX(-30px);
+}
+to {
+opacity: 1;
+transform: translateX(0);
 }}
-.adm-toast--success { 
-background: rgba(0,99,65,0.92); 
-border: 1px solid rgba(0,163,108,0.4); 
-color: #fff; 
+.adm-toast--success {
+background: rgba(0,99,65,0.92);
+border: 1px solid rgba(0,163,108,0.4);
+color: #fff;
 }
-.adm-toast--error { 
-background: rgba(140,20,30,0.92); 
-border: 1px solid rgba(206,17,38,0.4); 
-color: #fff; 
+.adm-toast--error {
+background: rgba(140,20,30,0.92);
+border: 1px solid rgba(206,17,38,0.4);
+color: #fff;
 }
-.adm-toast--warning { 
-background: rgba(150,110,10,0.92); 
-border: 1px solid rgba(212,175,55,0.4); 
-color: #fff; 
+.adm-toast--warning {
+background: rgba(150,110,10,0.92);
+border: 1px solid rgba(212,175,55,0.4);
+color: #fff;
 }
 /* ====================                Esto de abajo trabaja con el overlay de acpetar quinielas , rechazar                                     ==================== */
-.loading-modal-overlay { 
-position: fixed; 
-inset: 0; 
-z-index: 10000; 
-background: rgba(0,0,0,0.7); 
-backdrop-filter: blur(8px); 
-display: flex; 
-align-items: center; 
-justify-content: center; 
+.loading-modal-overlay {
+position: fixed;
+inset: 0;
+z-index: 10000;
+background: rgba(0,0,0,0.7);
+backdrop-filter: blur(8px);
+display: flex;
+align-items: center;
+justify-content: center;
 }
-.loading-modal-box { 
-text-align: center; 
+.loading-modal-box {
+text-align: center;
 }
-.loading-modal-icon { 
-font-size: 2.4rem; 
-margin-bottom: 10px; 
+.loading-modal-icon {
+font-size: 2.4rem;
+margin-bottom: 10px;
 }
-.loading-modal-title { 
-font-size: 1rem; 
-font-weight: 800; 
-color: var(--text-main); 
+.loading-modal-title {
+font-size: 1rem;
+font-weight: 800;
+color: var(--text-main);
 }
-.loading-modal-count { 
-font-size: 0.8rem; 
-color: var(--text-muted); 
-margin: 4px 0 14px; 
+.loading-modal-count {
+font-size: 0.8rem;
+color: var(--text-muted);
+margin: 4px 0 14px;
 }
-.loading-modal-track { 
-width: 200px; 
-height: 6px; 
-border-radius: 999px; 
-background: rgba(255,255,255,0.1); 
-overflow: hidden; 
-margin: 0 auto; 
+.loading-modal-track {
+width: 200px;
+height: 6px;
+border-radius: 999px;
+background: rgba(255,255,255,0.1);
+overflow: hidden;
+margin: 0 auto;
 }
-.loading-modal-fill { 
-height: 100%; 
-width: 40%; 
-background: var(--verde-mx-claro); 
-animation: admLoadBar 1.2s ease-in-out infinite; 
+.loading-modal-fill {
+height: 100%;
+width: 40%;
+background: var(--verde-mx-claro);
+animation: admLoadBar 1.2s ease-in-out infinite;
 }
-@keyframes admLoadBar { 
-0% { 
-transform: translateX(-100%); 
-} 
-100% { 
-transform: translateX(250%); 
+@keyframes admLoadBar {
+0% {
+transform: translateX(-100%);
+}
+100% {
+transform: translateX(250%);
 }}
 /* ====================                      Esto de abajo trabaja con el boton de ir a inicio nuevamente                                     ==================== */
 .adm-fab-inicio {

@@ -3,31 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lista en Espera ⏳</title>
+<title>Todas las Quinielas 🌎</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/styles/ag-grid.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/styles/ag-theme-alpine.css">
 <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/dist/ag-grid-community.min.js"></script>
-<link rel="stylesheet" href="laapidelalistaoficial-styles.css">
+<link rel="stylesheet" href="laapidelalistadetodaslasquinielas-styles.css">
 </head>
 <body>
 <div class="loading-overlay show" id="loadingOverlay">
 <div class="loading-content">
 <div class="spinner"></div>
-<div style="font-size:14px;color:#5f6368;">Cargando quinielas en espera...</div>
+<div style="font-size:14px;color:#5f6368;">Cargando todas las quinielas...</div>
 </div>
 </div>
 <div class="header">
 <div class="logo">
-<span>&#x23F3;</span>
-<input type="text" class="document-title" value="Lista en Espera" readonly>
+<span>&#x1F30E;</span>
+<input type="text" class="document-title" value="Todas las Quinielas" readonly>
 </div>
 <div class="header-actions">
-<button class="btn btn-azul" onclick="actualizarYVerificar()">Actualizar &#x1F504;</button>
+<button class="btn btn-azul" onclick="actualizarTodo()">Actualizar &#x1F504;</button>
 <button class="btn btn-verde" onclick="exportarCSV()">Exportar &#x1F4E5;</button>
 </div>
+</div>
+<div class="tabs-estado">
+<button class="tab tab-rojo activo" data-estado="No jugando" onclick="cambiarEstado('No jugando')">No jugando</button>
+<button class="tab tab-verde" data-estado="Jugando" onclick="cambiarEstado('Jugando')">Jugando</button>
+<button class="tab tab-azul" data-estado="En espera" onclick="cambiarEstado('En espera')">En espera</button>
+<button class="tab tab-cafe" data-estado="Archivada" onclick="cambiarEstado('Archivada')">Archivadas</button>
+<button class="tab tab-rojo" data-estado="Rechazada" onclick="cambiarEstado('Rechazada')">Rechazadas</button>
 </div>
 <div class="toolbar">
 <span class="toolbar-label">&#x1F50D;</span>
@@ -38,17 +45,15 @@
 <span class="rows-counter" id="rowsCounter">0 registros</span>
 </div>
 <div class="container">
-<div class="banner-espera">
-Estas quinielas estan en espera
-</div>
 <div class="stats-bar">
-<div class="stat"><span>Total en espera:</span><span class="stat-value" id="totalStat">0</span></div>
+<div class="stat"><span>Mostrando:</span><span class="stat-value" id="estadoActualStat">No jugando</span></div>
+<div class="stat"><span>Total:</span><span class="stat-value" id="totalStat">0</span></div>
 <div class="stat"><span>Vendedores:</span><span class="stat-value" id="vendedoresStat">0</span></div>
 </div>
 <div class="grid-wrapper">
 <div id="myGrid" class="ag-theme-alpine"></div>
 </div>
 </div>
-<script src="laapidelalistaoficial-script.js"></script>
+<script src="laapidelalistadetodaslasquinielas-script.js"></script>
 </body>
 </html>

@@ -1338,6 +1338,68 @@ def apiparaactualizarlosresultados():
         logger.error("apiparaactualizarlosresultados: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
     
+# ==================== Esto de abajo trabaja con la api de quinielas en espera ====================
+@app.route('/api/apiquinielasenespera')
+def apiquinielasenespera():
+    jornada = request.args.get('jornada', JORNADA_ACTUAL)
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT id, nombrecelular, nombrequiniela, vendedor,
+                           p1, p2, p3, p4, p5, p6, p7, p8, p9,
+                           dispositivo_id, llave_maestra
+                    FROM todaslasquinielas
+                    WHERE estado = 'En espera' AND jornada = %s
+                    ORDER BY fecha_creacion ASC
+                    """,
+                    (jornada,),
+                )
+                filas = cur.fetchall()
+
+        quinielas = []
+        for row in filas:
+            (id_, nombrecelular, nombrequiniela, vendedor,
+             p1, p2, p3, p4, p5, p6, p7, p8, p9,
+             dispositivo_id, llave_maestra) = row
+            quinielas.append({
+                "id": id_,
+                "nombre": nombrequiniela,
+                "vendedor": vendedor,
+                "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
+                "dispositivo_id": dispositivo_id,
+                "llave_maestra": llave_maestra,
+            })
+        return jsonify(success=True, espera=quinielas)
+    except Exception as exc:
+        logger.error("apiquinielasenespera error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
+
+# ==================== Esto de abajo trabaja con la api para actualizar las quinielas en espera ====================
+@app.route('/api/apiparaactualizarlasquinielasenespera', methods=['POST'])
+def apiparaactualizarlasquinielasenespera():
+    data = request.get_json(silent=True) or {}
+    ids = data.get('ids') or []
+    if not ids:
+        return jsonify(success=True, entraron=[])
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT id FROM todaslasquinielas
+                    WHERE id = ANY(%s) AND estado = 'Jugando'
+                    """,
+                    (list(ids),),
+                )
+                entraron = [r[0] for r in cur.fetchall()]
+        return jsonify(success=True, entraron=entraron)
+    except Exception as exc:
+        logger.error("apiparaactualizarlasquinielasenespera error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+    
 # ── Esto de abajo trabaja con el home e inicio.html ────────────────────────────────────────────────────────────────────────────────
 @app.route("/")
 def home():

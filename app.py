@@ -245,9 +245,37 @@ if _total_especiales > len(PARTIDOS):
 
 @app.route("/api/apijornadaactual")
 def apijornadaactual():
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """SELECT partido_id, resultado, marcador_local, marcador_visita
+                       FROM resultadosdelajornada
+                       WHERE jornada = %s""",
+                    (JORNADA_ACTUAL,)
+                )
+                filas = cur.fetchall()
+        resultados_por_id = {
+            pid: {"resultado": res, "marcador_local": ml, "marcador_visita": mv}
+            for pid, res, ml, mv in filas
+        }
+    except Exception as exc:
+        logger.error("apijornadaactual: error leyendo resultados -> %s", exc)
+        resultados_por_id = {}
+
+    partidos_con_resultado = []
+    for p in PARTIDOS:
+        info = resultados_por_id.get(p["id"])
+        partidos_con_resultado.append({
+            **p,
+            "resultadoFinal": info["resultado"] if info else None,
+            "marcadorLocal": info["marcador_local"] if info else None,
+            "marcadorVisita": info["marcador_visita"] if info else None,
+        })
+
     return jsonify({
         "jornadaActual": JORNADA_ACTUAL,
-        "partidos": PARTIDOS,
+        "partidos": partidos_con_resultado,
         "maxDobles": MAX_DOBLES,
         "maxTriples": MAX_TRIPLES,
         "whatsappUrl": WHATSAPP_GRUPO_URL
@@ -591,7 +619,8 @@ def _get_ids_con_resultado(jornada, ids):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                '''SELECT "partidos" FROM resultadosdelajornada WHERE "resultados"=%s AND "partidos" = ANY(%s)''',
+                '''SELECT partido_id FROM resultadosdelajornada
+                   WHERE jornada = %s AND partido_id = ANY(%s)''',
                 (jornada, list(ids)),
             )
             return {r[0] for r in cur.fetchall()}
@@ -601,15 +630,14 @@ def _guardar_resultado(pid, gh, ga, res):
             cur.execute(
                 '''
                 INSERT INTO resultadosdelajornada
-                    ("partidos", "resultados", resultado, marcadorlocal, marcadorvisita)
+                    (jornada, partido_id, resultado, marcador_local, marcador_visita)
                 VALUES (%s, %s, %s, %s, %s)
-                ON CONFLICT ("partidos", "resultados") DO UPDATE SET
+                ON CONFLICT (jornada, partido_id) DO UPDATE SET
                     resultado = EXCLUDED.resultado,
-                    marcadorlocal = EXCLUDED.marcadorlocal,
-                    marcadorvisita = EXCLUDED.marcadorvisita,
-                    fechaactualizacion = NOW()
+                    marcador_local = EXCLUDED.marcador_local,
+                    marcador_visita = EXCLUDED.marcador_visita
                 ''',
-                (pid, JORNADA_ACTUAL, res, gh, ga),
+                (JORNADA_ACTUAL, pid, res, gh, ga),
             )
         conn.commit()
 def _auto_sync_loop():

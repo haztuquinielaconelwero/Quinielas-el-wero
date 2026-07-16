@@ -14,7 +14,8 @@ id: Number(p.id),
 local: p.local,
 localLogo: normalizarSrcLogo(p.localLogo),
 visitante: p.visitante,
-visitanteLogo: normalizarSrcLogo(p.visitanteLogo)
+visitanteLogo: normalizarSrcLogo(p.visitanteLogo),
+resultadoFinal: p.resultadoFinal ?? null
 }));
 return true;
 } catch (err) {
@@ -142,9 +143,14 @@ return PARTIDOS.map((p) => {
 const sel = q.selecciones?.[p.id];
 const letras = Array.isArray(sel) ? sel : sel ? [sel] : [];
 const mult = q.multiplicador?.[p.id] || "S";
+const finalizado = !!p.resultadoFinal;
 const chips = letras.length
-? letras.map((l) => `<span class="mq-mini-chip mq-mini-chip-neutro">${l}</span>`).join("")
-: `<span class="mq-mini-chip mq-mini-chip-vacio">—</span>`;
+? letras.map((l) => {
+const acierto = l === p.resultadoFinal;
+const cls = !finalizado ? "pending" : (acierto ? "correct" : "incorrect");
+return `<span class="result-cell ${cls}">${l}</span>`;
+}).join("")
+: `<span class="result-cell pending">—</span>`;
 const multTag = mult !== "S" ? `<span class="mq-mini-mult">${mult}</span>` : "";
 return `
 <div class="mq-mini-partido">
@@ -171,7 +177,8 @@ return `
 <div class="mq-tarjeta-header">
 <div class="mq-tarjeta-info">
 <span class="mq-tarjeta-nombre">${q.nombre}</span>
-<span class="mq-tarjeta-meta">Vendedor: ${q.vendedor} - ${q.jornada || "Jornada 1"}</span>
+<span class="mq-tarjeta-meta">Vendedor: ${q.vendedor}</span>
+<span class="mq-tarjeta-meta">${q.jornada || "Jornada 1"}</span>
 ${folioTexto}
 </div>
 <span class="mq-estado-badge ${info.clase}">${info.texto}</span>

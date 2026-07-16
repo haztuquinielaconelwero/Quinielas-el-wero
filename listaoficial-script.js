@@ -94,18 +94,19 @@ const columnasPartidos = PARTIDOS.map((p) => `
 `).join("");
 thPuntos.insertAdjacentHTML("beforebegin", columnasPartidos);
 }
-function renderChipResultado(letra, partidoFinalizado) {
-if (!letra) return `<span class="lo-chip-resultado lo-chip-vacio">—</span>`;
+function renderChipResultado(letra, resultadoOficial, partidoFinalizado) {
+if (!letra) return `<span class="result-cell pending">—</span>`;
 if (!partidoFinalizado) {
-return `<span class="lo-chip-resultado lo-chip-pendiente">${letra}</span>`;
+return `<span class="result-cell pending">${letra}</span>`;
 }
-return `<span class="lo-chip-resultado lo-chip-${letra}">${letra}</span>`;
+const acierto = letra === resultadoOficial;
+return `<span class="result-cell ${acierto ? "correct" : "incorrect"}">${letra}</span>`;
 }
 function renderFilaParticipante(p, esPrimerLugar) {
 const celdasPartidos = PARTIDOS.map((partido) => {
 const letra = p.selecciones?.[partido.id] || "";
 const finalizado = !!partido.resultadoFinal;
-return `<td class="lo-td lo-td-partido">${renderChipResultado(letra, finalizado)}</td>`;
+return `<td class="lo-td lo-td-partido">${renderChipResultado(letra, partido.resultadoFinal, finalizado)}</td>`;
 }).join("");
 return `
 <tr class="${esPrimerLugar ? "lo-primer-lugar" : ""} lo-fila-resaltada" data-nombre="${String(p.nombre || "").toLowerCase()}" data-puntos="${p.puntos ?? 0}">

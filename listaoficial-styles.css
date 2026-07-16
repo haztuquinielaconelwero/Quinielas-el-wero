@@ -243,7 +243,7 @@ font-weight: 600;
 font-size: 0.64rem;
 white-space: nowrap;
 }
-.lo-chip-resultado {
+.result-cell {
 display: inline-flex;
 align-items: center;
 justify-content: center;
@@ -251,29 +251,28 @@ min-width: 22px;
 height: 22px;
 padding: 0 3px;
 border-radius: 50%;
+border: 1px solid transparent;
 font-size: 0.6rem;
 font-weight: 900;
-border: 1px solid transparent;
+line-height: 1;
+background: rgba(255,255,255,0.06);
+color: var(--text-muted);
+transition: transform 0.2s var(--ease);
 }
-.lo-chip-acierto {
-background: rgba(0,163,108,0.2);
-color: #3ddc84;
-border-color: rgba(0,163,108,0.4);
-}
-.lo-chip-fallo {
-background: rgba(206,17,38,0.2);
-color: #ff7080;
-border-color: rgba(206,17,38,0.4);
-}
-.lo-chip-pendiente {
+.result-cell.pending {
 background: rgba(255,255,255,0.06);
 color: var(--text-muted);
 border-color: rgba(255,255,255,0.14);
 }
-.lo-chip-vacio { 
-background: rgba(255,255,255,0.04); 
-color: var(--text-muted-soft); 
-border-color: var(--glass-border); 
+.result-cell.correct {
+background: rgba(0,163,108,0.2);
+color: #3ddc84;
+border-color: rgba(0,163,108,0.4);
+}
+.result-cell.incorrect {
+  background: rgba(206,17,38,0.2);
+color: #ff7080;
+border-color: rgba(206,17,38,0.4);
 }
 .lo-td-puntos { 
 font-weight: 900; 
@@ -436,15 +435,6 @@ text-overflow: ellipsis;
 }
 .lo-td-folio { 
 font-size: 0.42rem; 
-}
-.lo-chip-resultado {
-min-width: 13px;
-width: 13px;
-height: 13px;
-padding: 0;
-font-size: 0.4rem;
-line-height: 1;
-border-radius: 4px;
 }
 .lo-puntos-badge { 
 min-width: 18px; 

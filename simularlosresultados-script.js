@@ -158,12 +158,12 @@ const columnasPartidos = PARTIDOS.map((p) => `
 thPuntos.insertAdjacentHTML("beforebegin", columnasPartidos);
 }
 function renderChipResultado(letra, simulado) {
-if (!letra) return `<span class="lo-chip-resultado lo-chip-vacio">—</span>`;
+if (!letra) return `<span class="result-cell pending">—</span>`;
 if (!simulado) {
-return `<span class="lo-chip-resultado lo-chip-pendiente">${letra}</span>`;
+return `<span class="result-cell pending">${letra}</span>`;
 }
-const clase = letra === simulado ? "lo-chip-acierto" : "lo-chip-fallo";
-return `<span class="lo-chip-resultado ${clase}">${letra}</span>`;
+const acierto = letra === simulado;
+return `<span class="result-cell ${acierto ? "correct" : "incorrect"}">${letra}</span>`;
 }
 function renderFilaParticipante(p, esPrimerLugar) {
 const celdasPartidos = PARTIDOS.map((partido) => {

@@ -168,18 +168,21 @@ flex-direction: column; gap: 3px;
 min-width: 0; 
 }
 .mq-tarjeta-nombre {
-font-size: 0.95rem;
+font-size: 0.86rem;
 font-weight: 800;
 color: #ffffff;
+letter-spacing: 0.005em;
+margin-bottom: 1px;
 overflow: hidden;
 text-overflow: ellipsis;
 white-space: nowrap;
 }
 .mq-tarjeta-meta {
-font-size: 0.92rem;
+font-size: 0.76rem;
 font-weight: 500;
-line-height: 1.35;
-color: #ffffff;
+line-height: 1.4;
+color: var(--text-muted);
+letter-spacing: 0.01em;
 }
 .mq-tarjeta-folio {
 font: inherit;

@@ -131,6 +131,12 @@ gridApi.setGridOption('columnDefs', buildColumnDefs());
 gridApi.setGridOption('rowData', buildRowData());
 setTimeout(() => gridApi.sizeColumnsToFit(), 50);
 document.getElementById('rowsCounter').textContent = datosOriginales.length + ' registros';
+if (datosOriginales.length === 0) {
+gridApi.setGridOption('overlayNoRowsTemplate', '<span style="padding:20px;color:#5f6368;font-size:14px;">No tienes quinielas en espera ⏳</span>');
+gridApi.showNoRowsOverlay();
+} else {
+gridApi.hideOverlay();
+}
 }
 function exportarCSV() {
 const cols = ['Nombre', 'Vendedor'];

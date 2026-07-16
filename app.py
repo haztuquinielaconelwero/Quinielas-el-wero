@@ -1349,10 +1349,10 @@ def apiquinielasenespera():
                     """
                     SELECT id, nombrecelular, nombrequiniela, vendedor,
                            p1, p2, p3, p4, p5, p6, p7, p8, p9,
-                           dispositivo_id, llave_maestra
+                           dispositivoid, llavemaestra
                     FROM todaslasquinielas
                     WHERE estado = 'En espera' AND jornada = %s
-                    ORDER BY fecha_creacion ASC
+                    ORDER BY fechacreacion ASC
                     """,
                     (jornada,),
                 )
@@ -1362,14 +1362,14 @@ def apiquinielasenespera():
         for row in filas:
             (id_, nombrecelular, nombrequiniela, vendedor,
              p1, p2, p3, p4, p5, p6, p7, p8, p9,
-             dispositivo_id, llave_maestra) = row
+             dispositivoid, llavemaestra) = row
             quinielas.append({
                 "id": id_,
                 "nombre": nombrequiniela,
                 "vendedor": vendedor,
                 "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
-                "dispositivo_id": dispositivo_id,
-                "llave_maestra": llave_maestra,
+                "dispositivo_id": dispositivoid,
+                "llave_maestra": llavemaestra,
             })
         return jsonify(success=True, espera=quinielas)
     except Exception as exc:

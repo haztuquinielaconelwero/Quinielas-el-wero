@@ -706,6 +706,24 @@ def iniciar_auto_sync():
         _sync_iniciado = True
         logger.info("Hilo auto_sync lanzado en background")
 
+# ── Esto de abajo trabaja en obtener los resultados oficiales ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+def _obtener_resultados_oficiales(jornada):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                '''SELECT partido_id, resultado FROM resultadosdelajornada WHERE jornada=%s''',
+                (jornada,)
+            )
+            return {row[0]: row[1] for row in cur.fetchall()}
+
+def _calcular_puntos(picks, resultados_oficiales):
+    puntos = 0
+    for i, partido in enumerate(PARTIDOS):
+        resultado_oficial = resultados_oficiales.get(partido["id"])
+        if resultado_oficial and i < len(picks) and picks[i] == resultado_oficial:
+            puntos += 1
+    return puntos
+
 # ── Inicializacion al arrancar el servicio  ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 try:
     crear_tablas()
@@ -859,20 +877,24 @@ def laapidelalistaoficial():
                 """, (jornada,))
                 filas = cur.fetchall()
 
+        resultados_oficiales = _obtener_resultados_oficiales(jornada)
 
         quinielas = []
         for row in filas:
             id_, folio, nombre, vendedor, p1, p2, p3, p4, p5, p6, p7, p8, p9, dispositivoid, llavemaestra = row
+            picks = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
             quinielas.append({
                 "id": id_,
                 "folio": folio,
                 "nombre": nombre,
                 "vendedor": vendedor,
-                "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
+                "picks": picks,
+                "puntos": _calcular_puntos(picks, resultados_oficiales),
                 "dispositivoid": dispositivoid,
                 "llavemaestra": llavemaestra,
             })
 
+        quinielas.sort(key=lambda q: q["puntos"], reverse=True)
 
         return jsonify({"quinielas": quinielas})
     except Exception as exc:
@@ -1043,16 +1065,24 @@ def api_jugando():
                     (vendedor,),
                 )
                 filas = cur.fetchall()
+
+        resultados_oficiales = _obtener_resultados_oficiales(JORNADA_ACTUAL)
+
         jugando = []
         for row in filas:
             id_, folio, nombre, p1, p2, p3, p4, p5, p6, p7, p8, p9 = row
+            picks = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
             jugando.append({
                 "id": id_,
                 "folio": folio,
                 "nombre": nombre,
                 "vendedor": vendedor,
-                "picks": [p1, p2, p3, p4, p5, p6, p7, p8, p9],
+                "picks": picks,
+                "puntos": _calcular_puntos(picks, resultados_oficiales),
             })
+
+        jugando.sort(key=lambda q: q["puntos"], reverse=True)
+
         return jsonify({"jugando": jugando, "totalSemana": len(jugando)})
     except Exception as exc:
         logger.error("api_jugando: error -> %s", exc)
@@ -1187,17 +1217,31 @@ def actualizarmisquinielas():
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    SELECT id, llavemaestra, estado, folio, nombrequiniela, vendedor
+                    SELECT id, llavemaestra, estado, folio, nombrequiniela, vendedor,
+                           p1, p2, p3, p4, p5, p6, p7, p8, p9, jornada
                     FROM todaslasquinielas
                     WHERE dispositivoid = %s
                     """,
                     (dispositivoid,),
                 )
                 filas = cur.fetchall()
-        quinielas = [
-            {"id": id_, "llavemaestra": llave, "estado": estado, "folio": folio, "nombre": nombre, "vendedor": vendedor}
-            for id_, llave, estado, folio, nombre, vendedor in filas
-        ]
+
+        resultados_cache = {}
+        quinielas = []
+        for id_, llave, estado, folio, nombre, vendedor, p1, p2, p3, p4, p5, p6, p7, p8, p9, jornada in filas:
+            if jornada not in resultados_cache:
+                resultados_cache[jornada] = _obtener_resultados_oficiales(jornada)
+            picks = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
+            quinielas.append({
+                "id": id_,
+                "llavemaestra": llave,
+                "estado": estado,
+                "folio": folio,
+                "nombre": nombre,
+                "vendedor": vendedor,
+                "puntos": _calcular_puntos(picks, resultados_cache[jornada]),
+            })
+
         return jsonify({"success": True, "quinielas": quinielas})
     except Exception as exc:
         logger.error("actualizarmisquinielas: error -> %s", exc)

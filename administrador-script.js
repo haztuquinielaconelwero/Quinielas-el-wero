@@ -697,7 +697,7 @@ if (!url) throw new Error("URL inválida para api/jugando");
 const response = await _fetchConTimeout(url, { headers: { Accept: "application/json" } }, 10000);
 if (!response.ok) throw new Error(`HTTP ${response.status}`);
 const data = await response.json();
-const lista = data.jugando ?? [];
+const lista = (data.jugando ?? []).slice().sort((a, b) => (b.puntos ?? 0) - (a.puntos ?? 0));
 if (totalCount) {
 const totalSemana = Number(data.totalSemana ?? lista.length);
 totalCount.textContent = String(totalSemana);

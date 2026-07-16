@@ -70,20 +70,10 @@ cambio = true;
 return null;
 }
 const estadoNuevo = MAPA_ESTADO_BACKEND[remota.estado] ?? q.estado;
-if (
-estadoNuevo !== q.estado ||
-remota.folio !== q.folio ||
-remota.nombre !== q.nombre ||
-remota.vendedor !== q.vendedor
-) cambio = true;
-return {
-...q,
-id: remota.id,
-estado: estadoNuevo,
-folio: remota.folio,
-nombre: remota.nombre ?? q.nombre,
-vendedor: remota.vendedor ?? q.vendedor
-};
+if (estadoNuevo !== q.estado || remota.folio !== q.folio || remota.nombre !== q.nombre || remota.vendedor !== q.vendedor || remota.puntos !== q.puntos) cambio = true;
+return { ...q, id: remota.id, estado: estadoNuevo, folio: remota.folio,
+nombre: remota.nombre ?? q.nombre, vendedor: remota.vendedor ?? q.vendedor,
+puntos: remota.puntos ?? q.puntos };
 })
 .filter(Boolean);
 if (cambio) {

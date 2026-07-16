@@ -64,9 +64,8 @@ const jornadaParam = encodeURIComponent(JORNADA_ACTUAL);
 const res = await fetch(`${API_BASE}/api/laapidelalistaoficial?jornada=${jornadaParam}`);
 if (!res.ok) throw new Error("No se pudo cargar la Lista Oficial");
 const data = await res.json();
-PARTICIPANTES = Array.isArray(data?.quinielas)
-? data.quinielas.map(normalizarParticipante)
-: [];
+PARTICIPANTES = Array.isArray(data?.quinielas) ? data.quinielas.map(normalizarParticipante) : [];
+PARTICIPANTES.sort((a, b) => (b.puntos ?? 0) - (a.puntos ?? 0));
 renderFiltros();
 renderTabla();
 } catch (err) {

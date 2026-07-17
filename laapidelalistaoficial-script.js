@@ -146,10 +146,17 @@ marcadorLocalOficial: p.marcadorLocal ?? null,
 marcadorVisitaOficial: p.marcadorVisita ?? null
 }));
 state.resultados = {};
+state.marcadores = {};
 state.partidos.forEach((p) => {
 const key = String(p.id);
 if (p.resultadoFinal) {
 state.resultados[key] = p.resultadoFinal;
+}
+if (p.marcadorLocalOficial != null && p.marcadorVisitaOficial != null) {
+state.marcadores[key] = {
+local: String(p.marcadorLocalOficial),
+visita: String(p.marcadorVisitaOficial)
+};
 }
 });
 }
@@ -173,7 +180,6 @@ mostrarLoading(true);
 await cargarEstadoAdmin();
 await cargarJornadaActual();
 await cargarListaOficial();
-state.marcadores = {};
 state.rowDataCache = null;
 poblarFiltroVendedores();
 renderResultadosInputs();

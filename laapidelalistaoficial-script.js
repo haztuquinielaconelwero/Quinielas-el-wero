@@ -134,7 +134,7 @@ const data = await res.json();
 if (!Array.isArray(data?.partidos)) {
 throw new Error('La jornada actual no trae partidos válidos');
 }
-state.jornada = data?.jornada || 'Jornada 1';
+state.jornada = data?.jornadaActual || data?.jornada || 'Jornada 1';
 state.partidos = data.partidos.map((p) => ({
 id: Number(p.id),
 local: p.local || '',

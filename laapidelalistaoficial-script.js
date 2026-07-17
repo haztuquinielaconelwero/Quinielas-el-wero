@@ -18,7 +18,9 @@ enProceso: false,
 refreshCtrl: null,
 listaBloqueada: false,
 modoEspera: false,
-jornada: null
+jornada: null,
+totalJugandoConocido: null,
+pollingInterval: null
 };
 let gridApi = null;
 /*            Esto de abajo trabaja en el estado en espera y estado bloqueado               (Para que se no se rompan al recargar)                                */
@@ -186,32 +188,29 @@ mostrarLoading(false);
 document.addEventListener('DOMContentLoaded', async () => {
 initGrid();
 await cargarDatos();
-setInterval(async () => {
+state.totalJugandoConocido = state.datosOriginales.length;
+evaluarPolling();
+});
+async function chequearNuevaQuiniela(signal) {
+const jornadaParam = encodeURIComponent(state.jornada || 'Jornada 1');
+const res = await fetch(`${API_BASE}/api/totaljugando?jornada=${jornadaParam}`, { headers: getAuthHeaders(), signal });
+if (!res.ok) throw new Error('No se pudo verificar nuevas quinielas');
+const data = await res.json();
+return typeof data.total === 'number' ? data.total : null;
+}
+async function tickPolling() {
 if (state.enProceso) return;
+if (state.listaBloqueada || state.modoEspera) { detenerPolling(); return; }
 if (state.refreshCtrl) state.refreshCtrl.abort();
 state.refreshCtrl = new AbortController();
 const { signal } = state.refreshCtrl;
 try {
-const snapshotAnterior = JSON.stringify({
-jornada: state.jornada,
-partidos: state.partidos,
-resultados: state.resultados,
-quinielas: state.datosOriginales,
-listaBloqueada: state.listaBloqueada,
-modoEspera: state.modoEspera
-});
+const totalActual = await chequearNuevaQuiniela(signal);
+if (totalActual === null || totalActual === state.totalJugandoConocido) return;
+state.totalJugandoConocido = totalActual;
 await cargarEstadoAdmin(signal);
 await cargarJornadaActual(signal);
 await cargarListaOficial(signal);
-const snapshotNuevo = JSON.stringify({
-jornada: state.jornada,
-partidos: state.partidos,
-resultados: state.resultados,
-quinielas: state.datosOriginales,
-listaBloqueada: state.listaBloqueada,
-modoEspera: state.modoEspera
-});
-if (snapshotNuevo === snapshotAnterior) return;
 state.rowDataCache = null;
 poblarFiltroVendedores();
 renderResultadosInputs();
@@ -219,12 +218,26 @@ procesarDatos();
 renderTabla();
 actualizarEstadisticas();
 } catch (err) {
-if (err.name !== 'AbortError') {
-console.warn('Auto-refresh:', err.message);
+if (err.name !== 'AbortError') console.warn('Polling:', err.message);
 }
 }
-}, 30000);
-});
+function iniciarPolling() {
+if (state.pollingInterval) return;
+state.pollingInterval = setInterval(tickPolling, 30000);
+}
+function detenerPolling() {
+if (state.pollingInterval) {
+clearInterval(state.pollingInterval);
+state.pollingInterval = null;
+}
+}
+function evaluarPolling() {
+if (state.listaBloqueada || state.modoEspera) {
+detenerPolling();
+} else {
+iniciarPolling();
+}
+}
 /*                Esto de abajo trabaja en poblar el filtro de vendedores con datos reales de la lista oficial                                         */ 
 function poblarFiltroVendedores() {
 const select = document.getElementById('filterVendedor');
@@ -641,6 +654,7 @@ throw new Error(data.mensaje || data.error || 'Error al cambiar modo bloqueo');
 }
 state.listaBloqueada = !!data.listaBloqueada;
 actualizarUIBotonBloquear();
+evaluarPolling();
 toast(state.listaBloqueada ? 'Lista bloqueada 🔒' : 'Lista desbloqueada 🔓', 'success');
 }, ['btnBloquear']);
 }
@@ -666,6 +680,7 @@ const data = await res.json();
 if (!res.ok || !data.success) throw new Error(data.mensaje || 'Error al cambiar modo en espera');
 state.modoEspera = data.modoEspera;
 actualizarUIBotonEspera();
+evaluarPolling();
 toast(state.modoEspera ? 'Modo en espera activado ⏳' : 'Modo en espera desactivado ⏳', 'success');
 });
 }

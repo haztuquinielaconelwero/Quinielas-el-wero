@@ -1455,6 +1455,22 @@ def apiparaactualizarlosresultados():
         return jsonify({"success": False, "mensaje": str(exc)}), 500
     
 
+# ── Esto de abajo trabaja con el contador de quinielas para que no se actualize nuestra tabla de quinielas sin nececidad ─────────────────────────────
+@app.route("/api/totaljugando")
+def totaljugando():
+    jornada = request.args.get("jornada", JORNADA_ACTUAL)
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT COUNT(*) FROM todaslasquinielas WHERE estado = 'Jugando' AND jornada = %s",
+                    (jornada,)
+                )
+                total = cur.fetchone()[0]
+        return jsonify({"success": True, "total": total})
+    except Exception as exc:
+        logger.error("totaljugando: error -> %s", exc)
+        return jsonify({"success": False, "mensaje": str(exc)}), 500
     
 # ── Esto de abajo trabaja con el home e inicio.html ────────────────────────────────────────────────────────────────────────────────
 @app.route("/")

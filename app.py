@@ -150,6 +150,7 @@ def togglebloqueo():
 # ── Esto de abajo trabaja con la informacion de la Jornada ───────────────────────────────────────────────────────────────────────────────────────────────
 WHATSAPP_GRUPO_URL = "https://chat.whatsapp.com/JKFSN3hDRBA91iy9T7GLPh"
 JORNADA_ACTUAL = "Jornada 2"
+JORNADA_CIERRE = "2026-07-24T16:30:00-06:00"
 PARTIDOS = [
     {
         "id": 1,
@@ -172,7 +173,7 @@ PARTIDOS = [
     {
         "id": 3,
         "local": "Tigres", "localLogo": "/logos/tigres.png",
-        "visitante": "Atlético San Luis", "visitanteLogo": "/logos/san-luis.png",
+        "visitante": "San Luis", "visitanteLogo": "/logos/san-luis.png",
         "horario": "Viernes 24 de julio 7:00 pm",
         "televisora": "TV Azteca / FOX",
         "televisionLogo": "/logos/tv-azteca.png",
@@ -189,8 +190,8 @@ PARTIDOS = [
     },
     {
         "id": 5,
-        "local": "Xolos", "localLogo": "/logos/tijuana.png",
-        "visitante": "León FC", "visitanteLogo": "/logos/leon.png",
+        "local": "Tijuana", "localLogo": "/logos/tijuana.png",
+        "visitante": "León", "visitanteLogo": "/logos/leon.png",
         "horario": "Viernes 24 de julio 9:00 pm",
         "televisora": "FOX / FOX One",
         "televisionLogo": "/logos/fox-sports.png",
@@ -275,6 +276,7 @@ def apijornadaactual():
 
     return jsonify({
         "jornadaActual": JORNADA_ACTUAL,
+        "cierre": JORNADA_CIERRE, 
         "partidos": partidos_con_resultado,
         "maxDobles": MAX_DOBLES,
         "maxTriples": MAX_TRIPLES,

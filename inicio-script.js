@@ -64,10 +64,21 @@ statusEl: document.getElementById("timerStatus"),
 intervalId: null,
 totalDurationMs: null,
 closeDate: null,
-init() {
+async init() {
 if (!this.card) return;
-const closeDateAttr = this.card.getAttribute("data-close-date");
-this.closeDate = new Date(closeDateAttr).getTime();
+try {
+const res = await fetch("/api/apijornadaactual");
+const data = await res.json();
+if (!res.ok || !data.cierre) {
+if (this.statusEl) this.statusEl.textContent = "Cierre no disponible";
+return;
+}
+this.closeDate = new Date(data.cierre).getTime();
+} catch (err) {
+console.error("No se pudo obtener el cierre de la jornada", err);
+if (this.statusEl) this.statusEl.textContent = "Cierre no disponible";
+return;
+}
 const DIAS_JORNADA = 7;
 this.totalDurationMs = DIAS_JORNADA * 24 * 60 * 60 * 1000;
 this.tick();
@@ -110,7 +121,8 @@ const horas = Math.floor((totalSegundos % 86400) / 3600);
 const minutos = Math.floor((totalSegundos % 3600) / 60);
 if (this.countdownEl) {
 this.countdownEl.textContent = `${dias}d · ${horas}h · ${minutos}m`;
-}},
+}
+},
 actualizarEstadoUrgencia(restanteMs) {
 const unaHora = 60 * 60 * 1000;
 const veinticuatroHoras = 24 * unaHora;
@@ -133,7 +145,9 @@ if (this.countdownEl) this.countdownEl.textContent = "00d · 00h · 00m";
 if (this.card) {
 this.card.classList.remove("urgent");
 this.card.classList.add("critical");
-}}};
+}
+}
+};
 /* =============                                Esto de abajo trabaja en la identidad del cliente                                       ============================ */
 const IdentidadCliente = {
 API_REGISTRO: "/api/registrodeclientes",
@@ -213,21 +227,20 @@ const JornadaHero = {
 elementosLabel: document.querySelectorAll("[data-jornada-label]"),
 linkWsp: document.querySelector("[data-whatsapp-link]"),
 async init() {
-if (!this.elementosLabel.length && !this.linkWsp) return;
+if (!this.elementosLabel.length && !this.linkWsp) return; 
 try {
 const res = await fetch("/api/apijornadaactual");
 const data = await res.json();
-if (res.ok && data.jornadaActual) {
-this.elementosLabel.forEach((el) => {
-el.textContent = `${data.jornadaActual} - Liga MX`;
+if (!res.ok || !data.jornadaActual) return;
+if (this.elementosLabel.length) {
+this.elementosLabel.forEach(el => {
+el.textContent = data.jornadaActual + " - Liga MX";
 });
+}
 if (this.linkWsp && data.whatsappUrl) {
 this.linkWsp.href = data.whatsappUrl;
 const label = this.linkWsp.querySelector("[data-whatsapp-label]");
-if (label) {
-label.textContent = `Únete al grupo de la ${data.jornadaActual} - Liga MX`;
-}
-}
+if (label) label.textContent = "Únete al grupo de la " + data.jornadaActual + " - Liga MX";
 }
 } catch (err) {
 console.error("No se pudo actualizar la jornada", err);

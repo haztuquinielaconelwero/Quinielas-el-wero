@@ -33,8 +33,8 @@ if (!Array.isArray(data?.partidos)) {
 throw new Error("La respuesta no contiene partidos válidos");
 }
 jornadaActual = {
-nombre: data?.jornada || "Jornada 1",
-cierre: data?.cierre || null
+nombre: data?.jornadaActual ?? "Jornada 1",
+cierre: data?.cierre ?? null
 };
 partidos = data.partidos.map((p) => ({
 id: Number(p.id),

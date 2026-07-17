@@ -141,7 +141,9 @@ local: p.local || '',
 visitante: p.visitante || '',
 localLogo: normalizarSrcLogo(p.localLogo),
 visitanteLogo: normalizarSrcLogo(p.visitanteLogo),
-resultadoFinal: p.resultadoFinal ?? null
+resultadoFinal: p.resultadoFinal ?? null,
+marcadorLocalOficial: p.marcadorLocal ?? null,
+marcadorVisitaOficial: p.marcadorVisita ?? null
 }));
 state.resultados = {};
 state.partidos.forEach((p) => {
@@ -576,7 +578,7 @@ if (curRes) actualizarResaltado(inputLocal, inputVisita, btns);
 const oficial = document.createElement('div');
 oficial.className = 'resultado-oficial-label';
 oficial.textContent = partido.resultadoFinal
-? `Resultado oficial: ${partido.resultadoFinal}`
+? `Resultado oficial: ${partido.resultadoFinal} (${partido.marcadorLocalOficial ?? '-'} - ${partido.marcadorVisitaOficial ?? '-'})`
 : 'Sin resultado oficial';
 grupo.appendChild(oficial);
 container.appendChild(grupo);

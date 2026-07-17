@@ -229,6 +229,45 @@ bottom: 16px;
 padding: 13px;
 gap: 0;
 }}
+/* ====================                 Esto de abajo trabaja en las palomitas y = encima del club                                               ==================== */
+.team-logo-wrap {
+position: relative;
+display: inline-block;
+}
+.match-check {
+position: absolute;
+top: -8px;
+right: -8px;
+background: #16a34a;
+color: #fff;
+border-radius: 50%;
+width: 22px;
+height: 22px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 13px;
+box-shadow: 0 2px 6px rgba(0,0,0,.25);
+animation: checkPop .35s ease-out;
+z-index: 2;
+}
+.match-draw-badge {
+background: #64748b;
+color: #fff;
+border-radius: 12px;
+padding: 2px 8px;
+font-size: 12px;
+font-weight: 700;
+margin-left: 6px;
+}
+@keyframes checkPop {
+0% { transform: scale(0); opacity: 0; }
+70% { transform: scale(1.15); opacity: 1; }
+100% { transform: scale(1); }
+}
+@media (max-width: 480px) {
+.match-check { width: 18px; height: 18px; font-size: 11px; top: -6px; right: -6px; }
+}
 /* ====================                 Esto de abajo trabaja en los tamaños del celular de los horarios                                                ==================== */
 @media (max-width: 640px){
 .horarios-hero{ padding: 20px 18px 10px; flex-direction: column; align-items: flex-start; }

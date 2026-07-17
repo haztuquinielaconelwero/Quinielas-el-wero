@@ -43,6 +43,14 @@ container.innerHTML = partidos.map(partido => {
 const logoLocal = _isSafeImageUrl(partido.localLogo) ? escapeHtml(partido.localLogo) : '';
 const logoVisita = _isSafeImageUrl(partido.visitanteLogo) ? escapeHtml(partido.visitanteLogo) : '';
 const logoTv = _isSafeImageUrl(partido.televisionLogo) ? escapeHtml(partido.televisionLogo) : '';
+const tieneResultado = partido.resultadoFinal != null;
+const marcadorTexto = tieneResultado ? `${partido.marcadorLocal} - ${partido.marcadorVisita}` : '0 - 0';
+const ganoLocal = partido.resultadoFinal === 'L';
+const ganoVisita = partido.resultadoFinal === 'V';
+const esEmpate = partido.resultadoFinal === 'E';
+const badgeLocal = ganoLocal ? '<span class="match-check">✔️</span>' : '';
+const badgeVisita = ganoVisita ? '<span class="match-check">✔️</span>' : '';
+const badgeEmpate = esEmpate ? '<span class="match-draw-badge">=</span>' : '';
 const tvHtml = logoTv
 ? `<img src="${logoTv}" alt="${escapeHtml(partido.televisora ?? 'Televisora')}" class="match-tv-logo" width="52" height="52" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null">`
 : '<span class="match-tv-unavailable">Sin señal</span>';
@@ -54,19 +62,26 @@ return (
 '</div>' +
 '<div class="match-teams">' +
 '<div class="match-team">' +
+'<div class="team-logo-wrap">' +
 `<img src="${logoLocal}" alt="${escapeHtml(partido.local ?? '')}" class="team-logo" width="56" height="56" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null">` +
+badgeLocal +
+'</div>' +
 `<span>${escapeHtml(partido.local ?? 'Equipo')}</span>` +
 '</div>' +
 '<div class="match-vs">VS</div>' +
 '<div class="match-team">' +
+'<div class="team-logo-wrap">' +
 `<img src="${logoVisita}" alt="${escapeHtml(partido.visitante ?? '')}" class="team-logo" width="56" height="56" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null">` +
+badgeVisita +
+'</div>' +
 `<span>${escapeHtml(partido.visitante ?? 'Equipo')}</span>` +
 '</div>' +
 '</div>' +
 '<div class="match-bottom">' +
 '<div class="match-marcador">' +
 '<span class="marcador-label">Marcador</span>' +
-'<span class="marcador-score">0 - 0</span>' +
+`<span class="marcador-score">${marcadorTexto}</span>` +
+badgeEmpate +
 '</div>' +
 '</div>' +
 '</div>'

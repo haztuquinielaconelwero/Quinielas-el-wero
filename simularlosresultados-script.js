@@ -211,9 +211,9 @@ const wrap = document.getElementById("tablaWrapSim");
 const vacio = document.getElementById("mensajeVacioSim");
 const vacioTexto = document.getElementById("mensajeVacioTextoSim");
 if (!cuerpo || !wrap || !vacio || !vacioTexto) return;
+wrap.hidden = PARTIDOS.length === 0;
 if (!PARTICIPANTES.length) {
 cuerpo.innerHTML = "";
-wrap.hidden = true;
 vacio.hidden = false;
 vacioTexto.textContent = "Aún no hay quinielas registradas.";
 return;
@@ -223,12 +223,10 @@ const ordenadosTotal = ordenarPorPuntos(obtenerParticipantesConPuntos());
 const puntosMax = ordenadosTotal[0]?.puntos ?? 0;
 if (!visibles.length) {
 cuerpo.innerHTML = "";
-wrap.hidden = true;
 vacio.hidden = false;
 vacioTexto.textContent = "No se encontraron participantes con esos criterios.";
 return;
 }
-wrap.hidden = false;
 vacio.hidden = true;
 cuerpo.innerHTML = visibles
 .map((p) => renderFilaParticipante(p, p.puntos === puntosMax && puntosMax > 0))

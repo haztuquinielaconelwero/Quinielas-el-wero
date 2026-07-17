@@ -167,8 +167,7 @@ return `
 <div class="mq-tarjeta-header">
 <div class="mq-tarjeta-info">
 <span class="mq-tarjeta-nombre">${q.nombre}</span>
-<span class="mq-tarjeta-meta">Vendedor: ${q.vendedor}</span>
-<span class="mq-tarjeta-meta">${q.jornada || "Jornada 1"}</span>
+<span class="mq-tarjeta-meta">Vendedor: ${q.vendedor} - ${q.jornada || "Jornada 1"}</span>
 ${folioTexto}
 </div>
 <span class="mq-estado-badge ${info.clase}">${info.texto}</span>

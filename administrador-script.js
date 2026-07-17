@@ -734,6 +734,10 @@ Object.entries(secciones).forEach(([k, el]) => {
 if (el) el.style.display = k === clave ? "" : "none";
 });
 botones.forEach((b) => b.classList.toggle("active", b.dataset.filter === clave));
+const destino = secciones[clave];
+if (destino) {
+destino.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 }
 botones.forEach((btn) => {
 btn.addEventListener("click", () => mostrarSeccion(btn.dataset.filter));

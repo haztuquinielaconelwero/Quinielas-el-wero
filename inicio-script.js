@@ -148,6 +148,25 @@ this.card.classList.add("critical");
 }
 }
 };
+/* ============= Esto de abajo trabaja en llevarme de mis quinielas no jugando o jugando a mis quinielas============================ */
+const NavegacionStats = {
+chipPending: document.querySelector(".stat-chip.stat-pending"),
+chipActive: document.querySelector(".stat-chip.stat-active"),
+init() {
+if (this.chipPending) {
+this.chipPending.style.cursor = "pointer";
+this.chipPending.addEventListener("click", () => {
+window.location.href = "misquinielas.html?estado=nojugando";
+});
+}
+if (this.chipActive) {
+this.chipActive.style.cursor = "pointer";
+this.chipActive.addEventListener("click", () => {
+window.location.href = "misquinielas.html?estado=jugando";
+});
+}
+}
+};
 /* =============                                Esto de abajo trabaja en la identidad del cliente                                       ============================ */
 const IdentidadCliente = {
 API_REGISTRO: "/api/registrodeclientes",
@@ -264,6 +283,7 @@ StatsQuinielas.init();
 TimerPremium.init();
 IdentidadCliente.init();
 JornadaHero.init();
+NavegacionStats.init();        
 setInterval(() => StatsQuinielas.init(), 15000);
 });
 })();

@@ -58,6 +58,14 @@ throw new Error("No se pudo cargar la Lista Oficial");
 PARTICIPANTES = Array.isArray(dataLista?.quinielas)
 ? dataLista.quinielas.map(normalizarParticipanteSim)
 : [];
+PARTICIPANTES.sort((a, b) => {
+const fa = parseInt(a.folio, 10);
+const fb = parseInt(b.folio, 10);
+if (isNaN(fa) && isNaN(fb)) return 0;
+if (isNaN(fa)) return 1;
+if (isNaN(fb)) return -1;
+return fa - fb;
+});
 return true;
 } catch (err) {
 console.error("Simulador:", err);

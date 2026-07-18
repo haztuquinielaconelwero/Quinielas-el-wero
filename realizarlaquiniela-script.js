@@ -28,6 +28,7 @@ const OPCIONES = ["L", "E", "V"];
 const PRECIO_UNITARIO = 30;
 const APIBASE = window.location.hostname === "localhost" ? "http://localhost:8000" : "";
 let VENDEDOR_WHATSAPP = {};
+let quinielaDuplicadaId = null;
 const estado = {
 selecciones: {},
 get nombre() {
@@ -299,20 +300,38 @@ abrirModal("modalGuardadas");
 }
 function renderMiniQuiniela(q) {
 if (!Array.isArray(PARTIDOS) || PARTIDOS.length === 0) {
-return `<div class="rq-empty-msg"><span>📋</span><span>No se pudieron cargar los partidos de la jornada.</span></div>`;
+return `<div class="rq-empty-msg"><span></span><span></span><span></span>No se pudieron cargar los partidos de la jornada.</div>`;
 }
 return PARTIDOS.map((p) => {
 const sel = q.selecciones?.[p.id];
 const letras = Array.isArray(sel) ? sel : sel ? [sel] : [];
 const clase = letras.length === 3 ? "triple" : letras.length === 2 ? "doble" : "";
-const texto = letras.length ? letras.join("/") : "—";
-return `<div class="rq-mini-partido"><img src="${p.localLogo}" alt="${p.local}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;"><span class="rq-mini-equipo local">${p.local}</span><span class="rq-mini-marcador ${clase}">${texto}</span><span class="rq-mini-equipo visitante">${p.visitante}</span><img src="${p.visitanteLogo}" alt="${p.visitante}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;"></div>`;
+const texto = letras.length ? letras.join("/") : "-";
+return `<div class="rq-mini-partido">
+<img src="${p.localLogo}" alt="${p.local}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
+<span class="rq-mini-equipo local">${p.local}</span>
+<span class="rq-mini-marcador ${clase}" style="color:#4b5563 !important;background-color:#e5e7eb !important;border-color:#d1d5db !important;">${texto}</span>
+<span class="rq-mini-equipo visitante">${p.visitante}</span>
+<img src="${p.visitanteLogo}" alt="${p.visitante}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
+</div>`;
 }).join("");
 }
 function renderTarjetaGuardada(q) {
-return `<div class="rq-tarjeta-guardada" data-id="${q.id}"><button class="rq-tg-eliminar" data-id="${q.id}" aria-label="Eliminar quiniela">❌</button><div class="rq-tg-header"><span class="rq-tg-nombre">${q.nombre}</span><span class="rq-tg-nombre">Vendedor: ${q.vendedor} - ${q.jornada || "Jornada 1"}</span></div><div class="rq-tg-mini-quiniela">${renderMiniQuiniela(q)}</div></div>`;
+const esDuplicada = quinielaDuplicadaId !== null && q.id === quinielaDuplicadaId;
+const estiloAlerta = esDuplicada ? ' style="border:2px solid #dc2626;background-color:rgba(220,38,38,0.06);"' : "";
+const iconoAlerta = esDuplicada ? `<span class="rq-tg-icono-alerta" aria-hidden="true" title="Quiniela duplicada">⚠️</span>` : "";
+return `<div class="rq-tarjeta-guardada${esDuplicada ? " rq-tarjeta-duplicada" : ""}" data-id="${q.id}"${estiloAlerta}>
+${iconoAlerta}
+<button class="rq-tg-eliminar" data-id="${q.id}" aria-label="Eliminar quiniela">✕</button>
+<div class="rq-tg-header">
+<span class="rq-tg-nombre">${q.nombre}</span>
+<span class="rq-tg-nombreVendedor">${q.vendedor} - ${q.jornada || "Jornada 1"}</span>
+</div>
+<div class="rq-tg-mini-quiniela">${renderMiniQuiniela(q)}</div>
+</div>`;
 }
 function eliminarQuinielaGuardada(id) {
+if (id === quinielaDuplicadaId) quinielaDuplicadaId = null;
 const arr = leerStorage().filter((q) => q.id !== id);
 escribirStorage(arr);
 actualizarPrecio();
@@ -354,6 +373,7 @@ console.error("No se pudieron cargar los vendedores", err);
 }
 /* =====================================             Esto de abajo trabaja con el envio de la quiniela                                         ======================= */
 function enviarQuiniela() {
+quinielaDuplicadaId = null;
 const guardadas = leerStorage();
 if (guardadas.length === 0) { tarjetaroja("No tienes quinielas guardadas para enviar."); return; }
 const precio = guardadas.length * PRECIO_UNITARIO;
@@ -363,6 +383,9 @@ abrirModal("modalConfirmarEnvio");
 }
 function cancelarEnvio() {
 cerrarModal("modalConfirmarEnvio");
+}
+function esErrorDuplicado(mensaje) {
+return typeof mensaje === "string" && mensaje.toLowerCase().includes("duplicad");
 }
 async function confirmarEnvioAlServidor() {
 const guardadas = leerStorage();
@@ -378,9 +401,11 @@ const contador = document.getElementById("progresoContador");
 overlay.hidden = false;
 contador.textContent = `0 de ${guardadas.length}`;
 const enviadasOk = [];
+let quinielaFallida = null;
 try {
 for (let i = 0; i < guardadas.length; i++) {
 const q = guardadas[i];
+quinielaFallida = q;
 const res = await fetch(`${APIBASE}/api/enviarlaquinielaporwhatsapp`, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
@@ -397,13 +422,9 @@ const data = await res.json();
 if (!res.ok || !data.success) {
 throw new Error(data.mensaje || "Error al enviar al servidor");
 }
-enviadasOk.push({
-...q,
-id: data.id,
-llavemaestra: data.llavemaestra
-});
+enviadasOk.push({ ...q, id: data.id, llavemaestra: data.llavemaestra });
 contador.textContent = `${i + 1} de ${guardadas.length}`;
-await new Promise(r => setTimeout(r, 350));
+await new Promise((r) => setTimeout(r, 350));
 }
 escribirStorage([]);
 guardarEnMisQuinielas(enviadasOk);
@@ -416,6 +437,10 @@ mostrarModalListo(enviadasOk, precioTotal(enviadasOk));
 overlay.hidden = true;
 if (err.message === "SIN_VENDEDOR") {
 tarjetaroja("Verifica tu link para poder añadir quinielas correctamente.");
+} else if (esErrorDuplicado(err.message)) {
+quinielaDuplicadaId = quinielaFallida?.id ?? null;
+abrirModalGuardadas();
+tarjetaroja("Se encontró una quiniela duplicada. Tiene el mismo nombre y los mismos resultados que otra quiniela. La quiniela con el problema se marcó en rojo para que puedas corregirla antes de volver a enviarla.");
 } else {
 tarjetaroja("Hubo un error al enviar tus quinielas. Intenta de nuevo.");
 }

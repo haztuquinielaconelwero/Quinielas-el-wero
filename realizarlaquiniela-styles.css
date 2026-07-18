@@ -804,20 +804,10 @@ font-weight: 900;
 min-width: 34px;
 padding: 2px 6px;
 border-radius: 999px;
-background: rgba(0,163,108,0.16);
-color: #3ddc84;
-border: 1px solid rgba(0,163,108,0.3);
+background: rgba(255,255,255,0.1);
+color: #ffffff;
+border: 1px solid rgba(255,255,255,0.24);
 white-space: nowrap;
-}
-.rq-mini-marcador.doble { 
-background: rgba(212,175,55,0.18); 
-color: var(--dorado-premium); 
-border-color: rgba(212,175,55,0.35); 
-}
-.rq-mini-marcador.triple { 
-background: rgba(206,17,38,0.2); 
-color: #ff7080; 
-border-color: rgba(206,17,38,0.4); 
 }
 /* ====================                         Esto de abajo trabaja en la quiniela cuando se envia                                         ==================== */
 .rq-envio-overlay { 
@@ -1098,9 +1088,4 @@ opacity: 0.45;
 display: inline-flex;
 align-items: center;
 gap: 8px;
-}
-/* ====================               Marcador neutrar para las gurdadas          ==================== */
-.rq-mini-marcador.rq-sin-resultado {
-color: #888 !important;
-background-color: #e5e5e5 !important;
 }

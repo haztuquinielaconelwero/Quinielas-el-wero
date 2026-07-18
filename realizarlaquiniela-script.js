@@ -306,7 +306,13 @@ const sel = q.selecciones?.[p.id];
 const letras = Array.isArray(sel) ? sel : sel ? [sel] : [];
 const clase = letras.length === 3 ? "triple" : letras.length === 2 ? "doble" : "";
 const texto = letras.length ? letras.join("/") : "—";
-return `<div class="rq-mini-partido"><img src="${p.localLogo}" alt="${p.local}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;"><span class="rq-mini-equipo local">${p.local}</span><span class="rq-mini-marcador ${clase}">${texto}</span><span class="rq-mini-equipo visitante">${p.visitante}</span><img src="${p.visitanteLogo}" alt="${p.visitante}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;"></div>`;
+return `<div class="rq-mini-partido">
+<img src="${p.localLogo}" alt="${p.local}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
+<span class="rq-mini-equipo local">${p.local}</span>
+<span class="rq-mini-marcador ${clase} rq-sin-resultado">${texto}</span>
+<span class="rq-mini-equipo visitante">${p.visitante}</span>
+<img src="${p.visitanteLogo}" alt="${p.visitante}" class="rq-mini-logo" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null;">
+</div>`;
 }).join("");
 }
 function renderTarjetaGuardada(q) {

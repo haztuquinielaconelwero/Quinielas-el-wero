@@ -1099,3 +1099,8 @@ display: inline-flex;
 align-items: center;
 gap: 8px;
 }
+/* ====================               Marcador neutrar para las gurdadas          ==================== */
+.rq-mini-marcador.rq-sin-resultado {
+color: #888 !important;
+background-color: #e5e5e5 !important;
+}

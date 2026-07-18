@@ -283,7 +283,8 @@ if (!contenedor) return;
 if (quinielas.length === 0) {
 contenedor.innerHTML = `<p class="rq-empty-msg">No tienes quinielas guardadas aún.</p>`;
 } else {
-contenedor.innerHTML = quinielas.map((q) => renderTarjetaGuardada(q)).join("");
+const firmasRepetidas = encontrarFirmasDuplicadas(quinielas);
+contenedor.innerHTML = quinielas.map((q) => renderTarjetaGuardada(q, firmasRepetidas.has(q.firma))).join("");
 contenedor.querySelectorAll(".rq-tg-eliminar").forEach((btn) => {
 btn.addEventListener("click", (e) => {
 e.stopPropagation();
@@ -314,8 +315,15 @@ return `<div class="rq-mini-partido">
 </div>`;
 }).join("");
 }
-function renderTarjetaGuardada(q) {
-return `<div class="rq-tarjeta-guardada" data-id="${q.id}"><button class="rq-tg-eliminar" data-id="${q.id}" aria-label="Eliminar quiniela">❌</button><div class="rq-tg-header"><span class="rq-tg-nombre">${q.nombre}</span><span class="rq-tg-nombre">Vendedor: ${q.vendedor} - ${q.jornada || "Jornada 1"}</span></div><div class="rq-tg-mini-quiniela">${renderMiniQuiniela(q)}</div></div>`;
+function renderTarjetaGuardada(q, esDuplicada = false) {
+return `<div class="rq-tarjeta-guardada${esDuplicada ? " rq-tarjeta-duplicada" : ""}" data-id="${q.id}">
+<button class="rq-tg-eliminar" data-id="${q.id}" aria-label="Eliminar quiniela">❌</button>
+<div class="rq-tg-header">
+<span class="rq-tg-nombre">${q.nombre}</span>
+<span class="rq-tg-nombre">Vendedor: ${q.vendedor} - ${q.jornada || "Jornada 1"}</span>
+</div>
+<div class="rq-tg-mini-quiniela">${renderMiniQuiniela(q)}</div>
+</div>`;
 }
 function eliminarQuinielaGuardada(id) {
 const arr = leerStorage().filter((q) => q.id !== id);
@@ -358,9 +366,25 @@ console.error("No se pudieron cargar los vendedores", err);
 }
 }
 /* =====================================             Esto de abajo trabaja con el envio de la quiniela                                         ======================= */
+function encontrarFirmasDuplicadas(guardadas) {
+const conteo = new Map();
+guardadas.forEach((q) => {
+conteo.set(q.firma, (conteo.get(q.firma) || 0) + 1);
+});
+const firmasRepetidas = new Set();
+conteo.forEach((veces, firma) => {
+if (veces > 1) firmasRepetidas.add(firma);
+});
+return firmasRepetidas;
+}
 function enviarQuiniela() {
 const guardadas = leerStorage();
 if (guardadas.length === 0) { tarjetaroja("No tienes quinielas guardadas para enviar."); return; }
+const firmasRepetidas = encontrarFirmasDuplicadas(guardadas);
+if (firmasRepetidas.size > 0) {
+tarjetaroja("Tienes una quiniela repetida, favor de poner otro nombre o resultado.");
+return;
+}
 const precio = guardadas.length * PRECIO_UNITARIO;
 document.getElementById("confirmCantidad").textContent = `${guardadas.length} quiniela${guardadas.length > 1 ? "s" : ""} guardada${guardadas.length > 1 ? "s" : ""}`;
 document.getElementById("confirmPrecio").textContent = `$${precio}`;

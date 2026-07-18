@@ -1089,3 +1089,8 @@ display: inline-flex;
 align-items: center;
 gap: 8px;
 }
+/* ====================               Esto de abajo trabaja en la quiniela duplicada roja          ==================== */
+.rq-tarjeta-duplicada {
+border: 1px solid var(--rojo-mx) !important;
+box-shadow: 0 0 0 2px rgba(206,17,38,0.25) !important;
+}

@@ -284,7 +284,8 @@ if (quinielas.length === 0) {
 contenedor.innerHTML = `<p class="rq-empty-msg">No tienes quinielas guardadas aún.</p>`;
 } else {
 const firmasRepetidas = encontrarFirmasDuplicadas(quinielas);
-contenedor.innerHTML = quinielas.map((q) => renderTarjetaGuardada(q, firmasRepetidas.has(q.firma))).join("");
+const firmasDuplicadasServidor = new Set(leerDuplicadasServidor());
+contenedor.innerHTML = quinielas.map((q) => renderTarjetaGuardada(q, firmasRepetidas.has(q.firma) || firmasDuplicadasServidor.has(q.firma))).join("");
 contenedor.querySelectorAll(".rq-tg-eliminar").forEach((btn) => {
 btn.addEventListener("click", (e) => {
 e.stopPropagation();
@@ -328,6 +329,7 @@ return `<div class="rq-tarjeta-guardada${esDuplicada ? " rq-tarjeta-duplicada" :
 function eliminarQuinielaGuardada(id) {
 const arr = leerStorage().filter((q) => q.id !== id);
 escribirStorage(arr);
+limpiarDuplicadasServidor();
 actualizarPrecio();
 actualizarResumenGuardadas();
 actualizarBadgeGuardadas();
@@ -377,6 +379,22 @@ if (veces > 1) firmasRepetidas.add(firma);
 });
 return firmasRepetidas;
 }
+const STORAGE_KEY_DUPLICADAS = "quinielasElWero_duplicadas";
+function marcarComoDuplicada(firma) {
+const actuales = JSON.parse(localStorage.getItem(STORAGE_KEY_DUPLICADAS)) ?? [];
+if (!actuales.includes(firma)) actuales.push(firma);
+localStorage.setItem(STORAGE_KEY_DUPLICADAS, JSON.stringify(actuales));
+}
+function leerDuplicadasServidor() {
+try {
+return JSON.parse(localStorage.getItem(STORAGE_KEY_DUPLICADAS)) ?? [];
+} catch {
+return [];
+}
+}
+function limpiarDuplicadasServidor() {
+localStorage.removeItem(STORAGE_KEY_DUPLICADAS);
+}
 function enviarQuiniela() {
 const guardadas = leerStorage();
 if (guardadas.length === 0) { tarjetaroja("No tienes quinielas guardadas para enviar."); return; }
@@ -424,8 +442,13 @@ selecciones: q.selecciones
 });
 const data = await res.json();
 if (!res.ok || !data.success) {
+if (res.status === 409) {
+marcarComoDuplicada(q.firma);
+throw new Error("DUPLICADA_SERVIDOR");
+}
 throw new Error(data.mensaje || "Error al enviar al servidor");
 }
+
 enviadasOk.push({
 ...q,
 id: data.id,
@@ -445,6 +468,8 @@ mostrarModalListo(enviadasOk, precioTotal(enviadasOk));
 overlay.hidden = true;
 if (err.message === "SIN_VENDEDOR") {
 tarjetaroja("Verifica tu link para poder añadir quinielas correctamente.");
+} else if (err.message === "DUPLICADA_SERVIDOR") {
+tarjetaroja("Tienes una quiniela repetida, favor de poner otro nombre o resultado.");
 } else {
 tarjetaroja("Hubo un error al enviar tus quinielas. Intenta de nuevo.");
 }

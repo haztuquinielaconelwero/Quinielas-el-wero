@@ -1,22 +1,17 @@
-
-// ==================== APUNTE IMPORTANTE ====================
-// Esta pagina trae TODAS las quinielas del servidor de una sola vez con /api/apitodaslasquinielas
-// y aplica 3 filtros combinados en el frontend:
-// 1) estadoActivo (los botones/tabs: No jugando, Jugando, En espera, Archivada, Rechazada)
-// 2) filterVendedor (el select de vendedores)
-// 3) searchInput (el buscador de texto por nombre o vendedor)
-// Si algun dia agregas un nuevo estado en la base de datos, solo agrega su boton en el HTML
-// y su color en el CSS, este script ya lo soporta automaticamente via data-estado.
-// ==============================================================
+/*                                       Esto de abajo trabaja en las variables globales y el estado de la pagina completa                                */ 
 let datosOriginales = [];
 let partidos = [];
 let gridApi = null;
 let ultimaInteraccion = Date.now();
 let estadoActivo = 'No jugando';
 const NUM_PICKS = 9;
+const ESTADO_TODAS = 'Todas las quinielas';
+/*                                       Esto de abajo trabaja en detectar si el usuario sigue activo en pantalla                              */ 
+
 document.addEventListener('mousemove', () => ultimaInteraccion = Date.now());
 document.addEventListener('keydown', () => ultimaInteraccion = Date.now());
 document.addEventListener('scroll', () => ultimaInteraccion = Date.now());
+/*                                     Esto de abajo trabaja en el arranque de la pagina                           */ 
 document.addEventListener('DOMContentLoaded', async () => {
 initGrid();
 await cargarDatos();
@@ -24,6 +19,7 @@ setInterval(async () => {
 if (Date.now() - ultimaInteraccion > 15000) await cargarDatos();
 }, 30000);
 });
+/*                                     Esto de abajo trabaja en construir la tabla                           */ 
 function initGrid() {
 const gridOptions = {
 columnDefs: [],
@@ -37,7 +33,7 @@ onGridSizeChanged: () => gridApi && gridApi.sizeColumnsToFit(),
 };
 gridApi = agGrid.createGrid(document.getElementById('myGrid'), gridOptions);
 }
-// APUNTE: aqui se pide TODO sin filtrar por estado, el filtrado pasa despues en el frontend.
+/*                                    Esto de abajo trabaja en cargar todos los datos iniciales del panel y refrescar la interfaz                        */ 
 async function cargarDatos() {
 try {
 mostrarLoading(true);
@@ -69,7 +65,7 @@ mostrarError(error.message);
 mostrarLoading(false);
 }
 }
-// APUNTE: filtro 1 de 3, el de los botones de estado. Al hacer click cambia estadoActivo y re-renderiza.
+/*                                    Esto de abajo trabaja en el filtro                                                          */ 
 function cambiarEstado(nuevoEstado) {
 estadoActivo = nuevoEstado;
 document.querySelectorAll('.tab').forEach(tab => {
@@ -78,7 +74,6 @@ tab.classList.toggle('activo', tab.dataset.estado === nuevoEstado);
 document.getElementById('estadoActualStat').textContent = nuevoEstado;
 renderTabla();
 }
-// APUNTE: filtro 2 de 3, el select de vendedores. Se llena dinamicamente segun lo que trae la BD.
 function poblarFiltroVendedores() {
 const select = document.getElementById('filterVendedor');
 const actual = select.value;
@@ -92,19 +87,23 @@ if (v === actual) opt.selected = true;
 select.appendChild(opt);
 });
 }
-// APUNTE: aqui se combinan los 3 filtros: estadoActivo + vendedor + texto de busqueda.
-// Esta funcion es la unica fuente de verdad de "que se debe ver ahorita en la tabla".
 function obtenerQuinielasFiltradas() {
 const termino = document.getElementById('searchInput').value.trim().toLowerCase();
 const vendedor = document.getElementById('filterVendedor').value;
-
 return datosOriginales.filter(q => {
-const matchEstado = q.estado === estadoActivo;
-const matchTexto = !termino || (q.nombre || '').toLowerCase().includes(termino) || (q.vendedor || '').toLowerCase().includes(termino);
+const matchEstado = estadoActivo === ESTADO_TODAS || q.estado === estadoActivo;
+const matchTexto = !termino || [
+q.nombre,
+q.vendedor,
+q.folio,
+q.dispositivo_id,
+q.llave_maestra,
+].some(campo => String(campo || '').toLowerCase().includes(termino));
 const matchVendedor = !vendedor || q.vendedor === vendedor;
 return matchEstado && matchTexto && matchVendedor;
 });
 }
+/*                                    Esto de abajo trabaja en transformar las quinielas filtradas al formato de filas                                            */ 
 function buildRowData(lista) {
 return lista.map(q => {
 const row = {
@@ -121,6 +120,7 @@ row[`_pick_${i}`] = (q.picks && q.picks[i]) ? q.picks[i] : '-';
 return row;
 });
 }
+/*                                    Esto de abajo trabaja en armar las columnas de la tabla                                              */ 
 function buildColumnDefs() {
 const pickCols = [];
 for (let i = 0; i < NUM_PICKS; i++) {
@@ -147,15 +147,16 @@ const cols = [
 { field: 'id', headerName: 'ID', width: 90, sortable: true },
 { field: 'llave_maestra', headerName: 'Llave Maestra', width: 160 },
 ];
-// APUNTE: la columna Folio solo tiene sentido mostrarla cuando el tab activo es 'Jugando'.
 if (estadoActivo === 'Jugando') {
 cols.push({ field: 'folio', headerName: 'Folio', width: 90, sortable: true });
 }
 return cols;
 }
+/*                                    Esto de abajo trabaja en re-pintar la tabla cuando cambias el vendedor o escribes en el buscador                             */ 
 function aplicarFiltros() {
 renderTabla();
 }
+/*                              Esto de abajo trabaja en pintar la tabla completa: columnas, filas, contadores y el mensaje de "sin resultados"                   */ 
 function renderTabla() {
 const filtradas = obtenerQuinielasFiltradas();
 gridApi.setGridOption('columnDefs', buildColumnDefs());
@@ -171,8 +172,7 @@ gridApi.showNoRowsOverlay();
 gridApi.hideOverlay();
 }
 }
-// APUNTE IMPORTANTE: el CSV exporta EXCLUSIVAMENTE lo que esta filtrado ahorita en pantalla
-// (respeta el tab de estado activo + el vendedor seleccionado + el texto buscado).
+/*                              Esto de abajo trabaja en exportar exclusivamente lo que esta filtrado ahorita en pantalla                   */ 
 function exportarCSV() {
 const filtradas = obtenerQuinielasFiltradas();
 const cols = ['Nombre', 'Vendedor'];
@@ -190,26 +190,27 @@ const estado = '"' + (q.estado || '').replace(/"/g, '""') + '"';
 return [nombre, vendedor].concat(picksCompletos).concat([dispositivo, q.id || '', llave, estado, q.folio || '']).join(',');
 });
 if (!filas.length) { alert(`No hay quinielas en estado "${estadoActivo}" para exportar.`); return; }
-const bom = '\uFEFF';
-const contenido = bom + cols.join(',') + '\n' + filas.join('\n');
+const bom = '\\uFEFF';
+const contenido = bom + cols.join(',') + '\\n' + filas.join('\\n');
 const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
 const url = URL.createObjectURL(blob);
 const a = document.createElement('a');
 a.href = url;
-a.download = `${estadoActivo.replace(/\s+/g, '-')}-${Date.now()}.csv`;
+a.download = `${estadoActivo.replace(/\\s+/g, '-')}-${Date.now()}.csv`;
 document.body.appendChild(a);
 a.click();
 document.body.removeChild(a);
 URL.revokeObjectURL(url);
 }
-// APUNTE: Actualizar vuelve a pedir TODO al servidor y re-renderiza
-// respetando el tab de estado, el vendedor y el texto que ya tenias seleccionados.
+/*                              Esto de abajo trabaja en el boton de "Actualizar": vuelve a pedir todo al servidor y re-renderiza                  */ 
 async function actualizarTodo() {
 await cargarDatos();
 }
+/*                              Esto de abajo trabaja en mostrar/ocultar el overlay de "Cargando..." mientras se piden los datos               */ 
 function mostrarLoading(show) {
 document.getElementById('loadingOverlay')?.classList.toggle('show', show);
 }
+/*                             Esto de abajo trabaja en avisar al usuario cuando algo sale mal al cargar datos              */ 
 function mostrarError(mensaje) {
 if (gridApi) gridApi.setGridOption('rowData', []);
 console.error('Error:', mensaje);

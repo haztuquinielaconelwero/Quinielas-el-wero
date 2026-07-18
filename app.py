@@ -1104,7 +1104,7 @@ def contadordequinielas():
             with conn.cursor() as cur:
                 cur.execute("""
                     SELECT
-                        COUNT(*) FILTER (WHERE estado IN ('No jugando', 'En espera', 'Rechazada')) AS pending,
+                        COUNT(*) FILTER (WHERE estado IN ('No jugando', 'En espera', 'Rechazada', 'Archivada')) AS pending,
                         COUNT(*) FILTER (WHERE estado = 'Jugando') AS active
                     FROM todaslasquinielas
                     WHERE dispositivoid = %s

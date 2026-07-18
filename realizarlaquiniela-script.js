@@ -425,16 +425,22 @@ const contador = document.getElementById("progresoContador");
 overlay.hidden = false;
 contador.textContent = `0 de ${guardadas.length}`;
 const enviadasOk = [];
-try {
+let mensajeError = null;
 for (let i = 0; i < guardadas.length; i++) {
 const q = guardadas[i];
+const vendedorFinal = q.vendedor || detectarVendedor();
+if (!vendedorFinal) {
+mensajeError = "Verifica tu link para poder añadir quinielas correctamente.";
+break;
+}
+try {
 const res = await fetch(`${APIBASE}/api/enviarlaquinielaporwhatsapp`, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
 body: JSON.stringify({
 nombrecelular: nombreCelularActual || q.nombre,
 nombrequiniela: q.nombre,
-vendedor: q.vendedor || detectarVendedor() || (() => { throw new Error("SIN_VENDEDOR"); })(),
+vendedor: vendedorFinal,
 jornada: q.jornada || JORNADA_ACTUAL,
 dispositivoid: dispositivoid,
 selecciones: q.selecciones
@@ -444,11 +450,12 @@ const data = await res.json();
 if (!res.ok || !data.success) {
 if (res.status === 409) {
 marcarComoDuplicada(q.firma);
-throw new Error("DUPLICADA_SERVIDOR");
+mensajeError = "Tienes una quiniela repetida, favor de poner otro nombre o resultado.";
+} else {
+mensajeError = data.mensaje || "Hubo un error al enviar tus quinielas. Intenta de nuevo.";
 }
-throw new Error(data.mensaje || "Error al enviar al servidor");
+break;
 }
-
 enviadasOk.push({
 ...q,
 id: data.id,
@@ -456,25 +463,28 @@ llavemaestra: data.llavemaestra
 });
 contador.textContent = `${i + 1} de ${guardadas.length}`;
 await new Promise(r => setTimeout(r, 350));
+} catch (err) {
+mensajeError = "Hubo un error al enviar tus quinielas. Intenta de nuevo.";
+console.error(err);
+break;
 }
-escribirStorage([]);
-guardarEnMisQuinielas(enviadasOk);
+}
+const pendientes = guardadas.filter((q) => !enviadasOk.some((ok) => ok.firma === q.firma));
+escribirStorage(pendientes);
+if (enviadasOk.length > 0) guardarEnMisQuinielas(enviadasOk);
 actualizarPrecio();
 actualizarBadgeGuardadas();
 actualizarResumenGuardadas();
 overlay.hidden = true;
+if (mensajeError) {
+tarjetaroja(mensajeError);
+if (enviadasOk.length > 0) {
+notificar(`${enviadasOk.length} quiniela${enviadasOk.length > 1 ? "s" : ""} sí se enviaron correctamente. Corrige la marcada en rojo y vuelve a intentar con el resto.`, "aviso");
 mostrarModalListo(enviadasOk, precioTotal(enviadasOk));
-} catch (err) {
-overlay.hidden = true;
-if (err.message === "SIN_VENDEDOR") {
-tarjetaroja("Verifica tu link para poder añadir quinielas correctamente.");
-} else if (err.message === "DUPLICADA_SERVIDOR") {
-tarjetaroja("Tienes una quiniela repetida, favor de poner otro nombre o resultado.");
-} else {
-tarjetaroja("Hubo un error al enviar tus quinielas. Intenta de nuevo.");
 }
-console.error(err);
+return;
 }
+mostrarModalListo(enviadasOk, precioTotal(enviadasOk));
 }
 function precioTotal(arr) {
 return arr.length * PRECIO_UNITARIO;

@@ -368,6 +368,7 @@ console.error("No se pudieron cargar los vendedores", err);
 }
 }
 /* =====================================             Esto de abajo trabaja con el envio de la quiniela                                         ======================= */
+/* =====================================             Esto de abajo trabaja con el envio de la quiniela                                         ======================= */
 function encontrarFirmasDuplicadas(guardadas) {
 const conteo = new Map();
 guardadas.forEach((q) => {
@@ -425,13 +426,15 @@ const contador = document.getElementById("progresoContador");
 overlay.hidden = false;
 contador.textContent = `0 de ${guardadas.length}`;
 const enviadasOk = [];
-let mensajeError = null;
+let huboRepetida = false;
+let huboOtroError = false;
 for (let i = 0; i < guardadas.length; i++) {
 const q = guardadas[i];
 const vendedorFinal = q.vendedor || detectarVendedor();
 if (!vendedorFinal) {
-mensajeError = "Verifica tu link para poder añadir quinielas correctamente.";
-break;
+tarjetaroja("Verifica tu link para poder añadir quinielas correctamente.");
+overlay.hidden = true;
+return;
 }
 try {
 const res = await fetch(`${APIBASE}/api/enviarlaquinielaporwhatsapp`, {
@@ -450,11 +453,12 @@ const data = await res.json();
 if (!res.ok || !data.success) {
 if (res.status === 409) {
 marcarComoDuplicada(q.firma);
-mensajeError = "Tienes una quiniela repetida, favor de poner otro nombre o resultado.";
+huboRepetida = true;
 } else {
-mensajeError = data.mensaje || "Hubo un error al enviar tus quinielas. Intenta de nuevo.";
+huboOtroError = true;
 }
-break;
+contador.textContent = `${i + 1} de ${guardadas.length}`;
+continue;
 }
 enviadasOk.push({
 ...q,
@@ -464,9 +468,8 @@ llavemaestra: data.llavemaestra
 contador.textContent = `${i + 1} de ${guardadas.length}`;
 await new Promise(r => setTimeout(r, 350));
 } catch (err) {
-mensajeError = "Hubo un error al enviar tus quinielas. Intenta de nuevo.";
+huboOtroError = true;
 console.error(err);
-break;
 }
 }
 const pendientes = guardadas.filter((q) => !enviadasOk.some((ok) => ok.firma === q.firma));
@@ -476,15 +479,16 @@ actualizarPrecio();
 actualizarBadgeGuardadas();
 actualizarResumenGuardadas();
 overlay.hidden = true;
-if (mensajeError) {
-tarjetaroja(mensajeError);
 if (enviadasOk.length > 0) {
-notificar(`${enviadasOk.length} quiniela${enviadasOk.length > 1 ? "s" : ""} sí se enviaron correctamente. Corrige la marcada en rojo y vuelve a intentar con el resto.`, "aviso");
 mostrarModalListo(enviadasOk, precioTotal(enviadasOk));
+window._alertaPendienteAlCerrar = huboRepetida
+? "Tienes una quiniela repetida, favor de poner otro nombre o resultado."
+: (huboOtroError ? "Alguna quiniela no se pudo enviar, revisa tus guardadas." : null);
+} else if (huboRepetida) {
+tarjetaroja("Tienes una quiniela repetida, favor de poner otro nombre o resultado.");
+} else if (huboOtroError) {
+tarjetaroja("Hubo un error al enviar tus quinielas. Intenta de nuevo.");
 }
-return;
-}
-mostrarModalListo(enviadasOk, precioTotal(enviadasOk));
 }
 function precioTotal(arr) {
 return arr.length * PRECIO_UNITARIO;
@@ -507,7 +511,7 @@ mensaje += `P${i + 1} ${letra}\n`;
 });
 if (idx < quinielas.length - 1) mensaje += "\n";
 });
-mensaje += "\n---------------------------------\n";
+mensaje += "\n----------------------------\n";
 mensaje += `Total de quinielas: ${quinielas.length} quiniela${quinielas.length > 1 ? "s" : ""}\n`;
 mensaje += `A pagar: $${precio}\n\n`;
 mensaje += "En unos momentos te envío el comprobante";
@@ -528,6 +532,10 @@ const mensaje = construirMensajeWhatsApp(quinielas, precio);
 const url = `https://wa.me/${numeroVendedor}?text=${encodeURIComponent(mensaje)}`;
 window.open(url, "_blank");
 cerrarModal("modalEnvioListo");
+if (window._alertaPendienteAlCerrar) {
+tarjetaroja(window._alertaPendienteAlCerrar);
+window._alertaPendienteAlCerrar = null;
+}
 }
 /* =====================================   Esto de abajo trabaja en mostrar las notificaciones                                        ======================= */
 function notificar(mensaje, tipo = "info") {

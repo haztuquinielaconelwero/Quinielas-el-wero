@@ -190,8 +190,8 @@ const estado = '"' + (q.estado || '').replace(/"/g, '""') + '"';
 return [nombre, vendedor].concat(picksCompletos).concat([dispositivo, q.id || '', llave, estado, q.folio || '']).join(',');
 });
 if (!filas.length) { alert(`No hay quinielas en estado "${estadoActivo}" para exportar.`); return; }
-const bom = '\\uFEFF';
-const contenido = bom + cols.join(',') + '\\n' + filas.join('\\n');
+const bom = '\uFEFF';
+const contenido = bom + cols.join(',') + '\n' + filas.join('\n');
 const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
 const url = URL.createObjectURL(blob);
 const a = document.createElement('a');

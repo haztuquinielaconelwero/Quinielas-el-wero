@@ -444,6 +444,19 @@ bottom: 16px;
 padding: 13px;
 gap: 0;
 }}
+/* ====================                      Esto de abajo trabaja con el boton de Whats app                                    ==================== */
+.ay-whatsapp-button {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+background: #25d366;
+color: #fff;
+font-weight: 800;
+padding: 14px 24px;
+border-radius: 999px;
+text-decoration: none;
+}
 /* ====================     Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion en ayuda              ==================== */
 @media (max-width: 640px) {
 .ay-hero { padding: 14px 12px 16px; }

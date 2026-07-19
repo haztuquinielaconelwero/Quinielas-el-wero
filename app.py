@@ -319,6 +319,7 @@ VENDEDOR_PIN = {
     "Rolando":      "1982",
     "Taliban":      "6881",
     "Vendedor":     "1379",
+    "•":            "1379",
 }
 # ── Esto de abajo trabaja en el diccionario de los vendedores ────────────────────────────────────────────────────────────────────────────────
 VENDEDOR_WHATSAPP = {

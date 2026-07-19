@@ -105,34 +105,65 @@ const texto = encodeURIComponent(mensaje);
 return `https://wa.me/${WHATSAPP_CONFIG.numero}?text=${texto}`;
 }
 /* =====================================  Esto de abajo trabaja en generar las tarjetas de banco        ======================= */
+const VENDEDOR_CUENTAS = {
+"Patty": [
+{ banco: "Bancomer",      titular: "Patty",    numero: "4152 3131 4283 9989" },
+{ banco: "Bancomer",      titular: "Patty",    numero: "4152 3140 7229 3171" },
+{ banco: "Bancomer",      titular: "Patty",    numero: "4152 3138 2630 4649" },
+{ banco: "Banorte",       titular: "Patty",    numero: "4189 1432 1647 2863" },
+{ banco: "Spin by Oxxo",  titular: "Patty",    numero: "4217 4700 9325 7828" },
+{ banco: "Banco Azteca",  titular: "Patty",    numero: "4198 2101 4171 8824" },
+{ banco: "Scotiabank",    titular: "Patty",    numero: "4043 1300 0616 9680" }
+]
+,
+
+
+"•": [
+{ banco: "Banorte",      titular: "Irving Emilio Gonzalez Romero", numero: "4189 1430 7518 4476" },
+{ banco: "Bancomer",     titular: "Irving Emilio Gonzalez Romero", numero: "4152 3137 2949 5908" },
+{ banco: "Bancomer",     titular: "Irving Emilio Gonzalez Romero", numero: "4152 3137 2949 5916" },
+{ banco: "Spin by Oxxo", titular: "Irving Emilio Gonzalez Romero", numero: "4217 4700 8441 1996" },
+{ banco: "Spin by Oxxo", titular: "Irving Emilio Gonzalez Romero", numero: "4217 4700 0587 8323" },
+{ banco: "Spin by Oxxo", titular: "Irving Emilio Gonzalez Romero", numero: "4217 4700 8443 4659" }
+]
+,
+
+
+};
+function obtenerVendedorDeURL() {
+const params = new URLSearchParams(window.location.search);
+return params.get("v");
+}
 function renderBancos() {
 const contenedor = document.getElementById("ayudaBancos");
 if (!contenedor) return;
-contenedor.innerHTML = BANCOS.map((b) => `
-<article class="ay-bank-card" aria-label="Datos de depósito ${b.nombre}">
-<div class="ay-bank-card-bar ${b.claseColor}"></div>
+const nombre = obtenerVendedorDeURL();
+const cuentas = VENDEDOR_CUENTAS[nombre];
+if (!cuentas || cuentas.length === 0) {
+contenedor.innerHTML = `
+<div class="ay-deposit-tip">
+<p>Actualmente no tienes una cuenta bancaria habilitada. Contacta al administrador.</p>
+</div>`;
+return;
+}
+contenedor.innerHTML = cuentas.map((c) => `
+<div class="ay-bank-card">
 <div class="ay-bank-card-body">
 <div class="ay-bank-card-header">
-<span class="ay-bank-card-dot ${b.claseColor}" aria-hidden="true"></span>
-<span class="ay-bank-card-name">${b.emoji} ${b.nombre}</span>
+<span class="ay-bank-card-name">${c.banco}</span>
 </div>
 <div class="ay-bank-card-rows">
 <div class="ay-bank-card-row">
+<span class="ay-bank-card-row-label">Titular</span>
+<span class="ay-bank-card-row-value">${c.titular}</span>
+</div>
+<div class="ay-bank-card-row">
 <span class="ay-bank-card-row-label">Tarjeta</span>
-<span class="ay-bank-card-row-value">${b.tarjeta}</span>
-</div>
-<div class="ay-bank-card-row">
-<span class="ay-bank-card-row-label">Cuenta</span>
-<span class="ay-bank-card-row-value">${b.cuenta}</span>
-</div>
-<div class="ay-bank-card-row">
-<span class="ay-bank-card-row-label">CLABE</span>
-<span class="ay-bank-card-row-value">${b.clabe}</span>
+<span class="ay-bank-card-row-value">${c.numero}</span>
 </div>
 </div>
 </div>
-</article>
-`).join("");
+</div>`).join("");
 }
 /* =====================================  Esto de abajo trabaja en generar las tarejtas de preguntas frecuentes         ======================= */
 function renderFaq() {

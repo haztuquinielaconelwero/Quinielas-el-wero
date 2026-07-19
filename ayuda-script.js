@@ -155,7 +155,7 @@ const cuentas = VENDEDOR_CUENTAS[nombre];
 if (!cuentas || cuentas.length === 0) {
 contenedor.innerHTML = `
 <div class="ay-deposit-tip">
-<p>Actualmente no tienes una cuenta bancaria habilitada. Contacta al administrador.</p>
+<p>Actualmente no tienes una cuenta bancaria habilitada.</p>
 </div>`;
 return;
 }

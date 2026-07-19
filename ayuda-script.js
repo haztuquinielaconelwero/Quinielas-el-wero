@@ -104,31 +104,44 @@ function construirLinkWhatsapp(mensaje) {
 const texto = encodeURIComponent(mensaje);
 return `https://wa.me/${WHATSAPP_CONFIG.numero}?text=${texto}`;
 }
-/* =====================================  Esto de abajo trabaja en generar las tarjetas de banco        ======================= */
+/* ===================================== Esto de abajo trabaja en generar las tarjetas de banco ======================= */
 const VENDEDOR_CUENTAS = {
+/* ======================================================================================================================================================== */
 "Patty": [
-{ banco: "Bancomer",      titular: "Patty",    numero: "4152 3131 4283 9989" },
-{ banco: "Bancomer",      titular: "Patty",    numero: "4152 3140 7229 3171" },
-{ banco: "Bancomer",      titular: "Patty",    numero: "4152 3138 2630 4649" },
-{ banco: "Banorte",       titular: "Patty",    numero: "4189 1432 1647 2863" },
-{ banco: "Spin by Oxxo",  titular: "Patty",    numero: "4217 4700 9325 7828" },
-{ banco: "Banco Azteca",  titular: "Patty",    numero: "4198 2101 4171 8824" },
-{ banco: "Scotiabank",    titular: "Patty",    numero: "4043 1300 0616 9680" }
-]
-,
-
-
+{ banco: "Bancomer", titular: "Patty", numero: "4152 3131 4283 9989" },
+{ banco: "Bancomer", titular: "Patty", numero: "4152 3140 7229 3171" },
+{ banco: "Bancomer", titular: "Patty", numero: "4152 3138 2630 4649" },
+{ banco: "Banorte", titular: "Patty", numero: "4189 1432 1647 2863" },
+{ banco: "Spin by Oxxo", titular: "Patty", numero: "4217 4700 9325 7828" },
+{ banco: "Banco Azteca", titular: "Patty", numero: "4198 2101 4171 8824" },
+{ banco: "Scotiabank", titular: "Patty", numero: "4043 1300 0616 9680" }
+],
+/* ======================================================================================================================================================== */
 "•": [
-{ banco: "Banorte",      titular: "Irving Emilio Gonzalez Romero", numero: "4189 1430 7518 4476" },
-{ banco: "Bancomer",     titular: "Irving Emilio Gonzalez Romero", numero: "4152 3137 2949 5908" },
-{ banco: "Bancomer",     titular: "Irving Emilio Gonzalez Romero", numero: "4152 3137 2949 5916" },
+{ banco: "Banorte", titular: "Irving Emilio Gonzalez Romero", numero: "4189 1430 7518 4476" },
+{ banco: "Bancomer", titular: "Irving Emilio Gonzalez Romero", numero: "4152 3137 2949 5908" },
+{ banco: "Bancomer", titular: "Irving Emilio Gonzalez Romero", numero: "4152 3137 2949 5916" },
 { banco: "Spin by Oxxo", titular: "Irving Emilio Gonzalez Romero", numero: "4217 4700 8441 1996" },
 { banco: "Spin by Oxxo", titular: "Irving Emilio Gonzalez Romero", numero: "4217 4700 0587 8323" },
 { banco: "Spin by Oxxo", titular: "Irving Emilio Gonzalez Romero", numero: "4217 4700 8443 4659" }
-]
-,
+],
+/* ======================================================================================================================================================== */
 
 
+/* ======================================================================================================================================================== */
+};
+const COLOR_POR_BANCO = {
+"Banorte": "banorte",
+"Bancomer": "bbva",
+"BBVA": "bbva",
+"Banco Azteca": "azteca",
+"Spin by Oxxo": "spin",
+"Nu": "nu",
+"Mercado Pago": "mercadopago",
+"Bancoppel": "bancoppel",
+"HSBC": "hsbc",
+"Santander": "santander",
+"Scotiabank": "santander"
 };
 function obtenerVendedorDeURL() {
 const params = new URLSearchParams(window.location.search);
@@ -146,10 +159,14 @@ contenedor.innerHTML = `
 </div>`;
 return;
 }
-contenedor.innerHTML = cuentas.map((c) => `
+contenedor.innerHTML = cuentas.map((c) => {
+const clase = COLOR_POR_BANCO[c.banco] || "banorte";
+return `
 <div class="ay-bank-card">
+<div class="ay-bank-card-bar ${clase}"></div>
 <div class="ay-bank-card-body">
 <div class="ay-bank-card-header">
+<span class="ay-bank-card-dot ${clase}"></span>
 <span class="ay-bank-card-name">${c.banco}</span>
 </div>
 <div class="ay-bank-card-rows">
@@ -163,7 +180,8 @@ contenedor.innerHTML = cuentas.map((c) => `
 </div>
 </div>
 </div>
-</div>`).join("");
+</div>`;
+}).join("");
 }
 /* =====================================  Esto de abajo trabaja en generar las tarejtas de preguntas frecuentes         ======================= */
 function renderFaq() {

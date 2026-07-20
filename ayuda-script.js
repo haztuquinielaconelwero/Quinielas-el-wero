@@ -108,10 +108,10 @@ return `https://wa.me/${WHATSAPP_CONFIG.numero}?text=${texto}`;
 const VENDEDOR_CUENTAS = {
 /* ======================================================================================================================================================== */
 "Patty": [
-{ banco: "Bancomer", titular: "Patty", numero: "4152 3131 4283 9989" },
+{ banco: "Bancomer", titular: "Patty", numero: "4152 3146 3467 6319" },
+{ banco: "Bancomer", titular: "Patty", numero: "4152 3146 3467 7309" },
 { banco: "Bancomer", titular: "Patty", numero: "4152 3140 7229 3171" },
-{ banco: "Bancomer", titular: "Patty", numero: "4152 3138 2630 4649" },
-{ banco: "Banorte", titular: "Patty", numero: "4189 1432 1647 2863" },
+{ banco: "Banorte",  titular: "Patty", numero: "4189 1432 1647 2863" },
 { banco: "Spin by Oxxo", titular: "Patty", numero: "4217 4700 9325 7828" },
 { banco: "Banco Azteca", titular: "Patty", numero: "4198 2101 4171 8824" },
 { banco: "Scotiabank", titular: "Patty", numero: "4043 1300 0616 9680" }

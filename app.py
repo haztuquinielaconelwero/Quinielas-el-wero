@@ -148,6 +148,9 @@ def togglebloqueo():
     return jsonify(success=True, listaBloqueada=LISTA_BLOQUEADA)
     
 # ── Esto de abajo trabaja con la informacion de la Jornada ───────────────────────────────────────────────────────────────────────────────────────────────
+# ── ALTER SEQUENCE todaslasquinielas_id_seq RESTART WITH 1;
+
+
 WHATSAPP_GRUPO_URL = "https://chat.whatsapp.com/JKFSN3hDRBA91iy9T7GLPh"
 JORNADA_ACTUAL = "Jornada 2"
 JORNADA_CIERRE = "2026-07-24T16:30:00-06:00"
@@ -285,6 +288,7 @@ def apijornadaactual():
 
 # ── Esto de abajo trabaja en el direccionario de pins de los vendedores────────────────────────────────────────────────────────────────────────────────
 VENDEDOR_PIN = {
+    "Alan Garcia":  "0106",
     "Alexander":    "0229",
     "Alfonso":      "1977",
     "Azael":        "1895",
@@ -302,9 +306,8 @@ VENDEDOR_PIN = {
     "Gera":         "2115",
     "GioSoto":      "1788",
     "Guerrero":     "1187",
-    "Javier Garcia": "2014",
+    "Jj":           "5555",
     "Jose Luis":    "1682",
-    "Juan de Dios": "1083",
     "Juanillo":     "1739",
     "Kany":         "2177",
     "Manu":         "5525",
@@ -318,11 +321,11 @@ VENDEDOR_PIN = {
     "Ranita":       "2307",
     "Rolando":      "1982",
     "Taliban":      "6881",
-    "Vendedor":     "1379",
     "•":            "1379",
 }
 # ── Esto de abajo trabaja en el diccionario de los vendedores ────────────────────────────────────────────────────────────────────────────────
 VENDEDOR_WHATSAPP = {
+    "Alan Garcia":  "5218284575949",
     "Alexander":    "5218287683709",
     "Alfonso":      "5218186589145",
     "Azael":        "5218120708453",
@@ -340,7 +343,7 @@ VENDEDOR_WHATSAPP = {
     "Gera":         "5218182523537",
     "GioSoto":      "5218116911526",
     "Guerrero":     "5217206346990",
-    "Javier Garcia": "5218281148922",
+    "Jj":           "5218281006452",
     "Jose Luis":    "5218113153788",
     "Juanillo":     "5218136984024",
     "Kany":         "5218281007191",
@@ -350,15 +353,16 @@ VENDEDOR_WHATSAPP = {
     "Memo":         "5218284577005",
     "Pantoja":      "5218117027387",
     "Patty":        "5218281016489",
-    "PolloGol":     "5218125728071",
     "Piny":         "5218282941357",
+    "PolloGol":     "5218125728071",
     "Ranita":       "5218281432398",
     "Rolando":      "5214891009110",
     "Taliban":      "5218287685754",
-    "Vendedor":     "5218281011650",
+    "•":            "5218281011650",
 }
 # ── Esto de abajo trabaja en los links de cada vendedor────────────────────────────────────────────────────────────────────────────────
 VENDEDOR_LINKS = {
+    "Alan Garcia":  "https://www.quinielaselwero.com/?vendedor=Alan+Garcia",
     "Alexander":    "https://www.quinielaselwero.com/?vendedor=Alexander",
     "Alfonso":      "https://www.quinielaselwero.com/?vendedor=Alfonso",
     "Azael":        "https://www.quinielaselwero.com/?vendedor=Azael",
@@ -376,6 +380,7 @@ VENDEDOR_LINKS = {
     "Gera":         "https://www.quinielaselwero.com/?vendedor=Gera",
     "GioSoto":      "https://www.quinielaselwero.com/?vendedor=GioSoto",
     "Guerrero":     "https://www.quinielaselwero.com/?vendedor=Guerrero",
+    "Jj":           "https://www.quinielaselwero.com/?vendedor=Jj",
     "Jose Luis":    "https://www.quinielaselwero.com/?vendedor=Jose+Luis",
     "Juanillo":     "https://www.quinielaselwero.com/?vendedor=Juanillo",
     "Kany":         "https://www.quinielaselwero.com/?vendedor=Kany",
@@ -391,46 +396,63 @@ VENDEDOR_LINKS = {
     "Rolando":      "https://www.quinielaselwero.com/?vendedor=Rolando",
     "Taliban":      "https://www.quinielaselwero.com/?vendedor=Taliban",
     "•":            "https://www.quinielaselwero.com/?vendedor=%E2%80%A2",
-    "Vendedor":     "https://www.parachecar.work/?vendedor=Vendedor",
 }
 # ── Esto de abajo trabaja en los limites de folio asignados por vendedor ────────────────────────────────────────────────────────────────────────────────
 LIMITES_VENDEDORES = {
-    "Alfonso":        (1,    60),
-    "Vendedor":       (61,   70),
-    "Choneke":        (71,   100),
+    "Alexander":      (1,    90),
+    "•":              (91,   100),
     "Rifa":           (101,  200),
-    "Azael":          (201,  250),
-    "Checo":          (251,  390),
-    "Dani":           (401,  450),
-    "El Piojo":       (451,  490),
-    "Taliban":        (501,  720),
-    "Guerrero":       (726,  750),
-    "Fer":            (751,  790),
-    "Figueroa":       (801,  850),
-    "Del Angel":      (851,  910),
-    "PolloGol":       (916,  950),
-    "Marchan":        (951,  990),
-    "Patty":          (1001, 1400),
-    "Manu":           (1401, 1460),
-    "Pantoja":        (1471, 1500),
-    "Rolando":        (1501, 1640),
-    "Ranita":         (1651, 1710),
-    "Gera":           (1716, 1750),
-    "Mazatan":        (1751, 1785),
-    "Boosters":       (1801, 1835),
-    "Alexander":      (1851, 1940),
-    "GioSoto":        (1951, 2010),
-    "Juanillo":       (2021, 2050),
-    "Energeticos":    (2051, 2110),
-    "Jose Luis":      (2116, 2150),
-    "Memo":           (2151, 2240),
-    "Tienda":         (2251, 2255),
-    "Piny":           (2256, 2260),
-    "Dinamica":       (2261, 2265),
-    "Vender 1":       (2266, 2315),
-    "Kany":           (2401, 2430),
-    "Ever":           (2451, 2480),
-    "Caro":           (2501, 2525),
+    "Alfonso":        (201,  290),
+    "•":              (291,  300),
+    "Checo":          (301,  440),
+    "•":              (441,  450),
+    "Azael":          (451,  500),
+    "Taliban":        (501,  740),
+    "•":              (741,  750),
+    "Choneke":        (751,  790),
+    "•":              (791,  800),
+    "Dani":           (801,  850),
+    "Memo":           (851,  970),
+    "•":              (971,  975),
+    "Guerrero":       (976,  1000),
+    "Patty":          (1001, 1490),
+    "•":              (1491, 1500),
+    "El Piojo":       (1501, 1540),
+    "•":              (1541, 1550),
+    "Fer":            (1551, 1600),
+    "Del Angel":      (1601, 1660),
+    "•":              (1661, 1665),
+    "PolloGol":       (1666, 1700),
+    "Figueroa":       (1701, 1750),
+    "Pantoja":        (1751, 1790),
+    "•":              (1791, 1800),
+    "Manu":           (1801, 1870),
+    "•":              (1871, 1875),
+    "Mazatan":        (1876, 1900),
+    "Marchan":        (1901, 1940),
+    "•":              (1941, 1950),
+    "Boosters":       (1951, 2000),
+    "Rolando":        (2001, 2125),
+    "•":              (2126, 2130),
+    "Caro":           (2131, 2150),
+    "Ranita":         (2151, 2220),
+    "•":              (2221, 2225),
+    "Ever":           (2226, 2250),
+    "Gera":           (2251, 2290),
+    "•":              (2291, 2300),
+    "Kany":           (2301, 2340),
+    "•":              (2341, 2350),
+    "Alan Garcia":    (2351, 2420),
+    "•":              (2421, 2430),
+    "GioSoto":        (2431, 2500),
+    "Juanillo":       (2501, 2550),
+    "Energeticos":    (2551, 2610),
+    "•":              (2611, 2615),
+    "Jose Luis":      (2616, 2650),
+    "Piny":           (2651, 2660),
+    "Tienda":         (2661, 2670),
+    "Vender 1":       (2671, 2680),
+    "Dinamicas":      (2681, 2700),
 }
 # ── Ligas en total ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 LIGAS_ESPN = {
@@ -844,6 +866,7 @@ def enviarlaquinielaporwhatsapp():
         return jsonify({"success": False, "mensaje": str(exc)}), 500
 
 # ── Esto de abajo trabaja con la api de verificar registro de clientes  ──────────────────────────────────────────────────────────────────────────────
+
 @app.route("/api/verificarregistro")
 def verificarregistro():
     dispositivoid = (request.args.get("dispositivoid") or "").strip()

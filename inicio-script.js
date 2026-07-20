@@ -170,6 +170,7 @@ window.location.href = "misquinielas.html?estado=jugando";
 /* =============                                Esto de abajo trabaja en la identidad del cliente                                       ============================ */
 const IdentidadCliente = {
 API_REGISTRO: "/api/registrodeclientes",
+API_VERIFICAR: "/api/verificarcliente",
 STORAGE_KEY_IDENTIDAD: "quinielasElWero_identidad",
 STORAGE_KEY_DISPOSITIVO: "quinielasElWero_dispositivoid",
 modal: document.getElementById("modalBienvenida"),
@@ -211,8 +212,26 @@ localStorage.setItem(this.STORAGE_KEY_DISPOSITIVO, id);
 }
 return id;
 },
-mostrarSiEsNecesario() {
-if (!this.leerIdentidad()) this.modal.hidden = false;
+async mostrarSiEsNecesario() {
+const dispositivoId = this.leerDispositivoId();
+const identidadLocal = this.leerIdentidad();
+if (!identidadLocal) {
+this.modal.hidden = false;
+return;
+}
+try {
+const res = await fetch(`/api/verificarregistro?dispositivoid=${encodeURIComponent(dispositivoId)}`);
+const data = await res.json();
+if (!res.ok || !data.registrado) {
+localStorage.removeItem(this.STORAGE_KEY_IDENTIDAD);
+this.modal.hidden = false;
+return;
+}
+this.modal.hidden = true;
+} catch (err) {
+console.error("No se pudo verificar cliente", err);
+this.modal.hidden = true;
+}
 },
 async confirmar() {
 const valor = this.input.value.trim();

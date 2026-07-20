@@ -20,7 +20,6 @@ console.error("Error cargando jornada actual", err);
 tarjetaroja("No se pudo cargar la jornada actual.");
 }
 }
-1
 /* =====================================  Esto de abajo trabaja en donde encontrar las quinielas , precio y maximo de dobles y triples         ======================= */
 const STORAGE_KEY = "quinielasElWero_guardadas";
 const nombreCelularActual = localStorage.getItem("quinielasElWero_identidad") || "";

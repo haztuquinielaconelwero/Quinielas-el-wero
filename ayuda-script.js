@@ -128,6 +128,7 @@ const VENDEDOR_CUENTAS = {
 /* ======================================================================================================================================================== */
 
 
+
 /* ======================================================================================================================================================== */
 };
 const COLOR_POR_BANCO = {
@@ -145,7 +146,9 @@ const COLOR_POR_BANCO = {
 };
 function obtenerVendedorDeURL() {
 const params = new URLSearchParams(window.location.search);
-return params.get("vendedor");
+const vendedorURL = params.get("vendedor");
+if (vendedorURL) return vendedorURL;
+return localStorage.getItem("quinielasElWero_vendedorActual") || null;
 }
 function normalizarNombreVendedor(nombre) {
 return (nombre || "").replace(/\s+/g, "").toLowerCase();

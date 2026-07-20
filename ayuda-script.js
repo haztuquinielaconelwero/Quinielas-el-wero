@@ -32,7 +32,7 @@ clabe: "XXXXXXXXXXXXXXXXXX"
 {
 id: "spin",
 nombre: "Spin by Oxxo",
-emoji: "🟠",
+emoji: "🟣",
 claseColor: "spin",
 tarjeta: "XXXX XXXX XXXX XXXX",
 cuenta: "XXXXXXXXXX",

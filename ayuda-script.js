@@ -145,13 +145,17 @@ const COLOR_POR_BANCO = {
 };
 function obtenerVendedorDeURL() {
 const params = new URLSearchParams(window.location.search);
-return params.get("v");
+return params.get("vendedor");
+}
+function normalizarNombreVendedor(nombre) {
+return (nombre || "").replace(/\s+/g, "").toLowerCase();
 }
 function renderBancos() {
 const contenedor = document.getElementById("ayudaBancos");
 if (!contenedor) return;
-const nombre = obtenerVendedorDeURL();
-const cuentas = VENDEDOR_CUENTAS[nombre];
+const nombreURL = obtenerVendedorDeURL();
+const claveEncontrada = Object.keys(VENDEDOR_CUENTAS).find((k) => normalizarNombreVendedor(k) === normalizarNombreVendedor(nombreURL));
+const cuentas = VENDEDOR_CUENTAS[claveEncontrada];
 if (!cuentas || cuentas.length === 0) {
 contenedor.innerHTML = `
 <div class="ay-deposit-tip">

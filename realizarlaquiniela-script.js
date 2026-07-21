@@ -619,9 +619,9 @@ btn.addEventListener("click", () => cerrarModal(btn.dataset.close));
 document.getElementById("nombreInput")?.addEventListener("input", (e) => {
 const input = e.target;
 const errEl = document.getElementById("nombreError");
-let valor = input.value;
-valor = valor.replace(/(^\s*\w|\s\w)/g, (letra) => letra.toUpperCase());
 const cursor = input.selectionStart;
+let valor = input.value.toLowerCase();
+valor = valor.replace(/(^\s*\w|\s\w)/g, (letra) => letra.toUpperCase());
 input.value = valor;
 input.setSelectionRange(cursor, cursor);
 if (input.value.trim()) {

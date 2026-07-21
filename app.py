@@ -78,6 +78,12 @@ def crear_tablas():
             """)
 
             cur.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_folio_unico_jugando
+                ON todaslasquinielas (folio)
+                WHERE estado = 'Jugando';
+            """)
+
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS resultadosdelajornada (
                     id SERIAL PRIMARY KEY,
                     jornada TEXT NOT NULL,
@@ -1160,17 +1166,14 @@ def api_confirmar(qid):
                 fila = cur.fetchone()
                 if fila is None:
                     return jsonify({"success": False, "error": "Quiniela no encontrada"}), 404
-
                 vendedor, estado = fila
                 if estado != "No jugando":
                     return jsonify({"success": False, "error": "Esta quiniela ya fue procesada"}), 409
-
                 if LISTA_BLOQUEADA:
                     return jsonify({
                         "success": False,
                         "error": "Estamos trabajando en las listas, favor de intentarlo mañana"
                     }), 423
-
                 if MODO_ESPERA["activo"]:
                     cur.execute(
                         "UPDATE todaslasquinielas SET estado = 'En espera' WHERE id = %s",
@@ -1178,16 +1181,18 @@ def api_confirmar(qid):
                     )
                     conn.commit()
                     return jsonify({"success": True, "estado": "espera", "motivo": "modo_espera", "nuevofolio": None})
-
                 rango = LIMITES_VENDEDORES.get(vendedor)
                 if rango is None:
                     return jsonify({"success": False, "error": f"{vendedor} no tiene folios asignados"}), 400
-
                 folioinicio, foliofin = rango
-
                 cur.execute(
-                    "SELECT folio::int FROM todaslasquinielas WHERE vendedor = %s AND estado = 'Jugando' ORDER BY folio::int ASC FOR UPDATE",
-                    (vendedor,),
+                    """
+                    SELECT folio::int FROM todaslasquinielas
+                    WHERE estado = 'Jugando'
+                      AND folio::int BETWEEN %s AND %s
+                    FOR UPDATE
+                    """,
+                    (folioinicio, foliofin),
                 )
                 foliosocupados = [r[0] for r in cur.fetchall()]
                 foliolibre = None
@@ -1195,7 +1200,6 @@ def api_confirmar(qid):
                     if candidato not in foliosocupados:
                         foliolibre = candidato
                         break
-
                 if foliolibre is None:
                     cur.execute(
                         "UPDATE todaslasquinielas SET estado = 'En espera' WHERE id = %s",
@@ -1203,7 +1207,6 @@ def api_confirmar(qid):
                     )
                     conn.commit()
                     return jsonify({"success": True, "estado": "espera", "motivo": "sin_folios", "nuevofolio": None})
-
                 cur.execute(
                     "UPDATE todaslasquinielas SET estado = 'Jugando', folio = %s WHERE id = %s RETURNING folio",
                     (str(foliolibre), qid),

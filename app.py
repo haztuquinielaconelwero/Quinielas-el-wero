@@ -157,7 +157,7 @@ def togglebloqueo():
 # ── ALTER SEQUENCE todaslasquinielas_id_seq RESTART WITH 1;
 
 
-WHATSAPP_GRUPO_URL = "https://chat.whatsapp.com/JKFSN3hDRBA91iy9T7GLPh"
+WHATSAPP_GRUPO_URL = "https://chat.whatsapp.com/DlVP6JUPOp42MxmZcxHT6m"
 JORNADA_ACTUAL = "Jornada 2"
 JORNADA_CIERRE = "2026-07-24T16:30:00-06:00"
 PARTIDOS = [
@@ -334,7 +334,7 @@ VENDEDOR_WHATSAPP = {
     "Alan Garcia":  "5218284575949",
     "Alexander":    "5218287683709",
     "Alfonso":      "5218186589145",
-    "Azael":        "5218120708453",
+    "Azael":        "5218120753862",
     "Boosters":     "5218121942047",
     "Caro":         "5215584076984",
     "Checo":        "5218281186921",

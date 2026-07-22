@@ -343,12 +343,20 @@ notif.textContent = texto;
 contenedor.appendChild(notif);
 setTimeout(() => notif.remove(), 3200);
 }
-/*                                  Esto de abajo trabaja en acciones globales  para el simuladorderesultados                                      */
+/*                                  Esto de abajo trabaja en acciones globales  para el simuladorderesultados y como funciona                                     */
 function recalcularYRenderizarTodo() {
 const conPuntos = obtenerParticipantesConPuntos();
 const puntosUnicos = obtenerPuntosUnicos(conPuntos);
-actualizarContador("statPrimerLugar", puntosUnicos[0] ?? 0);
-actualizarContador("statSegundoLugar", puntosUnicos[1] ?? 0);
+const puntosPrimero = puntosUnicos[0];
+const puntosSegundo = puntosUnicos.length > 1 ? puntosUnicos[1] : undefined;
+const totalPrimerLugar = puntosPrimero !== undefined
+? conPuntos.filter((p) => p.puntos === puntosPrimero).length
+: 0;
+const totalSegundoLugar = puntosSegundo !== undefined
+? conPuntos.filter((p) => p.puntos === puntosSegundo).length
+: 0;
+actualizarContador("statPrimerLugar", totalPrimerLugar);
+actualizarContador("statSegundoLugar", totalSegundoLugar);
 actualizarContador("statTotalQuinielas", PARTICIPANTES.length);
 renderFiltros();
 renderTabla();

@@ -490,7 +490,7 @@ NOMBRE_A_ESPN = {
     "San Luis":    ("Atletico San Luis",        "liga_mx"),
     "Santos":      ("Santos Laguna",            "liga_mx"),
     "Tigres":      ("Tigres UANL",              "liga_mx"),
-    "Tijuana":     ("Club Tijuana",             "liga_mx"),
+    "Tijuana":     ("Tijuana",                  "liga_mx"),
     "Toluca":      ("Toluca",                   "liga_mx"),
     # ──Premier League──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     "Arsenal":     ("Arsenal",                  "premier"),

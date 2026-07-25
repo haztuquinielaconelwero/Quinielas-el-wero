@@ -236,8 +236,9 @@ display: inline-block;
 }
 .match-check {
 position: absolute;
-top: -8px;
-right: -8px;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
 background: #16a34a;
 color: #fff;
 border-radius: 50%;
@@ -251,22 +252,24 @@ box-shadow: 0 2px 6px rgba(0,0,0,.25);
 animation: checkPop .35s ease-out;
 z-index: 2;
 }
-.match-draw-badge {
+.match-vs-empate {
+width: auto;
+min-width: 34px;
+padding: 0 12px;
+border-radius: 999px;
+font-size: 0.7rem;
+letter-spacing: 0.02em;
 background: #64748b;
+border-color: #64748b;
 color: #fff;
-border-radius: 12px;
-padding: 2px 8px;
-font-size: 12px;
-font-weight: 700;
-margin-left: 6px;
 }
 @keyframes checkPop {
-0% { transform: scale(0); opacity: 0; }
-70% { transform: scale(1.15); opacity: 1; }
-100% { transform: scale(1); }
+0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+70% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+100% { transform: translate(-50%, -50%) scale(1); }
 }
 @media (max-width: 480px) {
-.match-check { width: 18px; height: 18px; font-size: 11px; top: -6px; right: -6px; }
+.match-check { width: 18px; height: 18px; font-size: 11px; }
 }
 /* ====================                 Esto de abajo trabaja en los tamaños del celular de los horarios                                                ==================== */
 @media (max-width: 640px){

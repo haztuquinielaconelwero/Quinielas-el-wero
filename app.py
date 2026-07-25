@@ -183,10 +183,10 @@ PARTIDOS = [
         "id": 3,
         "local": "Tigres", "localLogo": "/logos/tigres.png",
         "visitante": "San Luis", "visitanteLogo": "/logos/san-luis.png",
-        "horario": "Viernes 24 de julio 7:00 pm",
+        "horario": "Sábado 25 de julio 9:00 pm",
         "televisora": "TV Azteca / FOX",
         "televisionLogo": "/logos/tv-azteca.png",
-        "kickoff": "2026-07-24T19:00:00-06:00",
+        "kickoff": "2026-07-25T21:00:00-06:00",
     },
     {
         "id": 4,
@@ -617,32 +617,35 @@ def _parsear_eventos_espn(data, local_lookup, ids_listos):
 
 def _construir_lookups():
     kickoff_por_id = {}
+    fecha_local_por_id = {}
     for p in PARTIDOS:
-        ko_str = p.get("kickoff")
-        if not ko_str:
+        kostr = p.get("kickoff")
+        if not kostr:
             continue
         try:
-            ko_dt = datetime.fromisoformat(ko_str)
+            kodt = datetime.fromisoformat(kostr)
         except ValueError:
-            logger.warning("kickoff invalido para partido_id=%s -> %s", p["id"], ko_str)
+            logger.warning("kickoff invalido para partido_id=%s: %s", p["id"], kostr)
             continue
-        ko_dt = ko_dt.astimezone(timezone.utc) if ko_dt.tzinfo else ko_dt.replace(tzinfo=timezone.utc)
-        kickoff_por_id[p["id"]] = ko_dt
+        fecha_local_por_id[p["id"]] = kodt.strftime("%Y%m%d") 
+        kodt_utc = kodt.astimezone(timezone.utc) if kodt.tzinfo else kodt.replace(tzinfo=timezone.utc)
+        kickoff_por_id[p["id"]] = kodt_utc
+
     local_lookup = {}
     liga_fecha_ids = {}
     for p in PARTIDOS:
         pid = p["id"]
         entry = NOMBRE_A_ESPN.get(p["local"])
-        if pid not in kickoff_por_id:
+        if pid not in fecha_local_por_id:
             continue
-        fecha = kickoff_por_id[pid].strftime("%Y%m%d")
+        fecha = fecha_local_por_id[pid]
         if entry:
             espn_nombre, liga_key = entry
             local_lookup[_normalizar_nombre(espn_nombre)] = pid
             liga_fecha_ids.setdefault((liga_key, fecha), []).append(pid)
         else:
             local_lookup[_normalizar_nombre(p["local"])] = pid
-            logger.warning("'%s' no esta en NOMBRE_A_ESPN, usando nombre directo", p["local"])
+            logger.warning("%s no esta en NOMBRE_A_ESPN, usando nombre directo", p["local"])
     return kickoff_por_id, local_lookup, liga_fecha_ids
 
 # ── Consultas a resultadosdelajornada usando las columnas nuevas: "partidos" y "resultados"  ───────────────────────────────────────────────────
@@ -652,16 +655,17 @@ def _get_ids_con_resultado(jornada, ids):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                '''SELECT partido_id FROM resultadosdelajornada
-                   WHERE jornada = %s AND partido_id = ANY(%s)''',
+                """SELECT partido_id FROM resultadosdelajornada
+                   WHERE jornada = %s AND partido_id = ANY(%s)""",
                 (jornada, list(ids)),
             )
             return {r[0] for r in cur.fetchall()}
+
 def _guardar_resultado(pid, gh, ga, res):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                '''
+                """
                 INSERT INTO resultadosdelajornada
                     (jornada, partido_id, resultado, marcador_local, marcador_visita)
                 VALUES (%s, %s, %s, %s, %s)
@@ -669,10 +673,11 @@ def _guardar_resultado(pid, gh, ga, res):
                     resultado = EXCLUDED.resultado,
                     marcador_local = EXCLUDED.marcador_local,
                     marcador_visita = EXCLUDED.marcador_visita
-                ''',
+                """,
                 (JORNADA_ACTUAL, pid, res, gh, ga),
             )
         conn.commit()
+
 def _auto_sync_loop():
     logger.info("auto_sync (hilo Flask) iniciado")
     try:
@@ -680,6 +685,7 @@ def _auto_sync_loop():
     except Exception as exc:
         logger.error("auto_sync: error construyendo lookups -> %s", exc)
         return
+
     while True:
         try:
             now = datetime.now(timezone.utc)
@@ -688,44 +694,90 @@ def _auto_sync_loop():
                 if now >= ko + timedelta(minutes=105)
             }
             if not ids_listos:
+                logger.info("auto_sync: ningun partido listo todavia, durmiendo 10 min")
                 time.sleep(600)
                 continue
+
             try:
                 ids_con_resultado = _get_ids_con_resultado(JORNADA_ACTUAL, ids_listos)
             except Exception as exc:
                 logger.error("auto_sync: error consultando DB -> %s", exc)
                 time.sleep(60)
                 continue
+
             ids_sin_resultado = ids_listos - ids_con_resultado
             if not ids_sin_resultado:
+                logger.info("auto_sync: todos los partidos listos ya tienen resultado")
                 time.sleep(600)
                 continue
+
+            logger.info("auto_sync: partidos pendientes de resultado -> %s", ids_sin_resultado)
+
             for (liga_key, fecha), pids in liga_fecha_ids.items():
                 if not any(pid in ids_sin_resultado for pid in pids):
                     continue
+
                 slug = LIGAS_ESPN.get(liga_key)
                 if not slug:
+                    logger.warning("auto_sync: liga_key=%s sin slug configurado en LIGAS_ESPN", liga_key)
                     continue
-                url = f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={fecha}"
+
+                fecha_dt = datetime.strptime(fecha, "%Y%m%d")
+                fecha_ini = (fecha_dt - timedelta(days=1)).strftime("%Y%m%d")
+                fecha_fin = (fecha_dt + timedelta(days=1)).strftime("%Y%m%d")
+                rango = f"{fecha_ini}-{fecha_fin}"
+
+                url = f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={rango}"
+
                 try:
                     resp = requests.get(url, timeout=10)
+                    logger.info("auto_sync: GET %s -> status=%s", url, resp.status_code)
                     if resp.status_code != 200:
+                        logger.warning(
+                            "auto_sync: ESPN respondio codigo %s para liga=%s fecha=%s",
+                            resp.status_code, liga_key, fecha
+                        )
                         continue
-                    data = resp.json()
-                except Exception as exc:
+                    try:
+                        data = resp.json()
+                    except ValueError as exc:
+                        logger.error(
+                            "auto_sync: JSON invalido de ESPN liga=%s fecha=%s -> %s | body[:300]=%s",
+                            liga_key, fecha, exc, resp.text[:300]
+                        )
+                        continue
+                    logger.info(
+                        "auto_sync: %s eventos recibidos para liga=%s rango=%s",
+                        len(data.get("events", [])), liga_key, rango
+                    )
+                except requests.Timeout:
+                    logger.warning("auto_sync: TIMEOUT consultando ESPN liga=%s fecha=%s", liga_key, fecha)
+                    continue
+                except requests.RequestException as exc:
                     logger.warning("auto_sync: error de red liga=%s fecha=%s -> %s", liga_key, fecha, exc)
                     continue
-                for pid, gh, ga, res in _parsear_eventos_espn(data, local_lookup, ids_sin_resultado):
+
+                encontrados = _parsear_eventos_espn(data, local_lookup, ids_sin_resultado)
+                if not encontrados:
+                    logger.info(
+                        "auto_sync: ningun partido terminado coincidio todavia para liga=%s rango=%s",
+                        liga_key, rango
+                    )
+
+                for pid, gh, ga, res in encontrados:
                     try:
                         _guardar_resultado(pid, gh, ga, res)
                         logger.info("auto_sync OK partido_id=%s %s-%s res=%s", pid, gh, ga, res)
                     except Exception as exc:
                         logger.error("auto_sync: error guardando partido_id=%s -> %s", pid, exc)
+
         except Exception as exc:
             logger.error("auto_sync_loop: error inesperado -> %s", exc)
             time.sleep(60)
             continue
+
         time.sleep(600)
+
 _sync_iniciado = False
 _sync_lock = threading.Lock()
 

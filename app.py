@@ -217,7 +217,7 @@ PARTIDOS = [
     },
     {
         "id": 7,
-        "local": "Santos Laguna", "localLogo": "/logos/santos.png",
+        "local": "Santos", "localLogo": "/logos/santos.png",
         "visitante": "Atlas", "visitanteLogo": "/logos/atlas.png",
         "horario": "Sábado 25 de julio 9:00 pm",
         "televisora": "ESPN / Canal 5 / TUDN",
@@ -488,7 +488,7 @@ NOMBRE_A_ESPN = {
     "Pumas":       ("Pumas UNAM",               "liga_mx"),
     "Querétaro":   ("Queretaro FC",             "liga_mx"),
     "San Luis":    ("Atletico San Luis",        "liga_mx"),
-    "Santos":      ("Santos Laguna",            "liga_mx"),
+    "Santos":      ("Santos",                   "liga_mx"),
     "Tigres":      ("Tigres UANL",              "liga_mx"),
     "Tijuana":     ("Tijuana",                  "liga_mx"),
     "Toluca":      ("Toluca",                   "liga_mx"),

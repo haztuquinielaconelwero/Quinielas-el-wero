@@ -154,93 +154,94 @@ def togglebloqueo():
     return jsonify(success=True, listaBloqueada=LISTA_BLOQUEADA)
     
 # ── Esto de abajo trabaja con la informacion de la Jornada ───────────────────────────────────────────────────────────────────────────────────────────────
+# ── ALTER SEQUENCE resultadosdelajornada_id_seq RESTART WITH 1;
 # ── ALTER SEQUENCE todaslasquinielas_id_seq RESTART WITH 1;
 
+WHATSAPP_GRUPO_URL = "https://chat.whatsapp.com/C2z6Wir4MC9CY7ayg5ATOP"
+JORNADA_ACTUAL = "Jornada 3"
+JORNADA_CIERRE = "2026-07-31T16:30:00-06:00"
 
-WHATSAPP_GRUPO_URL = "https://chat.whatsapp.com/DlVP6JUPOp42MxmZcxHT6m"
-JORNADA_ACTUAL = "Jornada 2"
-JORNADA_CIERRE = "2026-07-24T16:30:00-06:00"
 PARTIDOS = [
     {
         "id": 1,
-        "local": "Celtic", "localLogo": "/logos/celtic.png",
-        "visitante": "AC Milan", "visitanteLogo": "/logos/ac-milan.png",
-        "horario": "Sábado 25 de julio 9:00 am",
-        "televisora": "ESPN",
-        "televisionLogo": "/logos/espn.png",
-        "kickoff": "2026-07-25T09:00:00-06:00",
+        "local": "Puebla", "localLogo": "/logos/puebla.png",
+        "visitante": "Chivas", "visitanteLogo": "/logos/chivas.png",
+        "horario": "Viernes 31 de julio 7:00 pm",
+        "televisora": "TV Azteca / FOX / ESPN",
+        "televisionLogo": "/logos/tv-azteca.png",
+        "kickoff": "2026-07-31T19:00:00-06:00",
     },
     {
         "id": 2,
-        "local": "Liverpool", "localLogo": "/logos/liverpool.png",
-        "visitante": "Sunderland", "visitanteLogo": "/logos/sunderland.png",
-        "horario": "Sábado 25 de julio 4:00 pm",
-        "televisora": "ESPN Deportes",
+        "local": "San Luis", "localLogo": "/logos/san-luis.png",
+        "visitante": "Tijuana", "visitanteLogo": "/logos/tijuana.png",
+        "horario": "Viernes 31 de julio 9:00 pm",
+        "televisora": "ESPN / ViX Premium / Disney+",
         "televisionLogo": "/logos/espn.png",
-        "kickoff": "2026-07-25T16:00:00-06:00",
+        "kickoff": "2026-07-31T21:00:00-06:00",
     },
     {
         "id": 3,
-        "local": "Tigres", "localLogo": "/logos/tigres.png",
-        "visitante": "San Luis", "visitanteLogo": "/logos/san-luis.png",
-        "horario": "Sábado 25 de julio 9:00 pm",
+        "local": "Juarez", "localLogo": "/logos/juarez.png",
+        "visitante": "Pumas", "visitanteLogo": "/logos/pumas.png",
+        "horario": "Viernes 31 de julio 9:00 pm",
         "televisora": "TV Azteca / FOX",
         "televisionLogo": "/logos/tv-azteca.png",
-        "kickoff": "2026-07-25T21:00:00-06:00",
+        "kickoff": "2026-07-31T21:00:00-06:00",
     },
     {
         "id": 4,
-        "local": "Atlante", "localLogo": "/logos/atlante.png",
-        "visitante": "América", "visitanteLogo": "/logos/america.png",
-        "horario": "Viernes 24 de julio 9:00 pm",
-        "televisora": "TV Azteca",
-        "televisionLogo": "/logos/tv-azteca.png",
-        "kickoff": "2026-07-24T21:00:00-06:00",
+        "local": "Queretaro", "localLogo": "/logos/queretaro.png",
+        "visitante": "Tigres", "visitanteLogo": "/logos/tigres.png",
+        "horario": "Sábado 1 de agosto 5:00 pm",
+        "televisora": "FOX / FOX One",
+        "televisionLogo": "/logos/fox-sports.png",
+        "kickoff": "2026-08-01T17:00:00-06:00",
     },
     {
         "id": 5,
-        "local": "Tijuana", "localLogo": "/logos/tijuana.png",
-        "visitante": "León", "visitanteLogo": "/logos/leon.png",
-        "horario": "Viernes 24 de julio 9:00 pm",
+        "local": "Leon", "localLogo": "/logos/leon.png",
+        "visitante": "Pachuca", "visitanteLogo": "/logos/pachuca.png",
+        "horario": "Sábado 1 de agosto 7:00 pm",
         "televisora": "FOX / FOX One",
         "televisionLogo": "/logos/fox-sports.png",
-        "kickoff": "2026-07-24T21:00:00-06:00",
+        "kickoff": "2026-08-01T19:00:00-06:00",
     },
     {
         "id": 6,
-        "local": "Chivas", "localLogo": "/logos/chivas.png",
-        "visitante": "Juárez", "visitanteLogo": "/logos/juarez.png",
-        "horario": "Sábado 25 de julio 5:07 pm",
-        "televisora": "Amazon Prime Video / Chivas TV",
-        "televisionLogo": "/logos/amazon-prime.png",
-        "kickoff": "2026-07-25T17:07:00-06:00",
+        "local": "Atlas", "localLogo": "/logos/atlas.png",
+        "visitante": "Monterrey", "visitanteLogo": "/logos/monterrey.png",
+        "horario": "Sábado 1 de agosto 7:00 pm",
+        "televisora": "Canal 5 / TUDN / ViX",
+        "televisionLogo": "/logos/canal-5.png",
+        "kickoff": "2026-08-01T19:00:00-06:00",
     },
     {
         "id": 7,
-        "local": "Santos", "localLogo": "/logos/santos.png",
-        "visitante": "Atlas", "visitanteLogo": "/logos/atlas.png",
-        "horario": "Sábado 25 de julio 9:00 pm",
-        "televisora": "ESPN / Canal 5 / TUDN",
+        "local": "Cruz Azul", "localLogo": "/logos/cruz-azul.png",
+        "visitante": "Atlante", "visitanteLogo": "/logos/atlante.png",
+        "horario": "Sábado 1 de agosto 9:00 pm",
+        "televisora": "Canal 5 / TUDN / ViX",
         "televisionLogo": "/logos/canal-5.png",
-        "kickoff": "2026-07-25T21:00:00-06:00",
+        "kickoff": "2026-08-01T21:00:00-06:00",
     },
     {
         "id": 8,
-        "local": "Necaxa", "localLogo": "/logos/necaxa.png",
-        "visitante": "Monterrey", "visitanteLogo": "/logos/monterrey.png",
-        "horario": "Domingo 26 de julio 5:00 pm",
-        "televisora": "FOX / FOX One",
-        "televisionLogo": "/logos/fox-sports.png",
-        "kickoff": "2026-07-26T17:00:00-06:00",
+        "local": "America", "localLogo": "/logos/america.png",
+        "visitante": "Santos", "visitanteLogo": "/logos/santos.png",
+        "horario": "Domingo 2 de agosto 5:00 pm",
+        "televisora": "Canal 5 / TUDN / ViX",
+        "televisionLogo": "/logos/canal-5.png",
+        "kickoff": "2026-08-02T17:00:00-06:00",
     },
     {
         "id": 9,
-        "local": "Pachuca", "localLogo": "/logos/pachuca.png",
-        "visitante": "Queretaro", "visitanteLogo": "/logos/queretaro.png",
-        "horario": "Domingo 26 de julio 7:00 pm",
-        "televisora": "FOX / FOX One",
-        "televisionLogo": "/logos/fox-sports.png",
-        "kickoff": "2026-07-26T19:00:00-06:00",
+        "local": "Toluca", "localLogo": "/logos/toluca.png",
+        "visitante": "Necaxa", "visitanteLogo": "/logos/necaxa.png",
+        "horario": "Domingo 2 de agosto 7:00 pm",
+        "televisora": "Canal 5 / TUDN",
+        "televisionLogo": "/logos/canal-5.png",
+        "kickoff": "2026-08-02T19:00:00-06:00",
     },
 ]
 MAX_DOBLES = 3
@@ -459,6 +460,7 @@ LIMITES_VENDEDORES = {
     "Tienda":         (2661, 2670),
     "Vender 1":       (2671, 2680),
     "Dinamicas":      (2681, 2700),
+    "Jj":             (2701, 2740),
 }
 # ── Ligas en total ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 LIGAS_ESPN = {

@@ -307,6 +307,7 @@ VENDEDOR_PIN = {
     "Del Angel":    "4635",
     "El Piojo":     "2052",
     "Energeticos":  "1707",
+    "Enoc":         "7683",
     "Ever":         "1821",
     "Fer":          "1111",
     "Figueroa":     "1378",
@@ -344,6 +345,7 @@ VENDEDOR_WHATSAPP = {
     "Del Angel":    "5218117456805",
     "El Piojo":     "5218118004801",
     "Energeticos":  "5218281432464",
+    "Enoc":         "5218186836163",
     "Ever":         "5218117299742",
     "Fer":          "5218281317783",
     "Figueroa":     "5218334077675",
@@ -381,6 +383,7 @@ VENDEDOR_LINKS = {
     "Del Angel":    "https://www.quinielaselwero.com/?vendedor=Del+Angel",
     "El Piojo":     "https://www.quinielaselwero.com/?vendedor=El+Piojo",
     "Energeticos":  "https://www.quinielaselwero.com/?vendedor=Energeticos",
+    "Enoc":         "https://www.quinielaselwero.com/?vendedor=Enoc",
     "Ever":         "https://www.quinielaselwero.com/?vendedor=Ever",
     "Fer":          "https://www.quinielaselwero.com/?vendedor=Fer",
     "Figueroa":     "https://www.quinielaselwero.com/?vendedor=Figueroa",
@@ -461,6 +464,7 @@ LIMITES_VENDEDORES = {
     "Vender 1":       (2671, 2680),
     "Dinamicas":      (2681, 2700),
     "Jj":             (2701, 2740),
+    "Enoc":           (2751, 2780),
 }
 # ── Ligas en total ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 LIGAS_ESPN = {

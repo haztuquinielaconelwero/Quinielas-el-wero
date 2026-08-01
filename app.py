@@ -466,7 +466,6 @@ LIMITES_VENDEDORES = {
     "Jj":             (2701, 2740),
     "Enoc":           (2751, 2780),
 }
-# ── Ligas en total ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 LIGAS_ESPN = {
     "bundesliga": "ger.1",
     "champions":  "uefa.champions",
@@ -477,119 +476,100 @@ LIGAS_ESPN = {
     "serie_a":    "ita.1",
     "mundial":    "fifa.world",
 }
-NOMBRE_A_ESPN = {
-    # ── Liga Mx──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    "América":     ("América",                  "liga_mx"),
-    "Atlante":     ("Atlante",                  "liga_mx"),
-    "Atlas":       ("Atlas",                    "liga_mx"),
-    "Chivas":      ("Guadalajara",              "liga_mx"),
-    "Cruz Azul":   ("Cruz Azul",                "liga_mx"),
-    "Juárez":      ("FC Juarez",                "liga_mx"),
-    "León":        ("Leon",                     "liga_mx"),
-    "Mazatlán":    ("Mazatlan FC",              "liga_mx"),
-    "Monterrey":   ("Monterrey",                "liga_mx"),
-    "Necaxa":      ("Necaxa",                   "liga_mx"),
-    "Pachuca":     ("Pachuca",                  "liga_mx"),
-    "Puebla":      ("Puebla FC",                "liga_mx"),
-    "Pumas":       ("Pumas UNAM",               "liga_mx"),
-    "Querétaro":   ("Queretaro FC",             "liga_mx"),
-    "San Luis":    ("Atletico San Luis",        "liga_mx"),
-    "Santos":      ("Santos",                   "liga_mx"),
-    "Tigres":      ("Tigres UANL",              "liga_mx"),
-    "Tijuana":     ("Tijuana",                  "liga_mx"),
-    "Toluca":      ("Toluca",                   "liga_mx"),
-    # ──Premier League──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    "Arsenal":     ("Arsenal",                  "premier"),
-    "Aston Villa": ("Aston Villa",              "premier"),
-    "Brighton":    ("Brighton & Hove Albion",   "premier"),
-    "Chelsea":     ("Chelsea",                  "premier"),
-    "Crystal":     ("Crystal Palace",           "premier"),
-    "Everton":     ("Everton",                  "premier"),
-    "Fulham":      ("Fulham",                   "premier"),
-    "Leeds":       ("Leeds United",             "premier"),
-    "Liverpool":   ("Liverpool",                "premier"),
-    "Man City":    ("Manchester City",          "premier"),
-    "Man Utd":     ("Manchester United",        "premier"),
-    "Newcastle":   ("Newcastle United",         "premier"),
-    "Forest":      ("Nottingham Forest",        "premier"),
-    "Sunderland":  ("Sunderland",               "premier"),
-    "Tottenham":   ("Tottenham Hotspur",        "premier"),
-    "West Ham":    ("West Ham United",          "premier"),
-    "Wolves":      ("Wolverhampton Wanderers",  "premier"),
-    # ──La Liga──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    "Athletic":    ("Athletic Club",            "la_liga"),
-    "Atlético":    ("Atletico de Madrid",       "la_liga"),
-    "Barcelona":   ("Barcelona",                "la_liga"),
-    "Betis":       ("Real Betis",               "la_liga"),
-    "Espanyol":    ("Espanyol",                 "la_liga"),
-    "Real M":      ("Real Madrid",              "la_liga"),
-    "Sevilla":     ("Sevilla",                  "la_liga"),
-    "Sociedad":    ("Real Sociedad",            "la_liga"),
-    "Valencia":    ("Valencia",                 "la_liga"),
-    "Villarreal":  ("Villarreal",               "la_liga"),
-    # ──La Bundesliga───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    "Bayern":      ("Bayern Munich",            "bundesliga"),
-    "Dortmund":    ("Borussia Dortmund",        "bundesliga"),
-    "Frankfurt":   ("Eintracht Frankfurt",      "bundesliga"),
-    "Leipzig":     ("RB Leipzig",               "bundesliga"),
-    "Leverkusen":  ("Bayer Leverkusen",         "bundesliga"),
-    # ──Serie A─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    "Inter":       ("Inter Milan",              "serie_a"),
-    "Juventus":    ("Juventus",                 "serie_a"),
-    "Lazio":       ("Lazio",                    "serie_a"),
-    "Milan":       ("AC Milan",                 "serie_a"),
-    "Napoli":      ("Napoli",                   "serie_a"),
-    "Roma":        ("AS Roma",                  "serie_a"),
-    # ──La Ligue 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    "Marsella":    ("Marseille",                "ligue_1"),
-    "Monaco":      ("Monaco",                   "ligue_1"),
-    "PSG":         ("Paris Saint-Germain",      "ligue_1"),
-    # ──Mundial ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    "Alemania":      ("Germany",                "mundial"),
-    "Arabia":        ("Saudi Arabia",           "mundial"),
-    "Argelia":       ("Algeria",                "mundial"),
-    "Argentina":     ("Argentina",              "mundial"),
-    "Austria":       ("Austria",                "mundial"),
-    "Australia":     ("Australia",              "mundial"),
-    "Belgica":       ("Belgium",                "mundial"),
-    "Bosnia":        ("Bosnia-Herzegovina",     "mundial"),
-    "Brasil":        ("Brazil",                 "mundial"),
-    "Cabo Verde":    ("Cape Verde",             "mundial"),
-    "Chequia":       ("Czechia",                "mundial"),
-    "Colombia":      ("Colombia",               "mundial"),
-    "Congo":         ("Congo DR",               "mundial"),
-    "Corea Sur":     ("South Korea",            "mundial"),
-    "Costa Marfil":  ("Ivory Coast",            "mundial"),
-    "Croacia":       ("Croatia",                "mundial"),
-    "Curazao":       ("Curaçao",                "mundial"),
-    "Ecuador":       ("Ecuador",                "mundial"),
-    "Escocia":       ("Scotland",               "mundial"),
-    "España":        ("Spain",                  "mundial"),
-    "Eua":           ("United States",          "mundial"),
-    "Francia":       ("France",                 "mundial"),
-    "Ghana":         ("Ghana",                  "mundial"),
-    "Inglaterra":    ("England",                "mundial"),
-    "Iran":          ("Iran",                   "mundial"),
-    "Japon":         ("Japan",                  "mundial"),
-    "Marruecos":     ("Morocco",                "mundial"),
-    "Mexico":        ("Mexico",                 "mundial"),
-    "Noruega":       ("Norway",                 "mundial"),
-    "Paises Bajos":  ("Netherlands",            "mundial"),
-    "Paraguay":      ("Paraguay",               "mundial"),
-    "Portugal":      ("Portugal",               "mundial"),
-    "Senegal":       ("Senegal",                "mundial"),
-    "Sudafrica":     ("South Africa",           "mundial"),
-    "Suecia":        ("Sweden",                 "mundial"),
-    "Suiza":         ("Switzerland",            "mundial"),
-    "Tunez":         ("Tunisia",                "mundial"),
-    "Turquia":       ("Türkiye",                "mundial"),
-    "Uruguay":       ("Uruguay",                "mundial"),
-}
 
-def _normalizar_nombre(nombre):
-    nombre = (nombre or "").strip().lower()
-    nombre = unicodedata.normalize("NFD", nombre)
-    return "".join(c for c in nombre if unicodedata.category(c) != "Mn")
+NOMBRE_A_ESPN = {
+    # ── Liga MX ──────────────────────────────────────────
+    "America":   ("227",   "liga_mx"),
+    "Atlante":   ("226",   "liga_mx"),
+    "Atlas":     ("216",   "liga_mx"),
+    "Chivas":    ("219",   "liga_mx"),
+    "Cruz Azul": ("218",   "liga_mx"),
+    "Juarez":    ("17851", "liga_mx"),
+    "Leon":      ("228",   "liga_mx"),
+    "Monterrey": ("220",   "liga_mx"),
+    "Necaxa":    ("229",   "liga_mx"),
+    "Pachuca":   ("234",   "liga_mx"),
+    "Puebla":    ("231",   "liga_mx"),
+    "Pumas":     ("233",   "liga_mx"),
+    "Queretaro": ("222",   "liga_mx"),
+    "San Luis":  ("15720", "liga_mx"),
+    "Santos":    ("225",   "liga_mx"),
+    "Tigres":    ("232",   "liga_mx"),
+    "Tijuana":   ("10125", "liga_mx"),
+    "Toluca":    ("223",   "liga_mx"),
+    # ── Premier League ───────────────────────────────────
+    "Arsenal":     ("359", "premier"),
+    "Aston Villa": ("362", "premier"),
+    "Brighton":    ("331", "premier"),
+    "Chelsea":     ("363", "premier"),
+    "Crystal":     ("384", "premier"),
+    "Everton":     ("368", "premier"),
+    "Fulham":      ("370", "premier"),
+    "Leeds":       ("357", "premier"),
+    "Liverpool":   ("364", "premier"),
+    "Man City":    ("382", "premier"),
+    "Man Utd":     ("360", "premier"),
+    "Newcastle":   ("361", "premier"),
+    "Forest":      ("393", "premier"),
+    "Sunderland":  ("366", "premier"),
+    "Tottenham":   ("367", "premier"),
+    # ── La Liga ──────────────────────────────────────────
+    "Athletic":   ("93",   "la_liga"),
+    "Atlético":   ("1068", "la_liga"),
+    "Barcelona":  ("83",   "la_liga"),
+    "Betis":      ("244",  "la_liga"),
+    "Espanyol":   ("88",   "la_liga"),
+    "Real M":     ("86",   "la_liga"),
+    "Sevilla":    ("243",  "la_liga"),
+    "Sociedad":   ("89",   "la_liga"),
+    "Valencia":   ("94",   "la_liga"),
+    "Villarreal": ("102",  "la_liga"),
+    # ── Bundesliga ───────────────────────────────────────
+    "Bayern":     ("132",   "bundesliga"),
+    "Dortmund":   ("124",   "bundesliga"),
+    "Frankfurt":  ("125",   "bundesliga"),
+    "Leipzig":    ("11420", "bundesliga"),
+    "Leverkusen": ("131",   "bundesliga"),
+    # ── Serie A ──────────────────────────────────────────
+    "Inter":    ("110", "serie_a"),
+    "Juventus": ("111", "serie_a"),
+    "Lazio":    ("112", "serie_a"),
+    "Milan":    ("103", "serie_a"),
+    "Napoli":   ("114", "serie_a"),
+    "Roma":     ("104", "serie_a"),
+    # ── Ligue 1 ──────────────────────────────────────────
+    "Marsella": ("176", "ligue_1"),
+    "Monaco":   ("174", "ligue_1"),
+    "PSG":      ("160", "ligue_1"),
+    # ── Mundial ──────────────────────────────────────────
+    "Alemania":     ("481",  "mundial"),
+    "Argentina":    ("202",  "mundial"),
+    "Argelia":      ("624",  "mundial"),
+    "Austria":      ("474",  "mundial"),
+    "Australia":    ("628",  "mundial"),
+    "Belgica":      ("459",  "mundial"),
+    "Bosnia":       ("452",  "mundial"),
+    "Brasil":       ("205",  "mundial"),
+    "Cabo Verde":   ("2597", "mundial"),
+    "Chequia":      ("450",  "mundial"),
+    "Colombia":     ("208",  "mundial"),
+    "Congo":        ("2850", "mundial"),
+    "Costa Marfil": ("4789", "mundial"),
+    "Croacia":      ("477",  "mundial"),
+    "Curazao":      ("11678","mundial"),
+    "Ecuador":      ("209",  "mundial"),
+    "Francia":      ("478",  "mundial"),
+    "Ghana":        ("4469", "mundial"),
+    "Inglaterra":   ("448",  "mundial"),
+    "Iran":         ("469",  "mundial"),
+    "Japon":        ("627",  "mundial"),
+    "Marruecos":    ("2869", "mundial"),
+    "Mexico":       ("203",  "mundial"),
+    "Noruega":      ("464",  "mundial"),
+    "Paises Bajos": ("449",  "mundial"),
+    "Paraguay":     ("210",  "mundial"),
+    "Portugal":     ("482",  "mundial"),
+}
 
 def _parsear_eventos_espn(data, local_lookup, ids_listos):
     encontrados = []
@@ -598,19 +578,18 @@ def _parsear_eventos_espn(data, local_lookup, ids_listos):
             state = comp.get("status", {}).get("type", {}).get("state", "")
             if state != "post":
                 continue
-            home_name = home_score = away_score = None
+            home_id = home_score = away_score = None
             for team in (comp.get("competitors") or []):
-                nombre_raw = (team.get("team", {}).get("displayName") or "")
-                nombre = _normalizar_nombre(nombre_raw)
+                equipo_id = team.get("team", {}).get("id")
                 score = team.get("score")
                 if team.get("homeAway") == "home":
-                    home_name = nombre
+                    home_id = equipo_id
                     home_score = score
                 else:
                     away_score = score
-            if home_name is None or home_score is None or away_score is None:
+            if home_id is None or home_score is None or away_score is None:
                 continue
-            pid = local_lookup.get(home_name)
+            pid = local_lookup.get(home_id)
             if pid is None or pid not in ids_listos:
                 continue
             try:
@@ -633,7 +612,7 @@ def _construir_lookups():
         except ValueError:
             logger.warning("kickoff invalido para partido_id=%s: %s", p["id"], kostr)
             continue
-        fecha_local_por_id[p["id"]] = kodt.strftime("%Y%m%d") 
+        fecha_local_por_id[p["id"]] = kodt.strftime("%Y%m%d")
         kodt_utc = kodt.astimezone(timezone.utc) if kodt.tzinfo else kodt.replace(tzinfo=timezone.utc)
         kickoff_por_id[p["id"]] = kodt_utc
 
@@ -646,11 +625,11 @@ def _construir_lookups():
             continue
         fecha = fecha_local_por_id[pid]
         if entry:
-            espn_nombre, liga_key = entry
-            local_lookup[_normalizar_nombre(espn_nombre)] = pid
+            espn_id, liga_key = entry
+            local_lookup[espn_id] = pid
             liga_fecha_ids.setdefault((liga_key, fecha), []).append(pid)
         else:
-            local_lookup[_normalizar_nombre(p["local"])] = pid
+            local_lookup[p["local"]] = pid
             logger.warning("%s no esta en NOMBRE_A_ESPN, usando nombre directo", p["local"])
     return kickoff_por_id, local_lookup, liga_fecha_ids
 

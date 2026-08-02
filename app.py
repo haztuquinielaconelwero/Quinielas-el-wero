@@ -17,6 +17,8 @@ logger = logging.getLogger("app")
 app = Flask(__name__, static_folder='.', static_url_path='')
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
+VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY")
+VAPID_CLAIMS = {"sub": "mailto:haztuquinielaconelwero@gmail.com"}
 
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL no esta configurada en las variables de entorno de Railway")
@@ -104,10 +106,157 @@ def crear_tablas():
                 );
             """)
 
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS suscripcionespush (
+                    id SERIAL PRIMARY KEY,
+                    dispositivoid VARCHAR(100) NOT NULL REFERENCES clientes(dispositivoid) ON DELETE CASCADE,
+                    endpoint TEXT NOT NULL UNIQUE,
+                    p256dh TEXT NOT NULL,
+                    auth TEXT NOT NULL,
+                    navegador VARCHAR(50),
+                    sistemaoperativo VARCHAR(50),
+                    activo BOOLEAN NOT NULL DEFAULT TRUE,
+                    fechasuscripcion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+                    ultimaactividad TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+                    fallosconsecutivos INTEGER NOT NULL DEFAULT 0
+                );
+            """)
+
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idxsuscripcionesdispositivoid
+                ON suscripcionespush (dispositivoid);
+            """)
+
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idxsuscripcionesactivo
+                ON suscripcionespush (activo);
+            """)
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS historialdenotificaciones (
+                    id BIGSERIAL PRIMARY KEY,
+                    dispositivoid VARCHAR(100) NOT NULL REFERENCES clientes(dispositivoid) ON DELETE CASCADE,
+                    tipo TEXT NOT NULL,
+                    jornada TEXT,
+                    partidoid INTEGER,
+                    enviadaen TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+                    abierta BOOLEAN NOT NULL DEFAULT FALSE,
+                    clic BOOLEAN NOT NULL DEFAULT FALSE
+                );
+            """)
+
+            cur.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS idxhistorialnoduplicado
+                ON historialdenotificaciones (dispositivoid, tipo, jornada, COALESCE(partidoid, -1));
+            """)
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS preguntaspush (
+                    dispositivoid VARCHAR(100) PRIMARY KEY REFERENCES clientes(dispositivoid) ON DELETE CASCADE,
+                    ultimajornadapreguntada TEXT,
+                    respuesta VARCHAR(10) CHECK (respuesta IN ('si', 'no')),
+                    fechapregunta TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City')
+                );
+            """)
+
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idxpreguntaspushrespuesta
+                ON preguntaspush (respuesta);
+            """)
+
         conn.commit()
+# ──                         Esta API revisa si a este dispositivo ya se le pregunto sobre notificaciones esta jornada                             ──
+@app.route("/api/debepreguntarpush")
+def debe_preguntar_push():
+    dispositivoid = (request.args.get("dispositivoid") or "").strip()
+    if not dispositivoid:
+        return jsonify(debePreguntar=False)
 
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT ultimajornadapreguntada, respuesta
+                    FROM preguntaspush
+                    WHERE dispositivoid = %s
+                """, (dispositivoid,))
+                fila = cur.fetchone()
+    except Exception as exc:
+        logger.error("debe_preguntar_push error: %s", exc)
+        return jsonify(debePreguntar=False)
+
+    if fila is None:
+        return jsonify(debePreguntar=True)
+
+    ultima_jornada, respuesta = fila
+
+    if respuesta == "si":
+        return jsonify(debePreguntar=False)
+
+    if ultima_jornada != JORNADA_ACTUAL:
+        return jsonify(debePreguntar=True)
+
+    return jsonify(debePreguntar=False)
+
+# ──                         Esta API guarda si el usuario dijo si o no a la pregunta de notificaciones                                                ──
+@app.route("/api/guardarrespuestapush", methods=["POST"])
+def guardar_respuesta_push():
+    data = request.get_json(silent=True) or {}
+    dispositivoid = (data.get("dispositivoid") or "").strip()
+    respuesta = (data.get("respuesta") or "").strip().lower()
+
+    if not dispositivoid or respuesta not in ("si", "no"):
+        return jsonify(success=False, mensaje="Faltan datos o respuesta invalida"), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO preguntaspush (dispositivoid, ultimajornadapreguntada, respuesta)
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT (dispositivoid) DO UPDATE SET
+                        ultimajornadapreguntada = EXCLUDED.ultimajornadapreguntada,
+                        respuesta = EXCLUDED.respuesta,
+                        fechapregunta = (now() AT TIME ZONE 'America/Mexico_City')
+                """, (dispositivoid, JORNADA_ACTUAL, respuesta))
+            conn.commit()
+        return jsonify(success=True, mensaje="Respuesta guardada correctamente")
+    except Exception as exc:
+        logger.error("guardar_respuesta_push error: %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
+# ──                                 Esta API guarda el papelito secreto (suscripcion push) que da el navegador                                                ──
+@app.route("/api/guardarsuscripcion", methods=["POST"])
+def guardar_suscripcion():
+    data = request.get_json(silent=True) or {}
+    dispositivoid = (data.get("dispositivoid") or "").strip()
+    endpoint = (data.get("endpoint") or "").strip()
+    p256dh = (data.get("p256dh") or "").strip()
+    auth = (data.get("auth") or "").strip()
+    navegador = (data.get("navegador") or "").strip()
+
+    if not dispositivoid or not endpoint or not p256dh or not auth:
+        return jsonify(success=False, mensaje="Faltan datos"), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO suscripcionespush
+                        (dispositivoid, endpoint, p256dh, auth, navegador, activo)
+                    VALUES (%s, %s, %s, %s, %s, TRUE)
+                    ON CONFLICT (endpoint) DO UPDATE SET
+                        activo = TRUE,
+                        ultimaactividad = (now() AT TIME ZONE 'America/Mexico_City'),
+                        fallosconsecutivos = 0
+                """, (dispositivoid, endpoint, p256dh, auth, navegador))
+            conn.commit()
+        return jsonify(success=True, mensaje="Suscripcion guardada correctamente")
+    except Exception as exc:
+        logger.error("guardar_suscripcion error: %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+    
 # ── Esto de abajo trabaja con el archivado de todas las quinielas───────────────────────────────────────────────────────────────────────────────────────────────
-
 @app.route("/api/archivarjugando", methods=["POST"])
 def archivarjugando():
     try:
@@ -663,6 +812,127 @@ def _guardar_resultado(pid, gh, ga, res):
             )
         conn.commit()
 
+from pywebpush import webpush, WebPushException
+import json
+
+def enviar_push(dispositivoid, titulo, cuerpo, url="/"):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT endpoint, p256dh, auth
+                    FROM suscripcionespush
+                    WHERE dispositivoid = %s AND activo = TRUE
+                """, (dispositivoid,))
+                suscripciones = cur.fetchall()
+    except Exception as exc:
+        logger.error("enviar_push error consultando: %s", exc)
+        return
+
+    for endpoint, p256dh, auth in suscripciones:
+        try:
+            webpush(
+                subscription_info={
+                    "endpoint": endpoint,
+                    "keys": {"p256dh": p256dh, "auth": auth}
+                },
+                data=json.dumps({"titulo": titulo, "cuerpo": cuerpo, "url": url}),
+                vapid_private_key=VAPID_PRIVATE_KEY,
+                vapid_claims=VAPID_CLAIMS.copy()
+            )
+        except WebPushException as exc:
+            logger.warning("enviar_push fallo endpoint %s: %s", endpoint, exc)
+            if exc.response is not None and exc.response.status_code in (404, 410):
+                try:
+                    with get_connection() as conn:
+                        with conn.cursor() as cur:
+                            cur.execute("""
+                                UPDATE suscripcionespush SET activo = FALSE
+                                WHERE endpoint = %s
+                            """, (endpoint,))
+                        conn.commit()
+                except Exception as exc2:
+                    logger.error("enviar_push error desactivando: %s", exc2)
+
+def ya_se_le_mando(dispositivoid, tipo, jornada, partidoid=None):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT 1 FROM historialdenotificaciones
+                WHERE dispositivoid = %s AND tipo = %s AND jornada = %s
+                AND COALESCE(partidoid, -1) = COALESCE(%s, -1)
+            """, (dispositivoid, tipo, jornada, partidoid))
+            return cur.fetchone() is not None
+
+def registrar_envio(dispositivoid, tipo, jornada, partidoid=None):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO historialdenotificaciones (dispositivoid, tipo, jornada, partidoid)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT DO NOTHING
+            """, (dispositivoid, tipo, jornada, partidoid))
+        conn.commit()
+
+def suscriptores_activos():
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT DISTINCT dispositivoid FROM suscripcionespush WHERE activo = TRUE
+            """)
+            return [r[0] for r in cur.fetchall()]
+
+TEXTOS_AVISO_TIEMPO = {
+    "3dias": "Faltan 3 dias para el cierre de la jornada",
+    "2dias": "Faltan 2 dias para el cierre de la jornada",
+    "1dia": "Falta 1 dia para el cierre de la jornada",
+    "2horas": "Faltan 2 horas para el cierre de la jornada",
+}
+
+def revisar_avisos_de_tiempo(now):
+    cierre = datetime.fromisoformat(JORNADA_CIERRE)
+    faltante = cierre - now
+    ventanas = [
+        ("3dias", timedelta(days=3)),
+        ("2dias", timedelta(days=2)),
+        ("1dia", timedelta(days=1)),
+        ("2horas", timedelta(hours=2)),
+    ]
+
+    for tipo, ventana in ventanas:
+        if timedelta(0) < faltante <= ventana:
+            for dispositivoid in suscriptores_activos():
+                if not ya_se_le_mando(dispositivoid, tipo, JORNADA_ACTUAL):
+                    enviar_push(dispositivoid, "Quinielas El Wero", TEXTOS_AVISO_TIEMPO[tipo], url="https://www.quinielaselwero.com/realizarlaquiniela.html")
+                    registrar_envio(dispositivoid, tipo, JORNADA_ACTUAL)
+
+def revisar_aviso_jornada_lista():
+    for dispositivoid in suscriptores_activos():
+        if not ya_se_le_mando(dispositivoid, "jornadalista", JORNADA_ACTUAL):
+            enviar_push(
+                dispositivoid,
+                "Quinielas El Wero",
+                f"Ya esta lista la {JORNADA_ACTUAL}, entra y haz tu quiniela",
+                url="https://www.quinielaselwero.com/realizarlaquiniela.html"
+            )
+            registrar_envio(dispositivoid, "jornadalista", JORNADA_ACTUAL)
+
+
+def revisar_avisos_de_partidos():
+    resultados = _obtener_resultados_oficiales(JORNADA_ACTUAL)
+
+    if 5 in resultados:
+        for dispositivoid in suscriptores_activos():
+            if not ya_se_le_mando(dispositivoid, "partido5", JORNADA_ACTUAL, 5):
+                enviar_push(dispositivoid, "Quinielas El Wero", "Termino el partido 5, revisa tus puntos", url="https://www.quinielaselwero.com/misquinielas.html")
+                registrar_envio(dispositivoid, "partido5", JORNADA_ACTUAL, 5)
+
+    if len(resultados) >= len(PARTIDOS):
+        for dispositivoid in suscriptores_activos():
+            if not ya_se_le_mando(dispositivoid, "jornadaterminada", JORNADA_ACTUAL):
+                enviar_push(dispositivoid, "Quinielas El Wero", "Terminaron los 9 partidos, ve los resultados finales", url="https://www.quinielaselwero.com/listaoficial.html")
+                registrar_envio(dispositivoid, "jornadaterminada", JORNADA_ACTUAL)
+
 def _auto_sync_loop():
     logger.info("auto_sync (hilo Flask) iniciado")
     try:
@@ -674,10 +944,19 @@ def _auto_sync_loop():
     while True:
         try:
             now = datetime.now(timezone.utc)
+
+            try:
+                revisar_aviso_jornada_lista()
+                revisar_avisos_de_tiempo(now)
+                revisar_avisos_de_partidos()
+            except Exception as exc:
+                logger.error("autosync: error revisando avisos push - %s", exc)
+
             ids_listos = {
                 pid for pid, ko in kickoff_por_id.items()
                 if now >= ko + timedelta(minutes=105)
             }
+            
             if not ids_listos:
                 logger.info("auto_sync: ningun partido listo todavia, durmiendo 10 min")
                 time.sleep(600)

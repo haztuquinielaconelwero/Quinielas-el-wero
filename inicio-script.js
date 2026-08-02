@@ -253,11 +253,97 @@ const data = await res.json();
 if (!res.ok || !data.success) throw new Error(data.mensaje || "Error al registrar");
 localStorage.setItem(this.STORAGE_KEY_IDENTIDAD, valor);
 this.modal.hidden = true;
+VentanitaPush.revisarSiDebePreguntar(dispositivoId);
 } catch (err) {
 this.errEl.hidden = false;
 this.errEl.textContent = "No se pudo guardar, intenta de nuevo.";
 console.error(err);
 }
+}
+};
+/* ============= Esto de abajo trabaja en preguntar por las notificaciones push ============================ */
+const VentanitaPush = {
+VAPID_PUBLIC_KEY: "BL8SsOAl_dkr4bdH-OHkuwhUrrW7cccFyynJADVOMGNcgCOei9a5Fk2AscMuD_2LFTn2tfkYdeqmOBnHQtqBmbo",
+async revisarSiDebePreguntar(dispositivoId) {
+try {
+const res = await fetch(`/api/debepreguntarpush?dispositivoid=${encodeURIComponent(dispositivoId)}`);
+const data = await res.json();
+if (data.debePreguntar) {
+this.mostrar(dispositivoId);
+}
+} catch (err) {
+console.error("Error revisando push:", err);
+}
+},
+mostrar(dispositivoId) {
+const overlay = document.createElement("div");
+overlay.className = "ventanita-push-overlay";
+overlay.innerHTML = `
+<div class="ventanita-push-caja">
+<p>¿Quieres que te avisemos cuando cierre tu jornada o termine un partido? 🔔</p>
+<button id="btnPushSi">Sí, avísame</button>
+<button id="btnPushNo">Ahora no</button>
+</div>
+`;
+document.body.appendChild(overlay);
+document.getElementById("btnPushSi").addEventListener("click", async () => {
+overlay.remove();
+await this.activarNotificaciones(dispositivoId);
+this.guardarRespuesta(dispositivoId, "si");
+});
+document.getElementById("btnPushNo").addEventListener("click", () => {
+overlay.remove();
+this.guardarRespuesta(dispositivoId, "no");
+});
+},
+async guardarRespuesta(dispositivoId, respuesta) {
+try {
+await fetch("/api/guardarrespuestapush", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ dispositivoid: dispositivoId, respuesta })
+});
+} catch (err) {
+console.error("Error guardando respuesta push:", err);
+}
+},
+async activarNotificaciones(dispositivoId) {
+try {
+const permiso = await Notification.requestPermission();
+if (permiso !== "granted") return;
+const registro = await navigator.serviceWorker.ready;
+const suscripcion = await registro.pushManager.subscribe({
+userVisibleOnly: true,
+applicationServerKey: this.convertirLlave(this.VAPID_PUBLIC_KEY),
+});
+await fetch("/api/guardarsuscripcion", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+dispositivoid: dispositivoId,
+endpoint: suscripcion.endpoint,
+p256dh: this.arrayBufferABase64(suscripcion.getKey("p256dh")),
+auth: this.arrayBufferABase64(suscripcion.getKey("auth")),
+navegador: navigator.userAgent,
+}),
+});
+} catch (err) {
+console.error("Error activando notificaciones:", err);
+}
+},
+convertirLlave(llaveBase64) {
+const padding = "=".repeat((4 - (llaveBase64.length % 4)) % 4);
+const base64 = (llaveBase64 + padding).replace(/-/g, "+").replace(/_/g, "/");
+const rawData = window.atob(base64);
+const outputArray = new Uint8Array(rawData.length);
+for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+return outputArray;
+},
+arrayBufferABase64(buffer) {
+const bytes = new Uint8Array(buffer);
+let binario = "";
+for (let i = 0; i < bytes.byteLength; i++) binario += String.fromCharCode(bytes[i]);
+return window.btoa(binario);
 }
 };
 /* =============                      Esto de abajo trabaja en la actualizacion del Jornada en varios escritos                  ============================ */
@@ -286,12 +372,12 @@ console.error("No se pudo actualizar la jornada", err);
 }
 };
 JornadaHero.init();
-/* =============                                Esto de abajo trabaja en eliminar el service worker                               ============================ */
+/* =============                       Esto de abajo trabaja en registrar           (Service Worker)                ============================ */
 if ('serviceWorker' in navigator) {
-navigator.serviceWorker.getRegistrations().then(function(registrations) {
-for (let registration of registrations) {
-registration.unregister();
-}
+navigator.serviceWorker.register('/sw.js').then((registro) => {
+console.log("SW registrado correctamente:", registro.scope);
+}).catch((error) => {
+console.error("Error registrando el SW:", error);
 });
 }
 /* =============                                Esto de abajo trabaja en el inicio del inicio                                            ============================ */

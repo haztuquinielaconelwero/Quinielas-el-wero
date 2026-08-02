@@ -2,3 +2,4 @@ flask
 psycopg[binary]
 requests
 gunicorn
+pywebpush==2.0.1

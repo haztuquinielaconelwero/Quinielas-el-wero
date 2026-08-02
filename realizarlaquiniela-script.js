@@ -620,13 +620,19 @@ document.getElementById("nombreInput")?.addEventListener("input", (e) => {
 const input = e.target;
 const errEl = document.getElementById("nombreError");
 const cursor = input.selectionStart;
-let valor = input.value.toLowerCase();
+const teniaComa = input.value.includes(",");
+let valor = input.value.replace(/,/g, "");
+valor = valor.toLowerCase();
 valor = valor.replace(/(^\s*\w|\s\w)/g, (letra) => letra.toUpperCase());
 input.value = valor;
-input.setSelectionRange(cursor, cursor);
+const nuevoOffset = teniaComa ? cursor - 1 : cursor;
+input.setSelectionRange(nuevoOffset, nuevoOffset);
 if (input.value.trim()) {
 input.classList.remove("error");
 if (errEl) errEl.textContent = "";
+}
+if (teniaComa) {
+notificar("No se permiten comas en el nombre.", "aviso");
 }
 });
 }

@@ -113,7 +113,7 @@ def crear_tablas():
                     endpoint TEXT NOT NULL UNIQUE,
                     p256dh TEXT NOT NULL,
                     auth TEXT NOT NULL,
-                    navegador VARCHAR(50),
+                    navegador VARCHAR(255),
                     sistemaoperativo VARCHAR(50),
                     activo BOOLEAN NOT NULL DEFAULT TRUE,
                     fechasuscripcion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),

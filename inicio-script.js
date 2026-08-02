@@ -280,7 +280,8 @@ const overlay = document.createElement("div");
 overlay.className = "ventanita-push-overlay";
 overlay.innerHTML = `
 <div class="ventanita-push-caja">
-<p>¿Quieres que te avisemos cuando cierre tu jornada o termine un partido? 🔔</p>
+<p class="push-titulo">Déjanos acompañarte en cada jornada. ⚽</p>
+<p class="push-cuerpo">Te avisaremos cuando un partido finalice, esté por cerrar una jornada o haya información importante.</p>
 <button id="btnPushSi">Sí, avísame</button>
 <button id="btnPushNo">Ahora no</button>
 </div>

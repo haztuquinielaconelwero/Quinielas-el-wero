@@ -541,6 +541,16 @@ background: rgba(255,255,255,0.08);
 color: var(--text-muted);
 border: 1px solid var(--glass-border);
 }
+.push-titulo {
+font-weight: 700;
+font-size: 1.05rem;
+margin-bottom: 4px;
+}
+.push-cuerpo {
+font-size: 0.9rem;
+color: #555;
+margin-top: 0;
+}
 /* ====================            Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion                            ==================== */
 @media (max-width: 900px){
 body{ padding-top: 0px; }

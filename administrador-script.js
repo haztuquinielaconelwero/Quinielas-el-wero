@@ -805,7 +805,7 @@ function cerrarQuiniela() {
 clearInterval(intervalId);
 if (barFill) barFill.style.setProperty("--progress", "100%");
 if (progressLabel) progressLabel.textContent = "100% completado";
-if (statusEl) statusEl.textContent = "Quiniela Cerrada";
+if (statusEl) statusEl.textContent = "Quiniela cerrada";
 }
 return { init };
 })();

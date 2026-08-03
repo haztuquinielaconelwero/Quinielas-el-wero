@@ -140,7 +140,7 @@ if (this.barFill) {
 this.barFill.style.width = "100%";
 this.barFill.style.background = "linear-gradient(90deg, #b71c1c, #e53935)";
 }
-if (this.statusEl) this.statusEl.textContent = "Quiniela Cerrada";
+if (this.statusEl) this.statusEl.textContent = "Quiniela cerrada";
 if (this.countdownEl) this.countdownEl.textContent = "00d · 00h · 00m";
 if (this.card) {
 this.card.classList.remove("urgent");

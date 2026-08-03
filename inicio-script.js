@@ -347,7 +347,7 @@ for (let i = 0; i < bytes.byteLength; i++) binario += String.fromCharCode(bytes[
 return window.btoa(binario);
 }
 };
-/* ============= Esto de abajo trabaja en la ruleta flotante de premios ============================ */
+/* =============                Esto de abajo trabaja en la ruleta flotante de premios                                                    ============================ */
 const RuletaFlotante = {
 STORAGE_KEY_CODIGO: "quinielasElWero_codigoReferido",
 boton: document.getElementById("ruletaFlotante"),
@@ -375,6 +375,10 @@ this.btnCerrar?.addEventListener("click", () => this.cerrar());
 this.btnConfirmar?.addEventListener("click", () => this.confirmarCodigo());
 this.btnGirar?.addEventListener("click", () => this.girar());
 this.btnCopiar?.addEventListener("click", () => this.copiarCodigo());
+document.getElementById("linkPedirCodigo")?.addEventListener("click", (e) => {
+e.preventDefault();
+this.irConVendedor();
+});
 },
 leerCodigo() {
 return localStorage.getItem(this.STORAGE_KEY_CODIGO) || "";
@@ -462,6 +466,26 @@ this.mostrarCuartoDueno(codigo);
 this.btnGirar.classList.remove("girando");
 this.btnGirar.disabled = false;
 console.error("Error girando la ruleta:", err);
+}
+},
+async irConVendedor() {
+const vendedor = localStorage.getItem("quinielasElWero_vendedorActual");
+const mensaje = encodeURIComponent("Hola, quiero mi codigo de invitacion para la ruleta de premios 🎰");
+if (!vendedor) {
+window.open(`https://wa.me/?text=${mensaje}`, "_blank");
+return;
+}
+try {
+const res = await fetch(`/api/whatsappdelvendedor?vendedor=${encodeURIComponent(vendedor)}`);
+const data = await res.json();
+if (res.ok && data.success && data.numero) {
+window.open(`https://wa.me/${data.numero}?text=${mensaje}`, "_blank");
+} else {
+window.open(`https://wa.me/?text=${mensaje}`, "_blank");
+}
+} catch (err) {
+console.error("Error obteniendo whatsapp del vendedor:", err);
+window.open(`https://wa.me/?text=${mensaje}`, "_blank");
 }
 },
 copiarCodigo() {

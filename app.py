@@ -1456,6 +1456,16 @@ def validarpin():
         return jsonify({"valido": True, "vendedor": vendedor})
     return jsonify({"valido": False, "mensaje": "PIN incorrecto"}), 401
 
+# ── Esto de abajo trabaja con el boton de ir con el vendedor en la ruleta ──────────────────────────────
+@app.route("/api/whatsappdelvendedor")
+def whatsappdelvendedor():
+    vendedor = (request.args.get("vendedor") or "").strip()
+    numero = VENDEDOR_WHATSAPP.get(vendedor)
+    if not numero:
+        return jsonify(success=False, mensaje="Vendedor no encontrado"), 404
+    return jsonify(success=True, numero=numero)
+
+
 # ── Esto de abajo trabaja con la api de las quinielas del vendedor en administrador    ─────────────────────────────────────────────────────────────────────────────
 @app.route("/api/quinielasdelvendedor")
 def quinielasdelvendedor():

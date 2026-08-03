@@ -836,7 +836,7 @@ def enviar_push(dispositivoid, titulo, cuerpo, url="/"):
                     "endpoint": endpoint,
                     "keys": {"p256dh": p256dh, "auth": auth}
                 },
-                data=json.dumps({"titulo": titulo, "cuerpo": cuerpo, "url": url}),
+                data=json.dumps({"titulo": titulo, "cuerpo": cuerpo, "deepLink": url,}),
                 vapid_private_key=VAPID_PRIVATE_KEY,
                 vapid_claims=VAPID_CLAIMS.copy()
             )

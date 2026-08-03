@@ -770,6 +770,11 @@ line-height: 1.15;
 text-shadow: 0 2px 4px rgba(0,0,0,0.7), 0 0 2px rgba(0,0,0,0.9);
 z-index: 3;
 }
+.rv-rayo.rv4 .rv-texto{
+font-size: 0.64rem;
+width: 54px;
+top: -62px;
+}
 @keyframes giroLento{
 from{ transform: rotate(0deg); }
 to{ transform: rotate(360deg); }
@@ -795,6 +800,11 @@ height: 130px;
 font-size: 0.66rem;
 width: 50px;
 top: -52px;
+}
+.rv-rayo.rv4 .rv-texto{
+font-size: 0.54rem;
+width: 44px;
+top: -48px;
 }
 }
 /* ====================            Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion                            ==================== */

@@ -35,18 +35,19 @@ async function cargarDatos() {
 try {
 mostrarLoading(true);
 const [resCodigos, resVendedores] = await Promise.all([
-fetch('/api/admin/codigos/listar', { headers: { 'X-Admin-Token': obtenerAdminToken() } }),
-fetch('/api/admin/vendedores/listar', { headers: { 'X-Admin-Token': obtenerAdminToken() } }),
+fetch('/api/invitaatuscompaslista'),
+fetch('/api/vendedores'),
 ]);
 if (!resCodigos.ok) throw new Error(`Error codigos: ${resCodigos.status}`);
 if (!resVendedores.ok) throw new Error(`Error vendedores: ${resVendedores.status}`);
 const dataCodigos = await resCodigos.json();
 const dataVendedores = await resVendedores.json();
 if (dataCodigos.success === false) throw new Error(dataCodigos.mensaje || 'Error al obtener codigos');
-vendedoresDisponibles = dataVendedores.vendedores || [];
+vendedoresDisponibles = Object.keys(dataVendedores.vendedores || {}).map(nombre => ({ nombre }));
 datosOriginales = (dataCodigos.codigos || []).map(c => ({
 codigo: c.codigo || '',
 dueno: c.dueno || '',
+telefono: c.telefono || '',
 vendedor: c.vendedor || '',
 linkVendedor: c.linkVendedor || '',
 activo: c.activo,
@@ -104,6 +105,7 @@ function buildRowData(lista) {
 return lista.map(c => ({
 codigo: c.codigo,
 dueno: c.dueno,
+telefono: c.telefono,
 vendedor: c.vendedor,
 linkVendedor: c.linkVendedor,
 activo: c.activo ? 'Activo' : 'Inactivo',
@@ -116,6 +118,7 @@ function buildColumnDefs() {
 return [
 { field: 'codigo', headerName: 'Código', width: 160, pinned: 'left', cellStyle: { justifyContent: 'flex-start', paddingLeft: '10px' } },
 { field: 'dueno', headerName: 'Dueño del código', width: 160, cellStyle: { justifyContent: 'flex-start', paddingLeft: '8px' } },
+{ field: 'telefono', headerName: 'Teléfono', width: 130 },
 { field: 'vendedor', headerName: 'Vendedor', width: 130 },
 {
 field: 'linkVendedor', headerName: 'Link del vendedor', width: 260,
@@ -164,21 +167,23 @@ gridApi.hideOverlay();
 async function crearCodigo() {
 const codigo = document.getElementById('nuevoCodigo').value.trim();
 const dueno = document.getElementById('nuevoDueno').value.trim();
+const telefono = document.getElementById('nuevoTelefono').value.trim();
 const vendedor = document.getElementById('nuevoVendedor').value;
-if (!codigo || !dueno || !vendedor) {
-alert('Completa código, dueño y vendedor antes de crear.');
+if (!codigo || !dueno || !telefono || !vendedor) {
+alert('Completa código, dueño, teléfono y vendedor antes de crear.');
 return;
 }
 try {
-const resp = await fetch('/api/admin/codigos/crear', {
+const resp = await fetch('/api/invitaatuscompascrearreferido', {
 method: 'POST',
-headers: { 'Content-Type': 'application/json', 'X-Admin-Token': obtenerAdminToken() },
-body: JSON.stringify({ codigo, dueno, vendedor, adminId: 'ElWero' }),
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ codigo, dueno, telefono, vendedor }),
 });
 const data = await resp.json();
 if (!data.success) throw new Error(data.mensaje || 'No se pudo crear el código');
 document.getElementById('nuevoCodigo').value = '';
 document.getElementById('nuevoDueno').value = '';
+document.getElementById('nuevoTelefono').value = '';
 await cargarDatos();
 } catch (error) {
 alert('❌ ' + error.message);
@@ -189,12 +194,13 @@ async function editarCodigo(codigo) {
 const fila = datosOriginales.find(c => c.codigo === codigo);
 if (!fila) return;
 const nuevoDueno = prompt('Dueño del código:', fila.dueno) ?? fila.dueno;
+const nuevoTelefono = prompt('Teléfono:', fila.telefono) ?? fila.telefono;
 const nuevoVendedor = prompt('Vendedor (debe existir en la lista):', fila.vendedor) ?? fila.vendedor;
 try {
-const resp = await fetch(`/api/admin/codigos/${encodeURIComponent(codigo)}/editar`, {
-method: 'PATCH',
-headers: { 'Content-Type': 'application/json', 'X-Admin-Token': obtenerAdminToken() },
-body: JSON.stringify({ dueno: nuevoDueno, vendedor: nuevoVendedor, adminId: 'ElWero' }),
+const resp = await fetch('/api/invitaatuscompaseditar', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ codigo, dueno: nuevoDueno, telefono: nuevoTelefono, vendedor: nuevoVendedor }),
 });
 const data = await resp.json();
 if (!data.success) throw new Error(data.mensaje || 'No se pudo editar');
@@ -206,10 +212,10 @@ alert('❌ ' + error.message);
 /*                              Esto de abajo trabaja en activar/desactivar un codigo sin borrarlo                  */
 async function toggleCodigo(codigo, activar) {
 try {
-const resp = await fetch(`/api/admin/codigos/${encodeURIComponent(codigo)}/estado`, {
-method: 'PATCH',
-headers: { 'Content-Type': 'application/json', 'X-Admin-Token': obtenerAdminToken() },
-body: JSON.stringify({ activar, adminId: 'ElWero' }),
+const resp = await fetch('/api/invitaatuscompasestado', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ codigo, activar }),
 });
 const data = await resp.json();
 if (!data.success) throw new Error(data.mensaje || 'No se pudo cambiar el estado');
@@ -222,10 +228,10 @@ alert('❌ ' + error.message);
 async function eliminarCodigo(codigo) {
 if (!confirm(`¿Seguro que quieres eliminar el código "${codigo}"? No podrá volver a usarse jamás.`)) return;
 try {
-const resp = await fetch(`/api/admin/codigos/${encodeURIComponent(codigo)}/eliminar`, {
-method: 'DELETE',
-headers: { 'Content-Type': 'application/json', 'X-Admin-Token': obtenerAdminToken() },
-body: JSON.stringify({ adminId: 'ElWero' }),
+const resp = await fetch('/api/invitaatuscompaseliminar', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ codigo }),
 });
 const data = await resp.json();
 if (!data.success) throw new Error(data.mensaje || 'No se pudo eliminar');
@@ -237,14 +243,15 @@ alert('❌ ' + error.message);
 /*                              Esto de abajo trabaja en exportar exclusivamente lo que esta filtrado ahorita en pantalla                   */
 function exportarCSV() {
 const filtradas = obtenerCodigosFiltrados();
-const cols = ['Codigo', 'Dueno', 'Vendedor', 'LinkVendedor', 'Estado', 'Referidos', 'CreadoEn'];
+const cols = ['Codigo', 'Dueno', 'Telefono', 'Vendedor', 'LinkVendedor', 'Estado', 'Referidos', 'CreadoEn'];
 const filas = filtradas.map(c => {
 const codigo = '"' + (c.codigo || '').replace(/"/g, '""') + '"';
 const dueno = '"' + (c.dueno || '').replace(/"/g, '""') + '"';
+const telefono = '"' + (c.telefono || '').replace(/"/g, '""') + '"';
 const vendedor = '"' + (c.vendedor || '').replace(/"/g, '""') + '"';
 const link = '"' + (c.linkVendedor || '').replace(/"/g, '""') + '"';
 const estado = c.activo ? 'Activo' : 'Inactivo';
-return [codigo, dueno, vendedor, link, estado, c.totalReferidos || 0, c.creadoEn || ''].join(',');
+return [codigo, dueno, telefono, vendedor, link, estado, c.totalReferidos || 0, c.creadoEn || ''].join(',');
 });
 if (!filas.length) { alert('No hay códigos para exportar.'); return; }
 const bom = '\uFEFF';
@@ -265,15 +272,11 @@ await cargarDatos();
 }
 /*                              Esto de abajo trabaja en mostrar/ocultar el overlay de "Cargando..." mientras se piden los datos               */
 function mostrarLoading(show) {
-  document.getElementById('loadingOverlay')?.classList.toggle('show', show);
+document.getElementById('loadingOverlay')?.classList.toggle('show', show);
 }
 /*                             Esto de abajo trabaja en avisar al usuario cuando algo sale mal al cargar datos              */
 function mostrarError(mensaje) {
 if (gridApi) gridApi.setGridOption('rowData', []);
 console.error('Error:', mensaje);
 alert('❌ Error al cargar datos: ' + mensaje);
-}
-/*                             Esto de abajo trabaja en obtener el token de administrador guardado localmente               */
-function obtenerAdminToken() {
-return localStorage.getItem('adminToken') || '';
 }

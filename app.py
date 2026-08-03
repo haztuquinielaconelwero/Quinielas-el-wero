@@ -133,6 +133,23 @@ def crear_tablas():
             """)
 
             cur.execute("""
+                CREATE TABLE IF NOT EXISTS invitaatuscompas (
+                    id SERIAL PRIMARY KEY,
+                    codigo TEXT NOT NULL UNIQUE,
+                    dueno TEXT NOT NULL,
+                    telefono TEXT NOT NULL,
+                    vendedor TEXT NOT NULL,
+                    activo BOOLEAN NOT NULL DEFAULT TRUE,
+                    fechacreacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City')
+                );
+            """)
+
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idxinvitaatuscompasvendedor
+                ON invitaatuscompas (vendedor);
+            """)
+
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS historialdenotificaciones (
                     id BIGSERIAL PRIMARY KEY,
                     dispositivoid VARCHAR(100) NOT NULL REFERENCES clientes(dispositivoid) ON DELETE CASCADE,
@@ -1825,7 +1842,7 @@ def nuevajornada():
         return jsonify({"success": False, "mensaje": str(exc)}), 500
     
 
-# ── Esto de abajo trabaja con archivo para importar de excel ────────────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con actualizar los resultados────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/apiparaactualizarlosresultados", methods=["POST"])
 def apiparaactualizarlosresultados():
     data = request.get_json(silent=True) or {}
@@ -1899,6 +1916,151 @@ def totaljugando():
     except Exception as exc:
         logger.error("totaljugando: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
+
+# ── Esto de abajo trabaja con el invitaatuscompas  ────────────────────────────────────────────────────────────────────────────────
+@app.route('/api/invitaatuscompaslista')
+def invitaatuscompaslista():
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT codigo, dueno, telefono, vendedor, activo, fechacreacion
+                    FROM invitaatuscompas
+                    ORDER BY fechacreacion DESC
+                """)
+                filas = cur.fetchall()
+        codigos = []
+        for codigo, dueno, telefono, vendedor, activo, fechacreacion in filas:
+            codigos.append({
+                "codigo": codigo,
+                "dueno": dueno,
+                "telefono": telefono,
+                "vendedor": vendedor,
+                "linkVendedor": VENDEDOR_LINKS.get(vendedor, ""),
+                "activo": activo,
+                "creadoEn": fechacreacion.strftime("%Y-%m-%d %H:%M") if fechacreacion else "",
+            })
+        return jsonify(success=True, codigos=codigos)
+    except Exception as exc:
+        logger.error("invitaatuscompaslista error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
+@app.route('/api/invitaatuscompascrearreferido', methods=['POST'])
+def invitaatuscompascrearreferido():
+    data = request.get_json(silent=True) or {}
+    codigo = (data.get('codigo') or '').strip()
+    dueno = (data.get('dueno') or '').strip()
+    telefono = (data.get('telefono') or '').strip()
+    vendedor = (data.get('vendedor') or '').strip()
+
+    if not codigo or not dueno or not telefono or not vendedor:
+        return jsonify(success=False, mensaje="Faltan datos: código, dueño, teléfono y vendedor son obligatorios"), 400
+
+    if vendedor not in VENDEDOR_WHATSAPP:
+        return jsonify(success=False, mensaje="Vendedor no reconocido"), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO invitaatuscompas (codigo, dueno, telefono, vendedor)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT (codigo) DO NOTHING
+                    RETURNING id
+                """, (codigo, dueno, telefono, vendedor))
+                fila = cur.fetchone()
+                conn.commit()
+        if fila is None:
+            return jsonify(success=False, mensaje="Ese código ya existe, elige otro"), 409
+        return jsonify(success=True, id=fila[0], mensaje="Código creado correctamente")
+    except Exception as exc:
+        logger.error("invitaatuscompascrearreferido error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
+@app.route('/api/invitaatuscompaseditar', methods=['POST'])
+def invitaatuscompaseditar():
+    data = request.get_json(silent=True) or {}
+    codigo = (data.get('codigo') or '').strip()
+    dueno = (data.get('dueno') or '').strip()
+    telefono = (data.get('telefono') or '').strip()
+    vendedor = (data.get('vendedor') or '').strip()
+
+    if not codigo or not dueno or not telefono or not vendedor:
+        return jsonify(success=False, mensaje="Faltan datos: código, dueño, teléfono y vendedor son obligatorios"), 400
+
+    if vendedor not in VENDEDOR_WHATSAPP:
+        return jsonify(success=False, mensaje="Vendedor no reconocido"), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE invitaatuscompas
+                    SET dueno = %s, telefono = %s, vendedor = %s
+                    WHERE codigo = %s
+                    RETURNING id
+                """, (dueno, telefono, vendedor, codigo))
+                fila = cur.fetchone()
+                conn.commit()
+        if fila is None:
+            return jsonify(success=False, mensaje="No se encontró ese código"), 404
+        return jsonify(success=True, mensaje="Código editado correctamente")
+    except Exception as exc:
+        logger.error("invitaatuscompaseditar error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
+@app.route('/api/invitaatuscompasestado', methods=['POST'])
+def invitaatuscompasestado():
+    data = request.get_json(silent=True) or {}
+    codigo = (data.get('codigo') or '').strip()
+    activar = bool(data.get('activar'))
+
+    if not codigo:
+        return jsonify(success=False, mensaje="Falta el código"), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE invitaatuscompas
+                    SET activo = %s
+                    WHERE codigo = %s
+                    RETURNING id
+                """, (activar, codigo))
+                fila = cur.fetchone()
+                conn.commit()
+        if fila is None:
+            return jsonify(success=False, mensaje="No se encontró ese código"), 404
+        return jsonify(success=True, mensaje="Estado actualizado correctamente")
+    except Exception as exc:
+        logger.error("invitaatuscompasestado error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
+@app.route('/api/invitaatuscompaseliminar', methods=['POST'])
+def invitaatuscompaseliminar():
+    data = request.get_json(silent=True) or {}
+    codigo = (data.get('codigo') or '').strip()
+
+    if not codigo:
+        return jsonify(success=False, mensaje="Falta el código"), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    DELETE FROM invitaatuscompas
+                    WHERE codigo = %s
+                    RETURNING id
+                """, (codigo,))
+                fila = cur.fetchone()
+                conn.commit()
+        if fila is None:
+            return jsonify(success=False, mensaje="No se encontró ese código"), 404
+        return jsonify(success=True, mensaje="Código eliminado correctamente")
+    except Exception as exc:
+        logger.error("invitaatuscompaseliminar error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
     
 # ── Esto de abajo trabaja con el home e inicio.html ────────────────────────────────────────────────────────────────────────────────
 @app.route("/")

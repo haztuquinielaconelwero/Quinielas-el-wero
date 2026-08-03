@@ -723,7 +723,9 @@ position: absolute;
 inset: 0;
 border-radius: 50%;
 background:
-repeating-conic-gradient(rgba(0,0,0,0.35) 0deg 1.5deg, transparent 1.5deg 90deg);
+repeating-conic-gradient(rgba(0,0,0,0.35) 0deg 1.5deg, transparent 1.5deg 90deg),
+conic-gradient(from 0deg, rgba(255,255,255,0.35) 0deg 8deg, transparent 25deg);
+mix-blend-mode: overlay;
 }
 .ruleta-rueda-decorativa::after{
 content: "🎰";
@@ -743,27 +745,31 @@ font-size: 1.1rem;
 box-shadow: 0 0 10px rgba(0,0,0,0.5);
 z-index: 4;
 }
-.ruleta-rebanada-vitrina{
+.rv-rayo{
 position: absolute;
 top: 50%;
 left: 50%;
-font-size: 0.72rem;
+width: 0;
+height: 0;
+}
+.rv-rayo.rv1{ transform: rotate(45deg); }
+.rv-rayo.rv2{ transform: rotate(135deg); }
+.rv-rayo.rv3{ transform: rotate(225deg); }
+.rv-rayo.rv4{ transform: rotate(315deg); }
+.rv-texto{
+position: absolute;
+top: -68px;
+left: 50%;
+transform: translateX(-50%);
+width: 62px;
+text-align: center;
+font-size: 0.78rem;
 font-weight: 800;
 color: #fff;
-text-align: center;
-width: 58px;
 line-height: 1.15;
-padding: 3px 4px;
-border-radius: 8px;
-background: rgba(0,0,0,0.28);
-text-shadow: 0 1px 2px rgba(0,0,0,0.6);
-transform-origin: 0 0;
+text-shadow: 0 2px 4px rgba(0,0,0,0.7), 0 0 2px rgba(0,0,0,0.9);
 z-index: 3;
 }
-.ruleta-rebanada-vitrina.rv1{ transform: rotate(45deg) translate(32px, -64px); }
-.ruleta-rebanada-vitrina.rv2{ transform: rotate(135deg) translate(32px, -64px); }
-.ruleta-rebanada-vitrina.rv3{ transform: rotate(225deg) translate(32px, -64px); }
-.ruleta-rebanada-vitrina.rv4{ transform: rotate(315deg) translate(32px, -64px); }
 @keyframes giroLento{
 from{ transform: rotate(0deg); }
 to{ transform: rotate(360deg); }
@@ -785,9 +791,10 @@ font-size: 2.6rem; }
 width: 130px;
 height: 130px;
 }
-.ruleta-rebanada-vitrina{
-font-size: 0.62rem;
-width: 48px;
+.rv-texto{
+font-size: 0.66rem;
+width: 50px;
+top: -52px;
 }
 }
 /* ====================            Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion                            ==================== */

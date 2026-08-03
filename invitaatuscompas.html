@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invita a tus Compas 🎟️</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/styles/ag-grid.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/styles/ag-theme-alpine.css">
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/dist/ag-grid-community.min.js"></script>
+<link rel="stylesheet" href="invita-a-tus-compas-styles.css">
+</head>
+<body>
+<div class="loading-overlay show" id="loadingOverlay">
+<div class="loading-content">
+<div class="spinner"></div>
+<div style="font-size:14px;color:#5f6368;">Cargando códigos de referidos</div>
+</div>
+</div>
+<div class="header">
+<div class="logo">
+<span>&#x1F3AB;</span>
+<input type="text" class="document-title" value="Invita a tus Compas" readonly>
+</div>
+<div class="header-actions">
+<button class="btn btn-azul" onclick="actualizarTodo()">Actualizar &#x1F504;</button>
+<button class="btn btn-verde" onclick="exportarCSV()">Exportar &#x1F4E5;</button>
+</div>
+</div>
+<div class="toolbar">
+<span class="toolbar-label">&#x1F50D;</span>
+<input type="text" class="search-input" id="searchInput" placeholder="Buscar código, dueño o vendedor..." oninput="aplicarFiltros()">
+<select class="filter-select" id="filterVendedor" onchange="aplicarFiltros()">
+<option value="">Todos los vendedores</option>
+</select>
+<span class="rows-counter" id="rowsCounter">0 códigos</span>
+</div>
+<div class="container">
+<div class="stats-bar">
+<div class="stat"><span>Total códigos:</span><span class="stat-value" id="totalStat">0</span></div>
+<div class="stat"><span>Activos:</span><span class="stat-value" id="activosStat">0</span></div>
+<div class="stat"><span>Vendedores usados:</span><span class="stat-value" id="vendedoresStat">0</span></div>
+</div>
+<div class="crear-codigo-box">
+<div class="crear-codigo-titulo">Crear código nuevo</div>
+<div class="crear-codigo-form">
+<input type="text" id="nuevoCodigo" placeholder="Código (ej. Sommer00001)" class="input-crear">
+<input type="text" id="nuevoDueno" placeholder="Dueño del código (ej. Sommer)" class="input-crear">
+<select id="nuevoVendedor" class="select-crear"></select>
+<button class="btn btn-azul" onclick="crearCodigo()">Crear código ➕</button>
+</div>
+</div>
+<div class="grid-wrapper">
+<div id="myGrid" class="ag-theme-alpine"></div>
+</div>
+</div>
+<script src="invitaatuscompas-script.js"></script>
+</body>
+</html>

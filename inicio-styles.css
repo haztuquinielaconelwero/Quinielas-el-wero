@@ -554,8 +554,8 @@ margin-top: 0;
 /* ==================== Esto de abajo trabaja en la bolita flotante de la ruleta ==================== */
 .ruleta-flotante{
 position: fixed;
-width: 88px;
-height: 88px;
+width: 108px;
+height: 108px;
 border-radius: 50%;
 display: flex;
 align-items: center;
@@ -691,12 +691,22 @@ text-decoration: underline;
 display: flex;
 justify-content: center;
 margin-bottom: 16px;
+position: relative;
+}
+.ruleta-flecha-vitrina{
+position: absolute;
+top: -6px;
+left: 50%;
+transform: translateX(-50%);
+font-size: 1.6rem;
+z-index: 5;
+filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
 }
 .ruleta-rueda-decorativa{
-width: 160px;
-height: 160px;
+width: 170px;
+height: 170px;
 border-radius: 50%;
-border: 5px solid var(--dorado);
+border: 6px solid var(--dorado);
 background: conic-gradient(
 var(--verde-mx-claro) 0deg 90deg,
 var(--dorado) 90deg 180deg,
@@ -705,25 +715,55 @@ var(--rojo-mx) 270deg 360deg
 );
 position: relative;
 animation: giroLento 12s linear infinite;
-box-shadow: 0 0 15px rgba(255,215,0,0.4);
+box-shadow: 0 0 18px rgba(255,215,0,0.5), inset 0 0 0 3px rgba(0,0,0,0.35);
+}
+.ruleta-rueda-decorativa::before{
+content: "";
+position: absolute;
+inset: 0;
+border-radius: 50%;
+background:
+repeating-conic-gradient(rgba(0,0,0,0.35) 0deg 1.5deg, transparent 1.5deg 90deg);
+}
+.ruleta-rueda-decorativa::after{
+content: "🎰";
+position: absolute;
+top: 50%;
+left: 50%;
+width: 40px;
+height: 40px;
+transform: translate(-50%, -50%);
+background: radial-gradient(circle at 30% 30%, var(--dorado), var(--dorado-premium) 70%);
+border: 2px solid rgba(255,255,255,0.6);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.1rem;
+box-shadow: 0 0 10px rgba(0,0,0,0.5);
+z-index: 4;
 }
 .ruleta-rebanada-vitrina{
 position: absolute;
 top: 50%;
 left: 50%;
 font-size: 0.72rem;
-font-weight: 700;
+font-weight: 800;
 color: #fff;
 text-align: center;
-width: 60px;
+width: 58px;
 line-height: 1.15;
-text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+padding: 3px 4px;
+border-radius: 8px;
+background: rgba(0,0,0,0.28);
+text-shadow: 0 1px 2px rgba(0,0,0,0.6);
 transform-origin: 0 0;
+z-index: 3;
 }
-.ruleta-rebanada-vitrina.rv1{ transform: rotate(45deg) translate(30px, -60px); }
-.ruleta-rebanada-vitrina.rv2{ transform: rotate(135deg) translate(30px, -60px); }
-.ruleta-rebanada-vitrina.rv3{ transform: rotate(225deg) translate(30px, -60px); }
-.ruleta-rebanada-vitrina.rv4{ transform: rotate(315deg) translate(30px, -60px); }
+.ruleta-rebanada-vitrina.rv1{ transform: rotate(45deg) translate(32px, -64px); }
+.ruleta-rebanada-vitrina.rv2{ transform: rotate(135deg) translate(32px, -64px); }
+.ruleta-rebanada-vitrina.rv3{ transform: rotate(225deg) translate(32px, -64px); }
+.ruleta-rebanada-vitrina.rv4{ transform: rotate(315deg) translate(32px, -64px); }
 @keyframes giroLento{
 from{ transform: rotate(0deg); }
 to{ transform: rotate(360deg); }
@@ -738,9 +778,9 @@ animation: girarBoton 1.4s cubic-bezier(0.15, 0.9, 0.3, 1);
 }
 @media (max-width: 640px){
 .ruleta-flotante{ 
-width: 72px; 
-height: 72px; 
-font-size: 2.2rem; }
+width: 88px; 
+height: 88px; 
+font-size: 2.6rem; }
 .ruleta-rueda-decorativa{
 width: 130px;
 height: 130px;

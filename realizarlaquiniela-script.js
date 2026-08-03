@@ -51,6 +51,16 @@ return vendedorURL;
 const guardado = localStorage.getItem("quinielasElWero_vendedorActual");
 return guardado || null;
 }
+function detectarCodigoReferido() {
+const params = new URLSearchParams(window.location.search);
+const codigoURL = params.get("codigo");
+if (codigoURL) {
+localStorage.setItem("quinielasElWero_codigoReferido", codigoURL);
+return codigoURL;
+}
+const guardado = localStorage.getItem("quinielasElWero_codigoReferido");
+return guardado || null;
+}
 /* =====================================       Esto de abajo trabaja formar la quiniela                                                      ======================= */
 function renderPartidos() {
 const grid = document.getElementById("listaPartidos");
@@ -161,6 +171,7 @@ if (existeAlgunDuplicado(nombre, vendedor, combos)) {
 tarjetaroja("Ya añadiste una quiniela con el mismo nombre y resultados, tu quiniela no fue guardada.");
 return;
 }
+const codigoReferido = detectarCodigoReferido();
 const quinielas = leerStorage();
 const base = Date.now();
 combos.forEach((combo, idx) => {
@@ -169,6 +180,7 @@ id: base + idx,
 nombre,
 vendedor,
 jornada: JORNADA_ACTUAL,
+codigoreferido: codigoReferido,
 firma: firmaBoleto(nombre, vendedor, combo),
 selecciones: combo
 });
@@ -446,6 +458,7 @@ nombrequiniela: q.nombre,
 vendedor: vendedorFinal,
 jornada: q.jornada || JORNADA_ACTUAL,
 dispositivoid: dispositivoid,
+codigoreferido: q.codigoreferido || null,
 selecciones: q.selecciones
 })
 });

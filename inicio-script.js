@@ -347,6 +347,131 @@ for (let i = 0; i < bytes.byteLength; i++) binario += String.fromCharCode(bytes[
 return window.btoa(binario);
 }
 };
+/* ============= Esto de abajo trabaja en la ruleta flotante de premios ============================ */
+const RuletaFlotante = {
+STORAGE_KEY_CODIGO: "quinielasElWero_codigoReferido",
+boton: document.getElementById("ruletaFlotante"),
+overlay: document.getElementById("ruletaOverlay"),
+btnCerrar: document.getElementById("btnCerrarRuleta"),
+cuartoNuevo: document.getElementById("ruletaCuartoNuevo"),
+cuartoDueno: document.getElementById("ruletaCuartoDueno"),
+input: document.getElementById("codigoReferidoInput"),
+errEl: document.getElementById("codigoReferidoError"),
+btnConfirmar: document.getElementById("btnConfirmarCodigo"),
+nombreEl: document.getElementById("ruletaNombre"),
+saldoEl: document.getElementById("ruletaSaldo"),
+ticketsEl: document.getElementById("ruletaTicketsNum"),
+btnGirar: document.getElementById("btnGirarRuleta"),
+btnCanjear: document.getElementById("btnCanjearPremios"),
+codigoTextoEl: document.getElementById("ruletaCodigoTexto"),
+btnCopiar: document.getElementById("btnCopiarCodigo"),
+init() {
+if (!this.boton || !this.overlay) return;
+this.boton.addEventListener("click", () => this.abrir());
+this.boton.addEventListener("keydown", (e) => {
+if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.abrir(); }
+});
+this.btnCerrar?.addEventListener("click", () => this.cerrar());
+this.btnConfirmar?.addEventListener("click", () => this.confirmarCodigo());
+this.btnGirar?.addEventListener("click", () => this.girar());
+this.btnCopiar?.addEventListener("click", () => this.copiarCodigo());
+},
+leerCodigo() {
+return localStorage.getItem(this.STORAGE_KEY_CODIGO) || "";
+},
+abrir() {
+this.overlay.hidden = false;
+const codigo = this.leerCodigo();
+if (codigo) {
+this.mostrarCuartoDueno(codigo);
+} else {
+this.mostrarCuartoNuevo();
+}
+},
+cerrar() {
+this.overlay.hidden = true;
+},
+mostrarCuartoNuevo() {
+this.cuartoNuevo.hidden = false;
+this.cuartoDueno.hidden = true;
+},
+async mostrarCuartoDueno(codigo) {
+this.cuartoNuevo.hidden = true;
+this.cuartoDueno.hidden = false;
+const nombre = IdentidadCliente.leerIdentidad() || "Jugador";
+this.nombreEl.textContent = nombre;
+this.codigoTextoEl.textContent = codigo;
+try {
+const res = await fetch(`/api/ruletatickets?codigoreferido=${encodeURIComponent(codigo)}`);
+const data = await res.json();
+if (!res.ok || !data.success) throw new Error(data.mensaje || "No se pudo cargar la ruleta");
+this.saldoEl.textContent = data.saldoruleta ?? 0;
+this.ticketsEl.textContent = data.ticketsdisponibles ?? 0;
+this.btnCanjear.hidden = !(data.saldoruleta > 0 || data.quinielasgratispendientes > 0);
+} catch (err) {
+console.error("Error cargando datos de la ruleta:", err);
+}
+},
+async confirmarCodigo() {
+const codigo = this.input.value.trim();
+if (!codigo) {
+this.errEl.hidden = false;
+this.errEl.textContent = "Escribe tu codigo por favor.";
+return;
+}
+try {
+const res = await fetch(`/api/validarcodigoreferido?codigo=${encodeURIComponent(codigo)}`);
+const data = await res.json();
+if (!res.ok || !data.valido) {
+this.errEl.hidden = false;
+this.errEl.textContent = data.mensaje || "Ese codigo no existe.";
+return;
+}
+this.errEl.hidden = true;
+localStorage.setItem(this.STORAGE_KEY_CODIGO, codigo);
+this.mostrarCuartoDueno(codigo);
+} catch (err) {
+this.errEl.hidden = false;
+this.errEl.textContent = "No se pudo validar, intenta de nuevo.";
+console.error(err);
+}
+},
+async girar() {
+const codigo = this.leerCodigo();
+if (!codigo) return;
+this.btnGirar.classList.add("girando");
+this.btnGirar.disabled = true;
+try {
+const res = await fetch("/api/ruletagirar", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ codigoreferido: codigo })
+});
+const data = await res.json();
+setTimeout(() => {
+this.btnGirar.classList.remove("girando");
+this.btnGirar.disabled = false;
+if (!res.ok || !data.success) {
+this.errEl.hidden = false;
+this.errEl.textContent = data.mensaje || "No se pudo girar.";
+return;
+}
+this.mostrarCuartoDueno(codigo);
+}, 1400);
+} catch (err) {
+this.btnGirar.classList.remove("girando");
+this.btnGirar.disabled = false;
+console.error("Error girando la ruleta:", err);
+}
+},
+copiarCodigo() {
+const codigo = this.codigoTextoEl.textContent;
+navigator.clipboard.writeText(codigo).then(() => {
+this.btnCopiar.textContent = "✅ Copiado";
+setTimeout(() => { this.btnCopiar.textContent = "📋 Copiar"; }, 1500);
+});
+}
+};
 /* =============                      Esto de abajo trabaja en la actualizacion del Jornada en varios escritos                  ============================ */
 const JornadaHero = {
 elementosLabel: document.querySelectorAll("[data-jornada-label]"),
@@ -389,7 +514,8 @@ StatsQuinielas.init();
 TimerPremium.init();
 IdentidadCliente.init();
 JornadaHero.init();
-NavegacionStats.init();        
+NavegacionStats.init();  
+RuletaFlotante.init();      
 setInterval(() => StatsQuinielas.init(), 15000);
 });
 })();

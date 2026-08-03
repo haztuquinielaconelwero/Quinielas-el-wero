@@ -3,6 +3,7 @@ import os
 import threading
 import time
 import logging
+import random
 import unicodedata
 from datetime import datetime, timedelta, timezone
 import requests
@@ -52,11 +53,17 @@ def crear_tablas():
                     fechacreacion TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
                     llavemaestra TEXT NOT NULL UNIQUE,
                     dispositivoid TEXT NOT NULL,
+                    codigoreferido TEXT,
                     CONSTRAINT folio_solo_si_jugando CHECK (
                         (estado = 'Jugando' AND folio IS NOT NULL) OR
                         (estado != 'Jugando')
                     )
                 );
+            """)
+
+            cur.execute("""
+                ALTER TABLE todaslasquinielas
+                ADD COLUMN IF NOT EXISTS codigoreferido TEXT;
             """)
 
             cur.execute("""
@@ -150,6 +157,23 @@ def crear_tablas():
             """)
 
             cur.execute("""
+                CREATE TABLE IF NOT EXISTS referidosconfirmados (
+                    id SERIAL PRIMARY KEY,
+                    codigoreferido TEXT NOT NULL REFERENCES invitaatuscompas(codigo),
+                    dispositivoid TEXT NOT NULL,
+                    quinielaid INTEGER NOT NULL,
+                    ticketsganados INTEGER NOT NULL DEFAULT 1,
+                    fechaconfirmado TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+                    UNIQUE (codigoreferido, dispositivoid)
+                );
+            """)
+
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idxreferidosconfirmadoscodigo
+                ON referidosconfirmados (codigoreferido);
+            """)
+
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS historialdenotificaciones (
                     id BIGSERIAL PRIMARY KEY,
                     dispositivoid VARCHAR(100) NOT NULL REFERENCES clientes(dispositivoid) ON DELETE CASCADE,
@@ -179,6 +203,32 @@ def crear_tablas():
             cur.execute("""
                 CREATE INDEX IF NOT EXISTS idxpreguntaspushrespuesta
                 ON preguntaspush (respuesta);
+            """)
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ticketsruleta (
+                    codigoreferido TEXT PRIMARY KEY REFERENCES invitaatuscompas(codigo),
+                    ticketsdisponibles INTEGER NOT NULL DEFAULT 0,
+                    saldoruleta INTEGER NOT NULL DEFAULT 0,
+                    quinielasgratispendientes INTEGER NOT NULL DEFAULT 0
+                );
+            """)
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS premiosganados (
+                    id SERIAL PRIMARY KEY,
+                    codigoreferido TEXT NOT NULL REFERENCES invitaatuscompas(codigo),
+                    premio TEXT NOT NULL,
+                    valor INTEGER NOT NULL DEFAULT 0,
+                    canjeado BOOLEAN NOT NULL DEFAULT FALSE,
+                    fechaganado TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+                    fechacanjeado TIMESTAMPTZ
+                );
+            """)
+
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idxpremiosganadoscodigo
+                ON premiosganados (codigoreferido);
             """)
 
         conn.commit()
@@ -1240,6 +1290,7 @@ def enviarlaquinielaporwhatsapp():
     vendedor = (data.get("vendedor") or "").strip()
     jornada = (data.get("jornada") or JORNADA_ACTUAL).strip()
     dispositivoid = (data.get("dispositivoid") or "").strip()
+    codigoreferido = (data.get("codigoreferido") or "").strip() or None
     selecciones = data.get("selecciones") or {}
     if not nombrecelular or not nombrequiniela or not selecciones or not dispositivoid:
         return jsonify({"success": False, "mensaje": "Faltan datos"}), 400
@@ -1260,17 +1311,17 @@ def enviarlaquinielaporwhatsapp():
                     INSERT INTO todaslasquinielas (
                         nombrecelular, nombrequiniela, vendedor, jornada,
                         p1, p2, p3, p4, p5, p6, p7, p8, p9,
-                        llavemaestra, dispositivoid
+                        llavemaestra, dispositivoid, codigoreferido
                     )
                     VALUES (%s, %s, %s, %s,
                             %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                            %s, %s)
+                            %s, %s, %s)
                     ON CONFLICT (llavemaestra) DO NOTHING
                     RETURNING id
                     """,
                     (
                         nombrecelular, nombrequiniela, vendedor, jornada,
-                        *picks, llavemaestra, dispositivoid
+                        *picks, llavemaestra, dispositivoid, codigoreferido
                     )
                 )
                 fila = cur.fetchone()
@@ -1578,13 +1629,13 @@ def api_confirmar(qid):
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT vendedor, estado FROM todaslasquinielas WHERE id = %s FOR UPDATE",
+                    "SELECT vendedor, estado, codigoreferido, dispositivoid FROM todaslasquinielas WHERE id = %s FOR UPDATE",
                     (qid,),
                 )
                 fila = cur.fetchone()
                 if fila is None:
                     return jsonify({"success": False, "error": "Quiniela no encontrada"}), 404
-                vendedor, estado = fila
+                vendedor, estado, codigoreferido, dispositivoid = fila
                 if estado != "No jugando":
                     return jsonify({"success": False, "error": "Esta quiniela ya fue procesada"}), 409
                 if LISTA_BLOQUEADA:
@@ -1629,13 +1680,168 @@ def api_confirmar(qid):
                     "UPDATE todaslasquinielas SET estado = 'Jugando', folio = %s WHERE id = %s RETURNING folio",
                     (str(foliolibre), qid),
                 )
+
                 folio = cur.fetchone()[0]
+
+                ticket_ganado = False
+                if codigoreferido:
+                    cur.execute("""
+                        INSERT INTO referidosconfirmados (codigoreferido, dispositivoid, quinielaid)
+                        VALUES (%s, %s, %s)
+                        ON CONFLICT (codigoreferido, dispositivoid) DO NOTHING
+                        RETURNING id
+                    """, (codigoreferido, dispositivoid, qid))
+                    ticket_ganado = cur.fetchone() is not None
+
+                    if ticket_ganado:
+                        cur.execute("""
+                            INSERT INTO ticketsruleta (codigoreferido, ticketsdisponibles)
+                            VALUES (%s, 1)
+                            ON CONFLICT (codigoreferido) DO UPDATE SET
+                                ticketsdisponibles = ticketsruleta.ticketsdisponibles + 1
+                        """, (codigoreferido,))
+
                 conn.commit()
-                return jsonify({"success": True, "estado": "jugando", "quiniela": {"folio": folio}})
+                return jsonify({
+                    "success": True,
+                    "estado": "jugando",
+                    "quiniela": {"folio": folio},
+                    "ticketGanado": ticket_ganado
+                })
+            
     except Exception as exc:
         logger.error("api_confirmar: error -> %s", exc)
         return jsonify({"success": False, "error": str(exc)}), 500
 
+# ── Esto de abajo trabaja con saber cuantos tickets tiene disponibles un codigo para girar la ruleta ────────────────────────────────────────────────
+@app.route("/api/ruletatickets")
+def ruletatickets():
+    codigoreferido = (request.args.get("codigoreferido") or "").strip()
+    if not codigoreferido:
+        return jsonify(success=False, mensaje="Falta el codigo de referido"), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT ticketsdisponibles, saldoruleta, quinielasgratispendientes
+                    FROM ticketsruleta
+                    WHERE codigoreferido = %s
+                """, (codigoreferido,))
+                fila = cur.fetchone()
+        if fila is None:
+            return jsonify(success=True, tickets=0, saldo=0, quinielasgratis=0)
+        tickets, saldo, quinielasgratis = fila
+        return jsonify(success=True, tickets=tickets, saldo=saldo, quinielasgratis=quinielasgratis)
+    except Exception as exc:
+        logger.error("ruletatickets error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
+# ── Esto de abajo trabaja con regalar tickets manualmente a un codigo (premio o agradecimiento) ──────────────────────────────
+@app.route("/api/ruletaregalartickets", methods=["POST"])
+def ruletaregalartickets():
+    data = request.get_json(silent=True) or {}
+    codigoreferido = (data.get("codigoreferido") or "").strip()
+    cantidad = int(data.get("cantidad") or 0)
+    motivo = (data.get("motivo") or "Regalo manual").strip()
+    if not codigoreferido or cantidad <= 0:
+        return jsonify(success=False, mensaje="Faltan datos"), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO ticketsruleta (codigoreferido, ticketsdisponibles)
+                    VALUES (%s, %s)
+                    ON CONFLICT (codigoreferido)
+                    DO UPDATE SET ticketsdisponibles = ticketsruleta.ticketsdisponibles + %s
+                """, (codigoreferido, cantidad, cantidad))
+            conn.commit()
+        return jsonify(success=True, mensaje=f"Se regalaron {cantidad} tickets a {codigoreferido} ({motivo})")
+    except Exception as exc:
+        logger.error("ruletaregalartickets error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+    
+# ── Esto de abajo trabaja con decidir el premio al azar de la ruleta ────────────────────────────────────────────────
+def elegir_premio_ruleta():
+    dardo = random.random()
+    if dardo < 0.10:
+        return "quiniela_gratis", 0
+    elif dardo < 0.20:
+        return "20_pesos", 20
+    elif dardo < 0.80:
+        return "10_pesos", 10
+    else:
+        return "sigue_participando", 0
+
+@app.route("/api/ruletagirar", methods=["POST"])
+def ruletagirar():
+    data = request.get_json(silent=True) or {}
+    codigoreferido = (data.get("codigoreferido") or "").strip()
+    if not codigoreferido:
+        return jsonify(success=False, mensaje="Falta el codigo de referido"), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT ticketsdisponibles FROM ticketsruleta
+                    WHERE codigoreferido = %s FOR UPDATE
+                """, (codigoreferido,))
+                fila = cur.fetchone()
+                if fila is None or fila[0] < 1:
+                    return jsonify(success=False, mensaje="No tienes tickets disponibles"), 400
+
+                cur.execute("""
+                    UPDATE ticketsruleta SET ticketsdisponibles = ticketsdisponibles - 1
+                    WHERE codigoreferido = %s
+                """, (codigoreferido,))
+
+                premio, valor = elegir_premio_ruleta()
+
+                cur.execute("""
+                    INSERT INTO premiosganados (codigoreferido, premio, valor)
+                    VALUES (%s, %s, %s)
+                """, (codigoreferido, premio, valor))
+
+                if premio in ("20_pesos", "10_pesos"):
+                    cur.execute("""
+                        UPDATE ticketsruleta SET saldoruleta = saldoruleta + %s
+                        WHERE codigoreferido = %s
+                    """, (valor, codigoreferido))
+                elif premio == "quiniela_gratis":
+                    cur.execute("""
+                        UPDATE ticketsruleta SET quinielasgratispendientes = quinielasgratispendientes + 1
+                        WHERE codigoreferido = %s
+                    """, (codigoreferido,))
+
+            conn.commit()
+        return jsonify(success=True, premio=premio, valor=valor)
+    except Exception as exc:
+        logger.error("ruletagirar error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
+# ── Esto de abajo trabaja con validar si un codigo de referido existe y esta activo ────────────────────────────────────────────────
+@app.route("/api/validarcodigoreferido")
+def validarcodigoreferido():
+    codigo = (request.args.get("codigo") or "").strip()
+    if not codigo:
+        return jsonify(valido=False, mensaje="Falta el codigo"), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT dueno, activo FROM invitaatuscompas
+                    WHERE codigo = %s
+                """, (codigo,))
+                fila = cur.fetchone()
+        if fila is None:
+            return jsonify(valido=False, mensaje="Ese codigo no existe")
+        dueno, activo = fila
+        if not activo:
+            return jsonify(valido=False, mensaje="Ese codigo ya no esta activo")
+        return jsonify(valido=True, dueno=dueno, codigo=codigo)
+    except Exception as exc:
+        logger.error("validarcodigoreferido error - %s", exc)
+        return jsonify(valido=False, mensaje=str(exc)), 500
+    
 # ── Esto de abajo trabaja con la api de rechazar una quiniela pasa de no jugando a rechazada ────────────────────────────────────────────────────────────────
 @app.route("/api/quinielas/<int:qid>/rechazar", methods=["PATCH"])
 def api_rechazar(qid):
@@ -1929,6 +2135,14 @@ def invitaatuscompaslista():
                     ORDER BY fechacreacion DESC
                 """)
                 filas = cur.fetchall()
+
+                cur.execute("""
+                    SELECT codigoreferido, COUNT(*) 
+                    FROM referidosconfirmados
+                    GROUP BY codigoreferido
+                """)
+                conteos = dict(cur.fetchall())
+
         codigos = []
         for codigo, dueno, telefono, vendedor, activo, fechacreacion in filas:
             codigos.append({
@@ -1936,8 +2150,9 @@ def invitaatuscompaslista():
                 "dueno": dueno,
                 "telefono": telefono,
                 "vendedor": vendedor,
-                "linkVendedor": VENDEDOR_LINKS.get(vendedor, ""),
+                "linkCodigo": f"https://www.quinielaselwero.com?codigo={codigo}",
                 "activo": activo,
+                "totalReferidos": conteos.get(codigo, 0),
                 "creadoEn": fechacreacion.strftime("%Y-%m-%d %H:%M") if fechacreacion else "",
             })
         return jsonify(success=True, codigos=codigos)

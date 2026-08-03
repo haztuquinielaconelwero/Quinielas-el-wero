@@ -551,6 +551,145 @@ font-size: 0.9rem;
 color: #555;
 margin-top: 0;
 }
+/* ==================== Esto de abajo trabaja en la bolita flotante de la ruleta ==================== */
+.ruleta-flotante{
+position: fixed;
+width: 64px;
+height: 64px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2rem;
+cursor: pointer;
+z-index: 500;
+background: radial-gradient(circle at 30% 30%, var(--dorado), var(--dorado-premium) 60%, #8a6d00 100%);
+border: 2px solid rgba(255,255,255,0.35);
+box-shadow: 0 8px 24px rgba(255,215,0,0.45), inset 0 2px 6px rgba(255,255,255,0.4);
+animation: flotarRuleta 6s ease-in-out infinite, pulsoRuleta 2.4s ease-in-out infinite;
+transition: transform 0.15s ease;
+}
+.ruleta-flotante:active{
+transform: scale(0.9);
+}
+.ruleta-flotante-emoji{
+filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+.ruleta-flotante-badge{
+position: absolute;
+top: -4px;
+right: -4px;
+background: var(--rojo-mx);
+color: #fff;
+font-size: 0.65rem;
+font-weight: 800;
+min-width: 18px;
+height: 18px;
+border-radius: 999px;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 0 4px;
+box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+@keyframes flotarRuleta{
+0%{ top: 20%; left: 8%; }
+25%{ top: 55%; left: 78%; }
+50%{ top: 75%; left: 15%; }
+75%{ top: 30%; left: 65%; }
+100%{ top: 20%; left: 8%; }
+}
+@keyframes pulsoRuleta{
+0%, 100%{ box-shadow: 0 8px 24px rgba(255,215,0,0.45), inset 0 2px 6px rgba(255,255,255,0.4); }
+50%{ box-shadow: 0 8px 34px rgba(255,215,0,0.85), inset 0 2px 6px rgba(255,255,255,0.5); }
+}
+/* ==================== Esto de abajo trabaja en la ventanita de la ruleta ==================== */
+.ruleta-box{
+text-align: center;
+max-width: 380px;
+background: linear-gradient(160deg, var(--bg-card) 0%, #1a1208 100%);
+border: 1px solid rgba(255,215,0,0.25);
+}
+.ruleta-texto-emocion{
+font-size: 0.88rem;
+line-height: 1.5;
+color: var(--text-main);
+opacity: 0.9;
+margin: 10px 0 18px;
+}
+.ruleta-nombre{
+font-size: 1rem;
+font-weight: 700;
+color: var(--dorado);
+margin-bottom: 14px;
+}
+.ruleta-stats-row{
+display: flex;
+gap: var(--sp-4);
+justify-content: center;
+margin-bottom: 18px;
+}
+.ruleta-stat{
+display: flex;
+flex-direction: column;
+align-items: center;
+background: var(--glass-bg);
+border: 1px solid var(--glass-border);
+border-radius: var(--radius-md);
+padding: 10px 18px;
+min-width: 90px;
+}
+.ruleta-stat-numero{
+font-size: 1.5rem;
+font-weight: 800;
+color: var(--dorado);
+}
+.ruleta-stat-label{
+font-size: 0.68rem;
+color: var(--text-muted);
+margin-top: 2px;
+}
+.ruleta-codigo-row{
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+margin-top: 14px;
+background: rgba(255,255,255,0.05);
+border: 1px solid var(--glass-border);
+border-radius: 999px;
+padding: 8px 8px 8px 16px;
+}
+.ruleta-codigo-texto{
+font-size: 0.82rem;
+font-weight: 700;
+color: var(--text-main);
+letter-spacing: 0.02em;
+}
+.ruleta-btn-copiar{
+background: linear-gradient(90deg, var(--verde-mx-claro), var(--verde-mx));
+color: #fff;
+border: none;
+border-radius: 999px;
+padding: 6px 14px;
+font-size: 0.75rem;
+font-weight: 700;
+cursor: pointer;
+}
+/* ==================== Esto de abajo trabaja en el giro de verdad de la ruleta ==================== */
+#btnGirarRuleta.girando{
+animation: girarBoton 1.4s cubic-bezier(0.15, 0.9, 0.3, 1);
+}
+@keyframes girarBoton{
+0%{ transform: rotate(0deg); }
+100%{ transform: rotate(1080deg); }
+}
+@media (max-width: 640px){
+.ruleta-flotante{ 
+width: 56px; 
+height: 56px; 
+font-size: 1.7rem; }
+}
 /* ====================            Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion                            ==================== */
 @media (max-width: 900px){
 body{ padding-top: 0px; }

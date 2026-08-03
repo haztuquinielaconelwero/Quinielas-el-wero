@@ -179,6 +179,39 @@
 <a href="ayuda.html">Ayuda</a>
 </div>
 </footer>
+<!-- Esto de abajo trabaja con la bolita flotante de la ruleta ────────────────────────────────────────────────────────────────── -->
+<div class="ruleta-flotante" id="ruletaFlotante" role="button" tabindex="0" aria-label="Abrir ruleta de premios">
+<span class="ruleta-flotante-emoji">🎡</span>
+</div>
+<!-- Esto de abajo trabaja con la ventanita de la ruleta, con sus 2 cuartos ────────────────────────────────────────────────────── -->
+<div class="adm-pin-overlay" id="ruletaOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="ruletaTitle">
+<div class="adm-pin-box ruleta-box">
+<button class="adm-pin-close" id="btnCerrarRuleta" aria-label="Cerrar">✕</button>
+<!-- Cuarto 2: persona nueva, sin codigo guardado -->               <!-- Cuarto 2: persona nueva, sin codigo guardado -->
+<div class="ruleta-cuarto" id="ruletaCuartoNuevo">
+<h2 class="adm-pin-title" id="ruletaTitle">🎉 ¡Invita a tus compas y gana!</h2>
+<p class="ruleta-texto-emocion">Cada amigo que invitas te da 1 ticket. Cada ticket puede ganarte $10, $20 o una quiniela gratis.</p>
+<input type="text" id="codigoReferidoInput" class="rq-bienvenida-input" placeholder="Escribe tu codigo" maxlength="30">
+<span id="codigoReferidoError" class="adm-pin-error" role="alert" aria-live="polite" hidden></span>
+<button class="btn-participa" id="btnConfirmarCodigo" type="button" style="width:100%;justify-content:center">Confirmar codigo</button>
+</div>
+<!-- Cuarto 1: dueño del codigo, ya validado -->                                     <!-- Cuarto 1: dueño del codigo, ya validado -->
+<div class="ruleta-cuarto" id="ruletaCuartoDueno" hidden>
+<h2 class="adm-pin-title">Tu ruleta 🎡</h2>
+<p class="ruleta-nombre" id="ruletaNombre">Nombre</p>
+<div class="ruleta-stats-row">
+<div class="ruleta-stat"><span class="ruleta-stat-numero" id="ruletaSaldo">0</span><span class="ruleta-stat-label">Dinero</span></div>
+<div class="ruleta-stat"><span class="ruleta-stat-numero" id="ruletaTicketsNum">0</span><span class="ruleta-stat-label">Tickets</span></div>
+</div>
+<button class="btn-participa" id="btnGirarRuleta" type="button" style="width:100%;justify-content:center">Girar</button>
+<button class="btn-participa" id="btnCanjearPremios" type="button" style="width:100%;justify-content:center" hidden>Canjear premios</button>
+<div class="ruleta-codigo-row">
+<span class="ruleta-codigo-texto" id="ruletaCodigoTexto">Sommer00001</span>
+<button class="ruleta-btn-copiar" id="btnCopiarCodigo" type="button">Copiar 📋</button>
+</div>
+</div>
+</div>
+</div>
 <!-- Esto de abajo trabaja con los enlaces -->                                                                         <!-- Esto de abajo trabaja con los enlaces --> 
 <script src="inicio-script.js"></script>
 <script src="administrador-script.js"></script>

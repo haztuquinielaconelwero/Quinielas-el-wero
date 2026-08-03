@@ -192,7 +192,6 @@ background: white;
 .ag-theme-alpine .ag-header-cell {
 font-weight: 600 !important;
 font-size: 12px !important;
-text-transform: uppercase;
 letter-spacing: 0.4px;
 border-right: 1px solid var(--gray-300) !important;
 }

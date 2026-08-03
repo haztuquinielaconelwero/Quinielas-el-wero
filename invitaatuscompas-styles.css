@@ -192,7 +192,6 @@ background: white;
 .ag-theme-alpine .ag-header-cell {
 font-weight: 600 !important;
 font-size: 12px !important;
-text-transform: uppercase;
 letter-spacing: 0.4px;
 border-right: 1px solid var(--gray-300) !important;
 }
@@ -279,3 +278,8 @@ margin-right: 4px;
 .btn-mini:hover { background: var(--gray-200); }
 .btn-mini-danger { background: #fde8e8; color: var(--rojo); }
 .btn-mini-danger:hover { background: #fbcaca; }
+.btn-mini-dorado{
+background: linear-gradient(90deg, #FFD700, #D4AF37);
+color: #1a1208;
+font-weight: 700;
+}

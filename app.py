@@ -782,18 +782,26 @@ def _construir_lookups():
             logger.warning("%s no esta en NOMBRE_A_ESPN, usando nombre directo", p["local"])
     return kickoff_por_id, local_lookup, liga_fecha_ids
 
-# ── Consultas a resultadosdelajornada usando las columnas nuevas: "partidos" y "resultados"  ───────────────────────────────────────────────────
+from pywebpush import webpush, WebPushException
+import json
+
+FALLOS_MAX_CONSECUTIVOS = 5
+
 def _get_ids_con_resultado(jornada, ids):
     if not ids:
         return set()
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """SELECT partido_id FROM resultadosdelajornada
-                   WHERE jornada = %s AND partido_id = ANY(%s)""",
-                (jornada, list(ids)),
-            )
-            return {r[0] for r in cur.fetchall()}
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """SELECT partido_id FROM resultadosdelajornada
+                       WHERE jornada = %s AND partido_id = ANY(%s)""",
+                    (jornada, list(ids)),
+                )
+                return {r[0] for r in cur.fetchall()}
+    except Exception as exc:
+        logger.error("_get_ids_con_resultado error: %s", exc)
+        return set()
 
 def _guardar_resultado(pid, gh, ga, res):
     with get_connection() as conn:
@@ -812,8 +820,49 @@ def _guardar_resultado(pid, gh, ga, res):
             )
         conn.commit()
 
-from pywebpush import webpush, WebPushException
-import json
+def _desactivar_suscripcion(endpoint):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "UPDATE suscripcionespush SET activo = FALSE WHERE endpoint = %s",
+                    (endpoint,),
+                )
+            conn.commit()
+    except Exception as exc:
+        logger.error("_desactivar_suscripcion error: %s", exc)
+
+def _registrar_fallo(endpoint):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE suscripcionespush
+                    SET fallos_consecutivos = fallos_consecutivos + 1
+                    WHERE endpoint = %s
+                    RETURNING fallos_consecutivos
+                    """,
+                    (endpoint,),
+                )
+                fila = cur.fetchone()
+            conn.commit()
+        if fila and fila[0] >= FALLOS_MAX_CONSECUTIVOS:
+            _desactivar_suscripcion(endpoint)
+    except Exception as exc:
+        logger.error("_registrar_fallo error: %s", exc)
+
+def _resetear_fallos(endpoint):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "UPDATE suscripcionespush SET fallos_consecutivos = 0 WHERE endpoint = %s",
+                    (endpoint,),
+                )
+            conn.commit()
+    except Exception as exc:
+        logger.error("_resetear_fallos error: %s", exc)
 
 def enviar_push(dispositivoid, titulo, cuerpo, url="/"):
     try:
@@ -836,51 +885,59 @@ def enviar_push(dispositivoid, titulo, cuerpo, url="/"):
                     "endpoint": endpoint,
                     "keys": {"p256dh": p256dh, "auth": auth}
                 },
-                data=json.dumps({"titulo": titulo, "cuerpo": cuerpo, "deepLink": url,}),
+                data=json.dumps({"titulo": titulo, "cuerpo": cuerpo, "deepLink": url}),
                 vapid_private_key=VAPID_PRIVATE_KEY,
                 vapid_claims=VAPID_CLAIMS.copy()
             )
+            _resetear_fallos(endpoint)
         except WebPushException as exc:
             logger.warning("enviar_push fallo endpoint %s: %s", endpoint, exc)
             if exc.response is not None and exc.response.status_code in (404, 410):
-                try:
-                    with get_connection() as conn:
-                        with conn.cursor() as cur:
-                            cur.execute("""
-                                UPDATE suscripcionespush SET activo = FALSE
-                                WHERE endpoint = %s
-                            """, (endpoint,))
-                        conn.commit()
-                except Exception as exc2:
-                    logger.error("enviar_push error desactivando: %s", exc2)
+                _desactivar_suscripcion(endpoint)
+            else:
+                _registrar_fallo(endpoint)
+        except Exception as exc:
+            logger.error("enviar_push error inesperado endpoint %s: %s", endpoint, exc)
+            _registrar_fallo(endpoint)
 
 def ya_se_le_mando(dispositivoid, tipo, jornada, partidoid=None):
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT 1 FROM historialdenotificaciones
-                WHERE dispositivoid = %s AND tipo = %s AND jornada = %s
-                AND COALESCE(partidoid, -1) = COALESCE(%s, -1)
-            """, (dispositivoid, tipo, jornada, partidoid))
-            return cur.fetchone() is not None
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT 1 FROM historialdenotificaciones
+                    WHERE dispositivoid = %s AND tipo = %s AND jornada = %s
+                    AND COALESCE(partidoid, -1) = COALESCE(%s, -1)
+                """, (dispositivoid, tipo, jornada, partidoid))
+                return cur.fetchone() is not None
+    except Exception as exc:
+        logger.error("ya_se_le_mando error: %s", exc)
+        return True  # ante la duda, no reenviar duplicado
 
 def registrar_envio(dispositivoid, tipo, jornada, partidoid=None):
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO historialdenotificaciones (dispositivoid, tipo, jornada, partidoid)
-                VALUES (%s, %s, %s, %s)
-                ON CONFLICT DO NOTHING
-            """, (dispositivoid, tipo, jornada, partidoid))
-        conn.commit()
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO historialdenotificaciones (dispositivoid, tipo, jornada, partidoid)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT DO NOTHING
+                """, (dispositivoid, tipo, jornada, partidoid))
+            conn.commit()
+    except Exception as exc:
+        logger.error("registrar_envio error: %s", exc)
 
 def suscriptores_activos():
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT DISTINCT dispositivoid FROM suscripcionespush WHERE activo = TRUE
-            """)
-            return [r[0] for r in cur.fetchall()]
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT DISTINCT dispositivoid FROM suscripcionespush WHERE activo = TRUE
+                """)
+                return [r[0] for r in cur.fetchall()]
+    except Exception as exc:
+        logger.error("suscriptores_activos error: %s", exc)
+        return []
 
 TEXTOS_AVISO_TIEMPO = {
     "3dias": "Faltan 3 dias para el cierre de la jornada",
@@ -890,7 +947,12 @@ TEXTOS_AVISO_TIEMPO = {
 }
 
 def revisar_avisos_de_tiempo(now):
-    cierre = datetime.fromisoformat(JORNADA_CIERRE)
+    try:
+        cierre = datetime.fromisoformat(JORNADA_CIERRE)
+    except Exception as exc:
+        logger.error("revisar_avisos_de_tiempo: JORNADA_CIERRE invalido -> %s", exc)
+        return
+
     faltante = cierre - now
     ventanas = [
         ("3dias", timedelta(days=3)),
@@ -898,40 +960,63 @@ def revisar_avisos_de_tiempo(now):
         ("1dia", timedelta(days=1)),
         ("2horas", timedelta(hours=2)),
     ]
-
     for tipo, ventana in ventanas:
         if timedelta(0) < faltante <= ventana:
             for dispositivoid in suscriptores_activos():
-                if not ya_se_le_mando(dispositivoid, tipo, JORNADA_ACTUAL):
-                    enviar_push(dispositivoid, "Quinielas El Wero", TEXTOS_AVISO_TIEMPO[tipo], url="https://www.quinielaselwero.com/realizarlaquiniela.html")
-                    registrar_envio(dispositivoid, tipo, JORNADA_ACTUAL)
+                try:
+                    if not ya_se_le_mando(dispositivoid, tipo, JORNADA_ACTUAL):
+                        enviar_push(
+                            dispositivoid, "Quinielas El Wero", TEXTOS_AVISO_TIEMPO[tipo],
+                            url="https://www.quinielaselwero.com/realizarlaquiniela.html"
+                        )
+                        registrar_envio(dispositivoid, tipo, JORNADA_ACTUAL)
+                except Exception as exc:
+                    logger.error("revisar_avisos_de_tiempo error dispositivo %s: %s", dispositivoid, exc)
 
 def revisar_aviso_jornada_lista():
     for dispositivoid in suscriptores_activos():
-        if not ya_se_le_mando(dispositivoid, "jornadalista", JORNADA_ACTUAL):
-            enviar_push(
-                dispositivoid,
-                "Quinielas El Wero",
-                f"Ya esta lista la {JORNADA_ACTUAL}, entra y haz tu quiniela",
-                url="https://www.quinielaselwero.com/realizarlaquiniela.html"
-            )
-            registrar_envio(dispositivoid, "jornadalista", JORNADA_ACTUAL)
-
+        try:
+            if not ya_se_le_mando(dispositivoid, "jornadalista", JORNADA_ACTUAL):
+                enviar_push(
+                    dispositivoid,
+                    "Quinielas El Wero",
+                    f"Ya esta lista la {JORNADA_ACTUAL}, entra y haz tu quiniela",
+                    url="https://www.quinielaselwero.com/realizarlaquiniela.html"
+                )
+                registrar_envio(dispositivoid, "jornadalista", JORNADA_ACTUAL)
+        except Exception as exc:
+            logger.error("revisar_aviso_jornada_lista error dispositivo %s: %s", dispositivoid, exc)
 
 def revisar_avisos_de_partidos():
-    resultados = _obtener_resultados_oficiales(JORNADA_ACTUAL)
+    try:
+        resultados = _obtener_resultados_oficiales(JORNADA_ACTUAL)
+    except Exception as exc:
+        logger.error("revisar_avisos_de_partidos error obteniendo resultados: %s", exc)
+        return
 
     if 5 in resultados:
         for dispositivoid in suscriptores_activos():
-            if not ya_se_le_mando(dispositivoid, "partido5", JORNADA_ACTUAL, 5):
-                enviar_push(dispositivoid, "Quinielas El Wero", "Termino el partido 5, revisa tus puntos", url="https://www.quinielaselwero.com/misquinielas.html")
-                registrar_envio(dispositivoid, "partido5", JORNADA_ACTUAL, 5)
+            try:
+                if not ya_se_le_mando(dispositivoid, "partido5", JORNADA_ACTUAL, 5):
+                    enviar_push(
+                        dispositivoid, "Quinielas El Wero", "Termino el partido 5, revisa tus puntos",
+                        url="https://www.quinielaselwero.com/misquinielas.html"
+                    )
+                    registrar_envio(dispositivoid, "partido5", JORNADA_ACTUAL, 5)
+            except Exception as exc:
+                logger.error("revisar_avisos_de_partidos (partido5) error dispositivo %s: %s", dispositivoid, exc)
 
     if len(resultados) >= len(PARTIDOS):
         for dispositivoid in suscriptores_activos():
-            if not ya_se_le_mando(dispositivoid, "jornadaterminada", JORNADA_ACTUAL):
-                enviar_push(dispositivoid, "Quinielas El Wero", "Terminaron los 9 partidos, ve los resultados finales", url="https://www.quinielaselwero.com/listaoficial.html")
-                registrar_envio(dispositivoid, "jornadaterminada", JORNADA_ACTUAL)
+            try:
+                if not ya_se_le_mando(dispositivoid, "jornadaterminada", JORNADA_ACTUAL):
+                    enviar_push(
+                        dispositivoid, "Quinielas El Wero", "Terminaron los 9 partidos, ve los resultados finales",
+                        url="https://www.quinielaselwero.com/listaoficial.html"
+                    )
+                    registrar_envio(dispositivoid, "jornadaterminada", JORNADA_ACTUAL)
+            except Exception as exc:
+                logger.error("revisar_avisos_de_partidos (final) error dispositivo %s: %s", dispositivoid, exc)
 
 def _auto_sync_loop():
     logger.info("auto_sync (hilo Flask) iniciado")

@@ -2146,6 +2146,7 @@ def invitaatuscompaslista():
                 """)
                 filas = cur.fetchall()
 
+
                 cur.execute("""
                     SELECT codigoreferido, COUNT(*) 
                     FROM referidosconfirmados
@@ -2153,8 +2154,20 @@ def invitaatuscompaslista():
                 """)
                 conteos = dict(cur.fetchall())
 
+
+                cur.execute("""
+                    SELECT codigoreferido, ticketsdisponibles, saldoruleta, quinielasgratispendientes
+                    FROM ticketsruleta
+                """)
+                ruleta = dict(
+                    (fila[0], {"tickets": fila[1], "saldo": fila[2], "quinielas": fila[3]})
+                    for fila in cur.fetchall()
+                )
+
+
         codigos = []
         for codigo, dueno, telefono, vendedor, activo, fechacreacion in filas:
+            info = ruleta.get(codigo, {"tickets": 0, "saldo": 0, "quinielas": 0})
             codigos.append({
                 "codigo": codigo,
                 "dueno": dueno,
@@ -2163,13 +2176,16 @@ def invitaatuscompaslista():
                 "linkCodigo": f"https://www.quinielaselwero.com?codigo={codigo}",
                 "activo": activo,
                 "totalReferidos": conteos.get(codigo, 0),
+                "tickets": info["tickets"],
+                "saldo": info["saldo"],
+                "quinielasGratis": info["quinielas"],
                 "creadoEn": fechacreacion.strftime("%Y-%m-%d %H:%M") if fechacreacion else "",
             })
         return jsonify(success=True, codigos=codigos)
     except Exception as exc:
         logger.error("invitaatuscompaslista error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
-
+    
 @app.route('/api/invitaatuscompascrearreferido', methods=['POST'])
 def invitaatuscompascrearreferido():
     data = request.get_json(silent=True) or {}

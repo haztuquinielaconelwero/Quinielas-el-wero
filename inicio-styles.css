@@ -807,6 +807,35 @@ width: 44px;
 top: -48px;
 }
 }
+/* ==================== Esto de abajo trabaja en apagar el giro decorativo cuando gira de verdad ==================== */
+.ruleta-rueda-decorativa.girando-real{
+animation: none;
+}
+
+/* ==================== Esto de abajo trabaja en el cartelito del premio ==================== */
+.ruleta-premio-popup{
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) scale(0.7);
+background: linear-gradient(160deg, var(--bg-card) 0%, #1a1208 100%);
+border: 2px solid var(--dorado);
+color: var(--text-main);
+padding: 22px 32px;
+border-radius: var(--radius-lg);
+font-weight: 800;
+font-size: 1.05rem;
+text-align: center;
+box-shadow: 0 0 30px rgba(255,215,0,0.6);
+opacity: 0;
+z-index: 10000;
+transition: opacity 0.35s ease, transform 0.35s ease;
+pointer-events: none;
+}
+.ruleta-premio-popup.mostrar{
+opacity: 1;
+transform: translate(-50%, -50%) scale(1);
+}
 /* ====================            Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion                            ==================== */
 @media (max-width: 900px){
 body{ padding-top: 0px; }

@@ -457,6 +457,7 @@ async girar() {
 const codigo = this.leerCodigo();
 if (!codigo) return;
 this.btnGirar.disabled = true;
+const rueda = document.getElementById("ruletaRueda");
 try {
 const res = await fetch("/api/ruletagirar", {
 method: "POST",
@@ -464,47 +465,56 @@ headers: { "Content-Type": "application/json" },
 body: JSON.stringify({ codigoreferido: codigo })
 });
 const data = await res.json();
-setTimeout(() => {
-this.btnGirar.disabled = false;
 if (!res.ok || !data.success) {
+this.btnGirar.disabled = false;
 this.errEl.hidden = false;
 this.errEl.textContent = data.mensaje || "No se pudo girar.";
 return;
 }
+const grados = this.calcularGradosParaPremio(data.premio);
+if (rueda) {
+rueda.classList.add("girando-real");
+rueda.style.transition = "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
+rueda.style.transform = `rotate(${grados}deg)`;
+}
+setTimeout(() => {
+this.btnGirar.disabled = false;
+this.mostrarPremio(data.premio, data.valor);
 this.mostrarCuartoDueno(codigo);
-}, 1400);
+}, rueda ? 4200 : 1400);
 } catch (err) {
 this.btnGirar.disabled = false;
 console.error("Error girando la ruleta:", err);
 }
 },
-async irConVendedor() {
-const vendedor = localStorage.getItem("quinielasElWero_vendedorActual");
-const mensaje = encodeURIComponent("Hola, quiero mi codigo de invitacion para la ruleta de premios 🎰");
-if (!vendedor) {
-window.open(`https://wa.me/?text=${mensaje}`, "_blank");
-return;
-}
-try {
-const res = await fetch(`/api/whatsappdelvendedor?vendedor=${encodeURIComponent(vendedor)}`);
-const data = await res.json();
-if (res.ok && data.success && data.numero) {
-window.open(`https://wa.me/${data.numero}?text=${mensaje}`, "_blank");
-} else {
-window.open(`https://wa.me/?text=${mensaje}`, "_blank");
-}
-} catch (err) {
-console.error("Error obteniendo whatsapp del vendedor:", err);
-window.open(`https://wa.me/?text=${mensaje}`, "_blank");
-}
+calcularGradosParaPremio(premio) {
+const sectores = {
+"quinielagratis": 315,
+"20pesos": 225,
+"10pesos": 135,
+"sigueparticipando": 45,
+};
+const vueltasCompletas = 5 * 360;
+const anguloFinal = sectores[premio] ?? 45;
+return vueltasCompletas + anguloFinal;
 },
-copiarCodigo() {
-const codigo = this.codigoTextoEl.textContent;
-navigator.clipboard.writeText(codigo).then(() => {
-this.btnCopiar.textContent = "✅ Copiado";
-setTimeout(() => { this.btnCopiar.textContent = "📋 Copiar"; }, 1500);
-});
-}
+mostrarPremio(premio, valor) {
+const mensajes = {
+"quinielagratis": "🎁 ¡Ganaste una quiniela gratis!",
+"20pesos": "💰 ¡Ganaste $20 pesos!",
+"10pesos": "💰 ¡Ganaste $10 pesos!",
+"sigueparticipando": "🍀 Sigue participando, la próxima es tuya",
+};
+const cartel = document.createElement("div");
+cartel.className = "ruleta-premio-popup";
+cartel.textContent = mensajes[premio] || "🍀 Sigue participando";
+document.body.appendChild(cartel);
+setTimeout(() => cartel.classList.add("mostrar"), 10);
+setTimeout(() => {
+cartel.classList.remove("mostrar");
+setTimeout(() => cartel.remove(), 400);
+}, 3000);
+},
 };
 /* =============                      Esto de abajo trabaja en la actualizacion del Jornada en varios escritos                  ============================ */
 const JornadaHero = {

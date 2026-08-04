@@ -43,6 +43,9 @@ vendedor: c.vendedor || '',
 linkCodigo: c.linkCodigo || '',
 activo: c.activo,
 totalReferidos: c.totalReferidos || 0,
+tickets: c.tickets || 0,
+saldo: c.saldo || 0,
+quinielasGratis: c.quinielasGratis || 0,
 creadoEn: c.creadoEn || '',
 }));
 poblarFiltroVendedores();
@@ -95,12 +98,14 @@ return matchTexto && matchVendedor;
 function buildRowData(lista) {
 return lista.map(c => ({
 codigo: c.codigo,
-dueno: c.dueno,
 telefono: c.telefono,
 vendedor: c.vendedor,
 linkCodigo: c.linkCodigo,
 activo: c.activo ? 'Activo' : 'Inactivo',
 totalReferidos: c.totalReferidos,
+tickets: c.tickets,
+saldo: c.saldo,
+quinielasGratis: c.quinielasGratis,
 creadoEn: c.creadoEn,
 }));
 }
@@ -108,7 +113,6 @@ creadoEn: c.creadoEn,
 function buildColumnDefs() {
 return [
 { field: 'codigo', headerName: 'Código', width: 160, pinned: 'left', cellStyle: { justifyContent: 'flex-start', paddingLeft: '10px' } },
-{ field: 'dueno', headerName: 'Dueño del código', width: 160, cellStyle: { justifyContent: 'flex-start', paddingLeft: '8px' } },
 { field: 'telefono', headerName: 'Teléfono', width: 130 },
 { field: 'vendedor', headerName: 'Vendedor', width: 130 },
 {
@@ -122,6 +126,9 @@ cellRenderer: params => params.value === 'Activo'
 : '<span style="color:#e74c3c">● Inactivo</span>',
 },
 { field: 'totalReferidos', headerName: 'Referidos', width: 100 },
+{ field: 'tickets', headerName: '🎟️ Tickets', width: 100 },
+{ field: 'saldo', headerName: '💰 Dinero', width: 110, cellRenderer: params => `$${params.value}` },
+{ field: 'quinielasGratis', headerName: '🎁 Quinielas', width: 110 },
 { field: 'creadoEn', headerName: 'Creado en', width: 160 },
 {
 headerName: 'Acciones', width: 230, sortable: false,

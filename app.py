@@ -2212,14 +2212,12 @@ def invitaatuscompaslista():
                 """)
                 filas = cur.fetchall()
 
-
                 cur.execute("""
                     SELECT codigoreferido, COUNT(*) 
                     FROM referidosconfirmados
                     GROUP BY codigoreferido
                 """)
                 conteos = dict(cur.fetchall())
-
 
                 cur.execute("""
                     SELECT codigoreferido, ticketsdisponibles, saldoruleta, quinielasgratispendientes
@@ -2230,10 +2228,23 @@ def invitaatuscompaslista():
                     for fila in cur.fetchall()
                 )
 
+                cur.execute("""
+                    SELECT codigoreferido,
+                           COUNT(*) FILTER (WHERE canjeado = TRUE) AS totalcanjeados,
+                           COALESCE(SUM(valor) FILTER (WHERE canjeado = TRUE AND premio IN ('10_pesos','20_pesos')), 0) AS dinerocanjeado,
+                           COUNT(*) FILTER (WHERE canjeado = TRUE AND premio = 'quiniela_gratis') AS quinielascanjeadas
+                    FROM premiosganados
+                    GROUP BY codigoreferido
+                """)
+                canjeados = dict(
+                    (fila[0], {"total": fila[1], "dinero": fila[2], "quinielas": fila[3]})
+                    for fila in cur.fetchall()
+                )
 
         codigos = []
         for codigo, dueno, telefono, vendedor, activo, fechacreacion in filas:
             info = ruleta.get(codigo, {"tickets": 0, "saldo": 0, "quinielas": 0})
+            info_canje = canjeados.get(codigo, {"total": 0, "dinero": 0, "quinielas": 0})
             codigos.append({
                 "codigo": codigo,
                 "dueno": dueno,
@@ -2245,13 +2256,17 @@ def invitaatuscompaslista():
                 "tickets": info["tickets"],
                 "saldo": info["saldo"],
                 "quinielasGratis": info["quinielas"],
+                "premiosCanjeados": info_canje["total"],
+                "dineroCanjeado": info_canje["dinero"],
+                "quinielasCanjeadas": info_canje["quinielas"],
                 "creadoEn": fechacreacion.strftime("%Y-%m-%d %H:%M") if fechacreacion else "",
             })
         return jsonify(success=True, codigos=codigos)
     except Exception as exc:
         logger.error("invitaatuscompaslista error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
-    
+
+
 @app.route('/api/invitaatuscompascrearreferido', methods=['POST'])
 def invitaatuscompascrearreferido():
     data = request.get_json(silent=True) or {}
@@ -2283,6 +2298,7 @@ def invitaatuscompascrearreferido():
     except Exception as exc:
         logger.error("invitaatuscompascrearreferido error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
+
 
 @app.route('/api/invitaatuscompaseditar', methods=['POST'])
 def invitaatuscompaseditar():
@@ -2316,6 +2332,7 @@ def invitaatuscompaseditar():
         logger.error("invitaatuscompaseditar error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
 
+
 @app.route('/api/invitaatuscompasestado', methods=['POST'])
 def invitaatuscompasestado():
     data = request.get_json(silent=True) or {}
@@ -2343,6 +2360,7 @@ def invitaatuscompasestado():
         logger.error("invitaatuscompasestado error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
 
+
 @app.route('/api/invitaatuscompaseliminar', methods=['POST'])
 def invitaatuscompaseliminar():
     data = request.get_json(silent=True) or {}
@@ -2368,7 +2386,6 @@ def invitaatuscompaseliminar():
         logger.error("invitaatuscompaseliminar error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
 
-    
 # ── Esto de abajo trabaja con el home e inicio.html ────────────────────────────────────────────────────────────────────────────────
 @app.route("/")
 def home():

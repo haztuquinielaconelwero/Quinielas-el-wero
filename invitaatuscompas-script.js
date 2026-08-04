@@ -46,6 +46,9 @@ totalReferidos: c.totalReferidos || 0,
 tickets: c.tickets || 0,
 saldo: c.saldo || 0,
 quinielasGratis: c.quinielasGratis || 0,
+premiosCanjeados: c.premiosCanjeados || 0,
+dineroCanjeado: c.dineroCanjeado || 0,
+quinielasCanjeadas: c.quinielasCanjeadas || 0,
 creadoEn: c.creadoEn || '',
 }));
 poblarFiltroVendedores();
@@ -106,6 +109,9 @@ totalReferidos: c.totalReferidos,
 tickets: c.tickets,
 saldo: c.saldo,
 quinielasGratis: c.quinielasGratis,
+premiosCanjeados: c.premiosCanjeados,
+dineroCanjeado: c.dineroCanjeado,
+quinielasCanjeadas: c.quinielasCanjeadas,
 creadoEn: c.creadoEn,
 }));
 }
@@ -137,6 +143,16 @@ cellRenderer: params => `
 <button onclick="editarCodigo('${params.data.codigo}')" class="btn-mini">Editar</button>
 <button onclick="eliminarCodigo('${params.data.codigo}')" class="btn-mini btn-mini-danger">Eliminar</button>
 `,
+},
+{
+field: 'premiosCanjeados', headerName: 'Premios canjeados ✅', width: 190, sortable: true,
+cellRenderer: params => {
+if (!params.value) return '<span style="color:#5f6368">Sin canjes</span>';
+const partes = [];
+if (params.data.quinielasCanjeadas > 0) partes.push(`${params.data.quinielasCanjeadas} 🎁`);
+if (params.data.dineroCanjeado > 0) partes.push(`$${params.data.dineroCanjeado} 💰`);
+return `<span style="color:#2ecc71">✔ ${params.value} · ${partes.join(' + ')}</span>`;
+},
 },
 ];
 }
@@ -223,25 +239,51 @@ await cargarDatos();
 alert('❌ ' + error.message);
 }
 }
+/*                              Esto de abajo trabaja en mostrar la ventanita bonita para pedir cuantos tickets regalar                  */
+function pedirCantidadTickets(codigo) {
+return new Promise((resolve) => {
+const overlay = document.createElement('div');
+overlay.className = 'regalo-tickets-overlay';
+overlay.innerHTML = `
+<div class="regalo-tickets-caja">
+<p class="regalo-tickets-titulo">🎁 Regalar tickets de ruleta</p>
+<p class="regalo-tickets-cuerpo">¿Cuántos tickets quieres regalarle a <strong>${codigo}</strong>?</p>
+<input type="number" id="regaloTicketsInput" min="1" value="1" class="regalo-tickets-input" />
+<div class="regalo-tickets-botones">
+<button id="btnRegaloCancelar" class="btn-mini">Cancelar</button>
+<button id="btnRegaloConfirmar" class="btn-mini btn-mini-dorado">Regalar 🎟️</button>
+</div>
+</div>
+`;
+document.body.appendChild(overlay);
+const input = document.getElementById('regaloTicketsInput');
+input.focus();
+input.select();
+document.getElementById('btnRegaloCancelar').addEventListener('click', () => {
+overlay.remove();
+resolve(null);
+});
+document.getElementById('btnRegaloConfirmar').addEventListener('click', () => {
+const cantidad = parseInt(input.value, 10);
+overlay.remove();
+resolve(cantidad > 0 ? cantidad : null);
+});
+});
+}
 /*                              Esto de abajo trabaja en regalar tickets manualmente a un dueño de codigo (premio o agradecimiento)                  */
 async function regalarTickets(codigo) {
-const cantidadTexto = prompt(`¿Cuántos tickets le regalas a "${codigo}"?`, '1');
-if (!cantidadTexto) return;
-const cantidad = parseInt(cantidadTexto, 10);
-if (!cantidad || cantidad <= 0) {
-alert('Escribe un numero valido de tickets.');
-return;
-}
-const motivo = prompt('Motivo del regalo (opcional):', 'Ayuda a compartir') || 'Regalo manual';
+const cantidad = await pedirCantidadTickets(codigo);
+if (!cantidad) return;
 try {
 const resp = await fetch('/api/ruletaregalartickets', {
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ codigoreferido: codigo, cantidad, motivo }),
+body: JSON.stringify({ codigoreferido: codigo, cantidad, motivo: 'Regalo manual desde el panel' }),
 });
 const data = await resp.json();
 if (!data.success) throw new Error(data.mensaje || 'No se pudo regalar tickets');
 alert('✅ ' + data.mensaje);
+await cargarDatos();
 } catch (error) {
 alert('❌ ' + error.message);
 }

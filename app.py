@@ -215,6 +215,11 @@ def crear_tablas():
             """)
 
             cur.execute("""
+                ALTER TABLE ticketsruleta
+                ADD COLUMN IF NOT EXISTS quinielascanjeadastotal INTEGER NOT NULL DEFAULT 0;
+            """)
+
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS premiosganados (
                     id SERIAL PRIMARY KEY,
                     codigoreferido TEXT NOT NULL REFERENCES invitaatuscompas(codigo),
@@ -1843,7 +1848,6 @@ def ruletagirar():
         return jsonify(success=False, mensaje=str(exc)), 500
 
 # ── Esto de abajo trabaja con canjear los premios de la ruleta────────────────────────────────────────────────
-
 @app.route("/api/ruletacanjear", methods=["POST"])
 def ruletacanjear():
     data = request.get_json(silent=True) or {}
@@ -1854,14 +1858,14 @@ def ruletacanjear():
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    SELECT saldoruleta, quinielasgratispendientes
+                    SELECT quinielasgratispendientes
                     FROM ticketsruleta
                     WHERE codigoreferido = %s FOR UPDATE
                 """, (codigoreferido,))
                 fila = cur.fetchone()
-                if fila is None or (fila[0] <= 0 and fila[1] <= 0):
-                    return jsonify(success=False, mensaje="No tienes premios pendientes por canjear"), 400
-                saldo, quinielasgratis = fila
+                if fila is None or fila[0] < 1:
+                    return jsonify(success=False, mensaje="Necesitas al menos 1 quiniela gratis para canjear"), 400
+                quinielasgratis = fila[0]
 
                 cur.execute("""
                     SELECT vendedor FROM invitaatuscompas WHERE codigo = %s
@@ -1872,24 +1876,19 @@ def ruletacanjear():
 
                 cur.execute("""
                     UPDATE ticketsruleta
-                    SET saldoruleta = 0, quinielasgratispendientes = 0
+                    SET quinielasgratispendientes = 0,
+                        quinielascanjeadastotal = quinielascanjeadastotal + %s
                     WHERE codigoreferido = %s
-                """, (codigoreferido,))
+                """, (quinielasgratis, codigoreferido))
                 cur.execute("""
                     UPDATE premiosganados SET canjeado = TRUE, fechacanjeado = (now() AT TIME ZONE 'America/Mexico_City')
-                    WHERE codigoreferido = %s AND canjeado = FALSE
+                    WHERE codigoreferido = %s AND canjeado = FALSE AND premio = 'quiniela_gratis'
                 """, (codigoreferido,))
             conn.commit()
 
-        partes = []
-        if quinielasgratis > 0:
-            partes.append(f"{quinielasgratis} quiniela(s) gratis")
-        if saldo > 0:
-            partes.append(f"${saldo} pesos")
-        resumen = " y ".join(partes)
-        mensaje = f"Hola, gané {resumen} en la ruleta de premios con mi código {codigoreferido}. Quiero canjearlos 🎁"
+        mensaje = f"Hola, gané {quinielasgratis} quiniela(s) gratis en la ruleta de premios con mi código {codigoreferido}. Quiero canjearlas 🎁"
 
-        return jsonify(success=True, mensaje=mensaje, numero=numero, saldo=saldo, quinielasgratis=quinielasgratis)
+        return jsonify(success=True, mensaje=mensaje, numero=numero, quinielasgratis=quinielasgratis)
     except Exception as exc:
         logger.error("ruletacanjear error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
@@ -2220,31 +2219,24 @@ def invitaatuscompaslista():
                 conteos = dict(cur.fetchall())
 
                 cur.execute("""
-                    SELECT codigoreferido, ticketsdisponibles, saldoruleta, quinielasgratispendientes
+                    SELECT codigoreferido, ticketsdisponibles, saldoruleta, quinielasgratispendientes, quinielascanjeadastotal
                     FROM ticketsruleta
                 """)
                 ruleta = dict(
-                    (fila[0], {"tickets": fila[1], "saldo": fila[2], "quinielas": fila[3]})
+                    (fila[0], {"tickets": fila[1], "saldo": fila[2], "quinielas": fila[3], "canjeadas": fila[4]})
                     for fila in cur.fetchall()
                 )
 
                 cur.execute("""
-                    SELECT codigoreferido,
-                           COUNT(*) FILTER (WHERE canjeado = TRUE) AS totalcanjeados,
-                           COALESCE(SUM(valor) FILTER (WHERE canjeado = TRUE AND premio IN ('10_pesos','20_pesos')), 0) AS dinerocanjeado,
-                           COUNT(*) FILTER (WHERE canjeado = TRUE AND premio = 'quiniela_gratis') AS quinielascanjeadas
+                    SELECT codigoreferido, COUNT(*)
                     FROM premiosganados
                     GROUP BY codigoreferido
                 """)
-                canjeados = dict(
-                    (fila[0], {"total": fila[1], "dinero": fila[2], "quinielas": fila[3]})
-                    for fila in cur.fetchall()
-                )
+                giros = dict(cur.fetchall())
 
         codigos = []
         for codigo, dueno, telefono, vendedor, activo, fechacreacion in filas:
-            info = ruleta.get(codigo, {"tickets": 0, "saldo": 0, "quinielas": 0})
-            info_canje = canjeados.get(codigo, {"total": 0, "dinero": 0, "quinielas": 0})
+            info = ruleta.get(codigo, {"tickets": 0, "saldo": 0, "quinielas": 0, "canjeadas": 0})
             codigos.append({
                 "codigo": codigo,
                 "dueno": dueno,
@@ -2256,16 +2248,14 @@ def invitaatuscompaslista():
                 "tickets": info["tickets"],
                 "saldo": info["saldo"],
                 "quinielasGratis": info["quinielas"],
-                "premiosCanjeados": info_canje["total"],
-                "dineroCanjeado": info_canje["dinero"],
-                "quinielasCanjeadas": info_canje["quinielas"],
+                "ticketsGirados": giros.get(codigo, 0),
+                "quinielasCanjeadas": info["canjeadas"],
                 "creadoEn": fechacreacion.strftime("%Y-%m-%d %H:%M") if fechacreacion else "",
             })
         return jsonify(success=True, codigos=codigos)
     except Exception as exc:
         logger.error("invitaatuscompaslista error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
-
 
 @app.route('/api/invitaatuscompascrearreferido', methods=['POST'])
 def invitaatuscompascrearreferido():

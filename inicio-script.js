@@ -425,7 +425,7 @@ if (!res.ok || !data.success) throw new Error(data.mensaje || "No se pudo cargar
 this.saldoEl.textContent = data.saldo ?? 0;
 this.ticketsEl.textContent = data.tickets ?? 0;
 this.quinielasEl.textContent = data.quinielasgratis ?? 0;
-this.btnCanjear.hidden = !(data.saldo > 0 || data.quinielasgratis > 0);
+this.btnCanjear.hidden = !(data.quinielasgratis > 0);
 } catch (err) {
 console.error("Error cargando datos de la ruleta:", err);
 }

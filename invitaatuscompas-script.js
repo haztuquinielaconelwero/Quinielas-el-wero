@@ -46,8 +46,7 @@ totalReferidos: c.totalReferidos || 0,
 tickets: c.tickets || 0,
 saldo: c.saldo || 0,
 quinielasGratis: c.quinielasGratis || 0,
-premiosCanjeados: c.premiosCanjeados || 0,
-dineroCanjeado: c.dineroCanjeado || 0,
+ticketsGirados: c.ticketsGirados || 0,
 quinielasCanjeadas: c.quinielasCanjeadas || 0,
 creadoEn: c.creadoEn || '',
 }));
@@ -109,8 +108,7 @@ totalReferidos: c.totalReferidos,
 tickets: c.tickets,
 saldo: c.saldo,
 quinielasGratis: c.quinielasGratis,
-premiosCanjeados: c.premiosCanjeados,
-dineroCanjeado: c.dineroCanjeado,
+ticketsGirados: c.ticketsGirados,
 quinielasCanjeadas: c.quinielasCanjeadas,
 creadoEn: c.creadoEn,
 }));
@@ -145,14 +143,13 @@ cellRenderer: params => `
 `,
 },
 {
-field: 'premiosCanjeados', headerName: 'Premios canjeados ✅', width: 190, sortable: true,
-cellRenderer: params => {
-if (!params.value) return '<span style="color:#5f6368">Sin canjes</span>';
-const partes = [];
-if (params.data.quinielasCanjeadas > 0) partes.push(`${params.data.quinielasCanjeadas} 🎁`);
-if (params.data.dineroCanjeado > 0) partes.push(`$${params.data.dineroCanjeado} 💰`);
-return `<span style="color:#2ecc71">✔ ${params.value} · ${partes.join(' + ')}</span>`;
-},
+field: 'quinielasCanjeadas', headerName: 'Premios canjeados ✅', width: 190, sortable: true,
+cellRenderer: params => `
+<div style="display:flex;flex-direction:column;gap:2px;font-size:11px;line-height:1.3;">
+<span style="color:#5f6368">Tickets 🎟️: <strong style="color:#202124">${params.data.ticketsGirados}</strong></span>
+<span style="color:#5f6368">Quinielas 🎁: <strong style="color:#2ecc71">${params.value}</strong></span>
+</div>
+`,
 },
 ];
 }

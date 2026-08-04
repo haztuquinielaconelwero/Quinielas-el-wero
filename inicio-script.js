@@ -453,11 +453,11 @@ this.errEl.textContent = "No se pudo validar, intenta de nuevo.";
 console.error(err);
 }
 },
+rotacionAcumulada: 0,
 async girar() {
 const codigo = this.leerCodigo();
 if (!codigo) return;
 this.btnGirar.disabled = true;
-this.btnGirar.textContent = "Girando... 🎰";
 const rueda = document.getElementById("ruletaRueda");
 const flecha = document.querySelector("#ruletaCuartoDueno .ruleta-flecha-vitrina");
 try {
@@ -469,11 +469,11 @@ body: JSON.stringify({ codigoreferido: codigo })
 const data = await res.json();
 if (!res.ok || !data.success) {
 this.btnGirar.disabled = false;
-this.btnGirar.textContent = "Girar";
 this.errEl.hidden = false;
 this.errEl.textContent = data.mensaje || "No se pudo girar.";
 return;
 }
+this.btnGirar.textContent = "Girando... 🎰";
 const grados = this.calcularGradosParaPremio(data.premio);
 if (rueda) {
 rueda.classList.add("girando-real");
@@ -500,14 +500,18 @@ console.error("Error girando la ruleta:", err);
 },
 calcularGradosParaPremio(premio) {
 const sectores = {
-"quinielagratis": 315,
-"20pesos": 225,
-"10pesos": 135,
-"sigueparticipando": 45,
+"quiniela_gratis": 315,
+"20_pesos": 225,
+"10_pesos": 135,
+"sigue_participando": 45,
 };
-const vueltasCompletas = 5 * 360;
 const anguloFinal = sectores[premio] ?? 45;
-return vueltasCompletas + anguloFinal;
+const vueltasExtra = 5 * 360;
+const rotacionMinima = this.rotacionAcumulada + vueltasExtra;
+const vueltaActualEnGrados = rotacionMinima % 360;
+const ajuste = (anguloFinal - vueltaActualEnGrados + 360) % 360;
+this.rotacionAcumulada = rotacionMinima + ajuste;
+return this.rotacionAcumulada;
 },
 mostrarPremio(premio, valor) {
 const mensajes = {

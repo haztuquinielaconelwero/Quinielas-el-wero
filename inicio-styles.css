@@ -661,10 +661,15 @@ border-radius: 999px;
 padding: 8px 8px 8px 16px;
 }
 .ruleta-codigo-texto{
-font-size: 0.82rem;
+font-size: 0.78rem;
 font-weight: 700;
 color: var(--text-main);
 letter-spacing: 0.02em;
+flex: 1;
+min-width: 0;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
 }
 .ruleta-btn-copiar{
 background: linear-gradient(90deg, var(--verde-mx-claro), var(--verde-mx));
@@ -675,6 +680,8 @@ padding: 6px 14px;
 font-size: 0.75rem;
 font-weight: 700;
 cursor: pointer;
+flex-shrink: 0;
+white-space: nowrap;
 }
 .ruleta-pide-codigo{
 font-size: 0.8rem;
@@ -714,7 +721,6 @@ var(--dorado) 90deg 180deg,
 var(--rojo-mx) 270deg 360deg
 );
 position: relative;
-animation: giroLento 12s linear infinite;
 box-shadow: 0 0 18px rgba(255,215,0,0.5), inset 0 0 0 3px rgba(0,0,0,0.35);
 }
 .ruleta-rueda-decorativa::before{
@@ -811,7 +817,10 @@ top: -48px;
 .ruleta-rueda-decorativa.girando-real{
 animation: none;
 }
-
+/* ==================== Esto de abajo trabaja en dejar quieta solo la ruleta real, no la decorativa ==================== */
+#ruletaRueda{
+animation: none;
+}
 /* ==================== Esto de abajo trabaja en el cartelito del premio ==================== */
 .ruleta-premio-popup{
 position: fixed;
@@ -835,6 +844,27 @@ pointer-events: none;
 .ruleta-premio-popup.mostrar{
 opacity: 1;
 transform: translate(-50%, -50%) scale(1);
+}
+.ruleta-rueda-decorativa.girando-real{
+animation: none;
+box-shadow: 0 0 45px rgba(255,215,0,0.9), inset 0 0 0 3px rgba(0,0,0,0.35);
+}
+.ruleta-rueda-decorativa.parando{
+animation: rebotecitoFinal 0.5s ease;
+}
+@keyframes rebotecitoFinal{
+0%{ filter: brightness(1); }
+40%{ filter: brightness(1.4); }
+100%{ filter: brightness(1); }
+}
+.ruleta-flecha-vitrina.rebota{
+animation: rebotarFlecha 0.5s ease;
+}
+@keyframes rebotarFlecha{
+0%{ transform: translateX(-50%) translateY(0); }
+30%{ transform: translateX(-50%) translateY(7px); }
+60%{ transform: translateX(-50%) translateY(-4px); }
+100%{ transform: translateX(-50%) translateY(0); }
 }
 /* ====================            Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion                            ==================== */
 @media (max-width: 900px){

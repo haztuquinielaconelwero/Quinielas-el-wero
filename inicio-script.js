@@ -421,10 +421,10 @@ try {
 const res = await fetch(`/api/ruletatickets?codigoreferido=${encodeURIComponent(codigo)}`);
 const data = await res.json();
 if (!res.ok || !data.success) throw new Error(data.mensaje || "No se pudo cargar la ruleta");
-this.saldoEl.textContent = data.saldoruleta ?? 0;
-this.ticketsEl.textContent = data.ticketsdisponibles ?? 0;
-this.quinielasEl.textContent = data.quinielasgratispendientes ?? 0;
-this.btnCanjear.hidden = !(data.saldoruleta > 0 || data.quinielasgratispendientes > 0);
+this.saldoEl.textContent = data.saldo ?? 0;
+this.ticketsEl.textContent = data.tickets ?? 0;
+this.quinielasEl.textContent = data.quinielasgratis ?? 0;
+this.btnCanjear.hidden = !(data.saldo > 0 || data.quinielasgratis > 0);
 } catch (err) {
 console.error("Error cargando datos de la ruleta:", err);
 }
@@ -457,7 +457,9 @@ async girar() {
 const codigo = this.leerCodigo();
 if (!codigo) return;
 this.btnGirar.disabled = true;
+this.btnGirar.textContent = "Girando... 🎰";
 const rueda = document.getElementById("ruletaRueda");
+const flecha = document.querySelector("#ruletaCuartoDueno .ruleta-flecha-vitrina");
 try {
 const res = await fetch("/api/ruletagirar", {
 method: "POST",
@@ -467,6 +469,7 @@ body: JSON.stringify({ codigoreferido: codigo })
 const data = await res.json();
 if (!res.ok || !data.success) {
 this.btnGirar.disabled = false;
+this.btnGirar.textContent = "Girar";
 this.errEl.hidden = false;
 this.errEl.textContent = data.mensaje || "No se pudo girar.";
 return;
@@ -474,16 +477,24 @@ return;
 const grados = this.calcularGradosParaPremio(data.premio);
 if (rueda) {
 rueda.classList.add("girando-real");
-rueda.style.transition = "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
+rueda.style.transition = "transform 5s cubic-bezier(0.1, 0.7, 0.1, 1)";
 rueda.style.transform = `rotate(${grados}deg)`;
 }
 setTimeout(() => {
+if (rueda) rueda.classList.add("parando");
+if (flecha) flecha.classList.add("rebota");
 this.btnGirar.disabled = false;
+this.btnGirar.textContent = "Girar";
 this.mostrarPremio(data.premio, data.valor);
 this.mostrarCuartoDueno(codigo);
-}, rueda ? 4200 : 1400);
+setTimeout(() => {
+if (rueda) rueda.classList.remove("parando");
+if (flecha) flecha.classList.remove("rebota");
+}, 600);
+}, rueda ? 5200 : 1400);
 } catch (err) {
 this.btnGirar.disabled = false;
+this.btnGirar.textContent = "Girar";
 console.error("Error girando la ruleta:", err);
 }
 },

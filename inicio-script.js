@@ -515,10 +515,10 @@ return this.rotacionAcumulada;
 },
 mostrarPremio(premio, valor) {
 const mensajes = {
-"quinielagratis": "🎁 ¡Ganaste una quiniela gratis!",
-"20pesos": "💰 ¡Ganaste $20 pesos!",
-"10pesos": "💰 ¡Ganaste $10 pesos!",
-"sigueparticipando": "🍀 Sigue participando, la próxima es tuya",
+"quiniela_gratis": "🎁 ¡Ganaste una quiniela gratis!",
+"20_pesos": "💰 ¡Ganaste $20 pesos!",
+"10_pesos": "💰 ¡Ganaste $10 pesos!",
+"sigue_participando": "🍀 Sigue participando, la próxima es tuya",
 };
 const cartel = document.createElement("div");
 cartel.className = "ruleta-premio-popup";

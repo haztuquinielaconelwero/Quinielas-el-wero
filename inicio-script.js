@@ -387,6 +387,7 @@ this.btnCerrar?.addEventListener("click", () => this.cerrar());
 this.btnConfirmar?.addEventListener("click", () => this.confirmarCodigo());
 this.btnGirar?.addEventListener("click", () => this.girar());
 this.btnCopiar?.addEventListener("click", () => this.copiarCodigo());
+this.btnCanjear?.addEventListener("click", () => this.canjear());
 document.getElementById("linkPedirCodigo")?.addEventListener("click", (e) => {
 e.preventDefault();
 this.irConVendedor();
@@ -477,7 +478,7 @@ this.btnGirar.textContent = "Girando... 🎰";
 const grados = this.calcularGradosParaPremio(data.premio);
 if (rueda) {
 rueda.classList.add("girando-real");
-rueda.style.transition = "transform 5s cubic-bezier(0.1, 0.7, 0.1, 1)";
+rueda.style.transition = "transform 10s cubic-bezier(0.08, 0.75, 0.08, 1)";
 rueda.style.transform = `rotate(${grados}deg)`;
 }
 setTimeout(() => {
@@ -491,7 +492,7 @@ setTimeout(() => {
 if (rueda) rueda.classList.remove("parando");
 if (flecha) flecha.classList.remove("rebota");
 }, 600);
-}, rueda ? 5200 : 1400);
+}, rueda ? 10200 : 1400);
 } catch (err) {
 this.btnGirar.disabled = false;
 this.btnGirar.textContent = "Girar";
@@ -515,20 +516,49 @@ return this.rotacionAcumulada;
 },
 mostrarPremio(premio, valor) {
 const mensajes = {
-"quiniela_gratis": "🎁 ¡Ganaste una quiniela gratis!",
-"20_pesos": "💰 ¡Ganaste $20 pesos!",
-"10_pesos": "💰 ¡Ganaste $10 pesos!",
-"sigue_participando": "🍀 Sigue participando, la próxima es tuya",
+"quiniela_gratis": "¡Ganaste una quiniela gratis! 🎁 " ,
+"20_pesos": "¡Ganaste $20 pesos! 💰",
+"10_pesos": "¡Ganaste $10 pesos! 💰",
+"sigue_participando": "Sigue participando 🍀",
 };
 const cartel = document.createElement("div");
 cartel.className = "ruleta-premio-popup";
-cartel.textContent = mensajes[premio] || "🍀 Sigue participando";
+cartel.textContent = mensajes[premio] || "Sigue participando 🍀";
 document.body.appendChild(cartel);
 setTimeout(() => cartel.classList.add("mostrar"), 10);
 setTimeout(() => {
 cartel.classList.remove("mostrar");
 setTimeout(() => cartel.remove(), 400);
 }, 3000);
+},
+async canjear() {
+const codigo = this.leerCodigo();
+if (!codigo) return;
+this.btnCanjear.disabled = true;
+try {
+const res = await fetch("/api/ruletacanjear", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ codigoreferido: codigo })
+});
+const data = await res.json();
+this.btnCanjear.disabled = false;
+if (!res.ok || !data.success) {
+this.errEl.hidden = false;
+this.errEl.textContent = data.mensaje || "No se pudo canjear.";
+return;
+}
+const mensajeWsp = encodeURIComponent(data.mensaje);
+if (data.numero) {
+window.open(`https://wa.me/${data.numero}?text=${mensajeWsp}`, "_blank");
+} else {
+window.open(`https://wa.me/?text=${mensajeWsp}`, "_blank");
+}
+this.mostrarCuartoDueno(codigo);
+} catch (err) {
+this.btnCanjear.disabled = false;
+console.error("Error canjeando premios:", err);
+}
 },
 };
 /* =============                      Esto de abajo trabaja en la actualizacion del Jornada en varios escritos                  ============================ */

@@ -1465,7 +1465,6 @@ def whatsappdelvendedor():
         return jsonify(success=False, mensaje="Vendedor no encontrado"), 404
     return jsonify(success=True, numero=numero)
 
-
 # ── Esto de abajo trabaja con la api de las quinielas del vendedor en administrador    ─────────────────────────────────────────────────────────────────────────────
 @app.route("/api/quinielasdelvendedor")
 def quinielasdelvendedor():
@@ -1771,6 +1770,9 @@ def ruletaregalartickets():
         return jsonify(success=False, mensaje=str(exc)), 500
     
 # ── Esto de abajo trabaja con decidir el premio al azar de la ruleta ────────────────────────────────────────────────
+
+PRECIO_QUINIELA = 30
+
 def elegir_premio_ruleta():
     dardo = random.random()
     if dardo < 0.10:
@@ -1815,7 +1817,19 @@ def ruletagirar():
                     cur.execute("""
                         UPDATE ticketsruleta SET saldoruleta = saldoruleta + %s
                         WHERE codigoreferido = %s
+                        RETURNING saldoruleta
                     """, (valor, codigoreferido))
+                    saldo_actual = cur.fetchone()[0]
+
+                    quinielas_ganadas = saldo_actual // PRECIO_QUINIELA
+                    if quinielas_ganadas > 0:
+                        saldo_restante = saldo_actual % PRECIO_QUINIELA
+                        cur.execute("""
+                            UPDATE ticketsruleta
+                            SET saldoruleta = %s,
+                                quinielasgratispendientes = quinielasgratispendientes + %s
+                            WHERE codigoreferido = %s
+                        """, (saldo_restante, quinielas_ganadas, codigoreferido))
                 elif premio == "quiniela_gratis":
                     cur.execute("""
                         UPDATE ticketsruleta SET quinielasgratispendientes = quinielasgratispendientes + 1
@@ -1828,6 +1842,58 @@ def ruletagirar():
         logger.error("ruletagirar error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
 
+# ── Esto de abajo trabaja con canjear los premios de la ruleta────────────────────────────────────────────────
+
+@app.route("/api/ruletacanjear", methods=["POST"])
+def ruletacanjear():
+    data = request.get_json(silent=True) or {}
+    codigoreferido = (data.get("codigoreferido") or "").strip()
+    if not codigoreferido:
+        return jsonify(success=False, mensaje="Falta el codigo de referido"), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT saldoruleta, quinielasgratispendientes
+                    FROM ticketsruleta
+                    WHERE codigoreferido = %s FOR UPDATE
+                """, (codigoreferido,))
+                fila = cur.fetchone()
+                if fila is None or (fila[0] <= 0 and fila[1] <= 0):
+                    return jsonify(success=False, mensaje="No tienes premios pendientes por canjear"), 400
+                saldo, quinielasgratis = fila
+
+                cur.execute("""
+                    SELECT vendedor FROM invitaatuscompas WHERE codigo = %s
+                """, (codigoreferido,))
+                filavend = cur.fetchone()
+                vendedor = filavend[0] if filavend else None
+                numero = VENDEDOR_WHATSAPP.get(vendedor)
+
+                cur.execute("""
+                    UPDATE ticketsruleta
+                    SET saldoruleta = 0, quinielasgratispendientes = 0
+                    WHERE codigoreferido = %s
+                """, (codigoreferido,))
+                cur.execute("""
+                    UPDATE premiosganados SET canjeado = TRUE, fechacanjeado = (now() AT TIME ZONE 'America/Mexico_City')
+                    WHERE codigoreferido = %s AND canjeado = FALSE
+                """, (codigoreferido,))
+            conn.commit()
+
+        partes = []
+        if quinielasgratis > 0:
+            partes.append(f"{quinielasgratis} quiniela(s) gratis")
+        if saldo > 0:
+            partes.append(f"${saldo} pesos")
+        resumen = " y ".join(partes)
+        mensaje = f"Hola, gané {resumen} en la ruleta de premios con mi código {codigoreferido}. Quiero canjearlos 🎁"
+
+        return jsonify(success=True, mensaje=mensaje, numero=numero, saldo=saldo, quinielasgratis=quinielasgratis)
+    except Exception as exc:
+        logger.error("ruletacanjear error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+    
 # ── Esto de abajo trabaja con validar si un codigo de referido existe y esta activo ────────────────────────────────────────────────
 @app.route("/api/validarcodigoreferido")
 def validarcodigoreferido():

@@ -29,6 +29,17 @@ localStorage.setItem(this.STORAGE_KEY, vendedorURL);
 }
 }
 };
+/* =============                           Esto de abajo trabaja en detectar el Codigo Referido                             ============================ */
+const DetectorCodigoReferido = {
+STORAGE_KEY: "quinielasElWero_codigoReferido",
+init() {
+const params = new URLSearchParams(window.location.search);
+const codigoURL = params.get("codigo");
+if (codigoURL) {
+localStorage.setItem(this.STORAGE_KEY, codigoURL.trim());
+}
+}
+};
 /* =============                           Esto de abajo trabaja los contadores de Jugando y No jugando                               ============================ */
 const StatsQuinielas = {
 elPending: document.getElementById("statPending"),
@@ -361,6 +372,7 @@ btnConfirmar: document.getElementById("btnConfirmarCodigo"),
 nombreEl: document.getElementById("ruletaNombre"),
 saldoEl: document.getElementById("ruletaSaldo"),
 ticketsEl: document.getElementById("ruletaTicketsNum"),
+quinielasEl: document.getElementById("ruletaQuinielasNum"),
 btnGirar: document.getElementById("btnGirarRuleta"),
 btnCanjear: document.getElementById("btnCanjearPremios"),
 codigoTextoEl: document.getElementById("ruletaCodigoTexto"),
@@ -402,15 +414,16 @@ this.cuartoDueno.hidden = true;
 async mostrarCuartoDueno(codigo) {
 this.cuartoNuevo.hidden = true;
 this.cuartoDueno.hidden = false;
-const nombre = IdentidadCliente.leerIdentidad() || "Jugador";
-this.nombreEl.textContent = nombre;
-this.codigoTextoEl.textContent = codigo;
+this.nombreEl.textContent = "Mucha suerte 🍀";
+const linkCompleto = `https://www.quinielaselwero.com?codigo=${codigo}`;
+this.codigoTextoEl.textContent = linkCompleto;
 try {
 const res = await fetch(`/api/ruletatickets?codigoreferido=${encodeURIComponent(codigo)}`);
 const data = await res.json();
 if (!res.ok || !data.success) throw new Error(data.mensaje || "No se pudo cargar la ruleta");
 this.saldoEl.textContent = data.saldoruleta ?? 0;
 this.ticketsEl.textContent = data.ticketsdisponibles ?? 0;
+this.quinielasEl.textContent = data.quinielasgratispendientes ?? 0;
 this.btnCanjear.hidden = !(data.saldoruleta > 0 || data.quinielasgratispendientes > 0);
 } catch (err) {
 console.error("Error cargando datos de la ruleta:", err);
@@ -443,7 +456,6 @@ console.error(err);
 async girar() {
 const codigo = this.leerCodigo();
 if (!codigo) return;
-this.btnGirar.classList.add("girando");
 this.btnGirar.disabled = true;
 try {
 const res = await fetch("/api/ruletagirar", {
@@ -453,7 +465,6 @@ body: JSON.stringify({ codigoreferido: codigo })
 });
 const data = await res.json();
 setTimeout(() => {
-this.btnGirar.classList.remove("girando");
 this.btnGirar.disabled = false;
 if (!res.ok || !data.success) {
 this.errEl.hidden = false;
@@ -463,7 +474,6 @@ return;
 this.mostrarCuartoDueno(codigo);
 }, 1400);
 } catch (err) {
-this.btnGirar.classList.remove("girando");
 this.btnGirar.disabled = false;
 console.error("Error girando la ruleta:", err);
 }
@@ -533,6 +543,7 @@ console.error("Error registrando el SW:", error);
 /* =============                                Esto de abajo trabaja en el inicio del inicio                                            ============================ */
 document.addEventListener("DOMContentLoaded", () => {
 DetectorVendedor.init();
+DetectorCodigoReferido.init();
 NavegacionExplora.init();
 StatsQuinielas.init();
 TimerPremium.init();

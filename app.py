@@ -2054,7 +2054,7 @@ def importararchivodeexcel():
     jornada = data.get("jornada") or JORNADA_ACTUAL
     filas = data.get("filas") or []
     if not filas:
-        return jsonify({"success": False, "mensaje": "El archivo no trae filas"}), 400
+        return jsonify(success=False, mensaje="El archivo no trae filas"), 400
     insertadas = 0
     reactivadas = 0
     rechazadas = []
@@ -2062,46 +2062,64 @@ def importararchivodeexcel():
         with get_connection() as conn:
             with conn.cursor() as cur:
                 for f in filas:
-                    picks = (f.get("picks") or [])[:9]
-                    if len(picks) < 9 or any(p not in ("L", "E", "V") for p in picks):
+                    picks = f.get("picks") or []
+                    if len(picks) != 9 or any(p not in ("L", "E", "V") for p in picks):
                         rechazadas.append(f.get("folio"))
                         continue
                     dispositivoid = f.get("dispositivoid") or "csv-import"
                     llave = f.get("llavemaestra") or f"IMPORTADO|{jornada}|{f.get('nombre')}|{f.get('folio')}"
                     cur.execute(
                         """
-                        INSERT INTO todaslasquinielas
-                        (nombrecelular, nombrequiniela, vendedor, jornada,
-                         p1,p2,p3,p4,p5,p6,p7,p8,p9, estado, folio, llavemaestra, dispositivoid)
+                        INSERT INTO todaslasquinielas (
+                            nombrecelular, nombrequiniela, vendedor, jornada,
+                            p1,p2,p3,p4,p5,p6,p7,p8,p9,
+                            estado, folio, llavemaestra, dispositivoid
+                        )
                         VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'Jugando',%s,%s,%s)
                         ON CONFLICT (llavemaestra) DO UPDATE SET
                             folio = EXCLUDED.folio,
                             nombrequiniela = EXCLUDED.nombrequiniela,
                             vendedor = EXCLUDED.vendedor,
                             estado = 'Jugando'
-                        RETURNING id, (xmax = 0) AS fue_insertada
+                        RETURNING id, (xmax = 0) AS fue_insertada, codigoreferido, dispositivoid
                         """,
-                        ("Importado", f.get("nombre"), f.get("vendedor"), jornada,
-                         *picks, f.get("folio"), llave, dispositivoid),
+                        ("Importado", f.get("nombre"), f.get("vendedor"), jornada, *picks, f.get("folio"), llave, dispositivoid)
                     )
                     fila = cur.fetchone()
                     if fila is None:
                         rechazadas.append(f.get("folio"))
-                    elif fila[1]:
+                        continue
+                    qid, fue_insertada, codigo_referido_db, dispositivoid_db = fila
+                    if fue_insertada:
                         insertadas += 1
                     else:
                         reactivadas += 1
-            conn.commit()
-        return jsonify({
-            "success": True,
-            "insertadas": insertadas,
-            "reactivadas": reactivadas,
-            "rechazadas": len(rechazadas),
-            "foliosrechazados": rechazadas
-        })
+                    if codigo_referido_db and dispositivoid_db:
+                        cur.execute(
+                            """
+                            INSERT INTO referidosconfirmados (codigoreferido, dispositivoid, quinielaid)
+                            VALUES (%s, %s, %s)
+                            ON CONFLICT (codigoreferido, dispositivoid) DO NOTHING
+                            RETURNING id
+                            """,
+                            (codigo_referido_db, dispositivoid_db, qid)
+                        )
+                        ticket_ganado = cur.fetchone() is not None
+                        if ticket_ganado:
+                            cur.execute(
+                                """
+                                INSERT INTO ticketsruleta (codigoreferido, ticketsdisponibles)
+                                VALUES (%s, 1)
+                                ON CONFLICT (codigoreferido) DO UPDATE
+                                SET ticketsdisponibles = ticketsruleta.ticketsdisponibles + 1
+                                """,
+                                (codigo_referido_db,)
+                            )
+                conn.commit()
+        return jsonify(success=True, insertadas=insertadas, reactivadas=reactivadas, rechazadas=len(rechazadas), foliosrechazados=rechazadas)
     except Exception as exc:
-        logger.error("importararchivodeexcel: error -> %s", exc)
-        return jsonify({"success": False, "mensaje": str(exc)}), 500
+        logger.error("importararchivodeexcel error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
 
 # ── Esto de abajo trabaja con el boton de Nueva jornada────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/nuevajornada", methods=["POST"])

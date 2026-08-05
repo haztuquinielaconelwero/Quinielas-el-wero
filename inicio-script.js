@@ -387,7 +387,13 @@ this.boton.addEventListener("keydown", (e) => {
 if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.abrir(); }
 });
 this.btnCerrar?.addEventListener("click", () => this.cerrar());
-this.btnConfirmar?.addEventListener("click", () => this.confirmarCodigo());
+this.btnConfirmar?.addEventListener("click", () => {
+if (this.codigoConfirmado) {
+this.confirmarPin();
+} else {
+this.confirmarCodigo();
+}
+});
 this.btnGirar?.addEventListener("click", () => this.girar());
 this.btnCopiar?.addEventListener("click", () => this.copiarCodigo());
 this.btnCanjear?.addEventListener("click", () => this.canjear());
@@ -407,11 +413,6 @@ return null;
 guardarSesionVerificada(codigo, pin) {
 sessionStorage.setItem(this.SESSION_KEY_VERIFICADO, JSON.stringify({ codigo, pin }));
 localStorage.setItem(this.STORAGE_KEY_MI_CODIGO, codigo);
-},
-cerrarSesion() {
-sessionStorage.removeItem(this.SESSION_KEY_VERIFICADO);
-this.overlay.hidden = true;
-this.mostrarAvisoCopiado("Sesión cerrada 🔒");
 },
 async irConVendedor() {
 const vendedor = localStorage.getItem("quinielasElWero_vendedorActual");
@@ -529,17 +530,13 @@ this.iniciarTemporizadorInactividad();
 console.error("Error cargando datos de la ruleta:", err);
 }
 },
+codigoConfirmado: null,
+esPinNuevo: false,
 async confirmarCodigo() {
 const codigo = this.input.value.trim();
-const pin = this.inputPin?.value.trim() || "";
 if (!codigo) {
 this.errEl.hidden = false;
 this.errEl.textContent = "Escribe tu codigo por favor.";
-return;
-}
-if (!pin || pin.length < 4) {
-this.errEl.hidden = false;
-this.errEl.textContent = "Escribe tu PIN de al menos 4 digitos.";
 return;
 }
 try {
@@ -550,27 +547,42 @@ this.errEl.hidden = false;
 this.errEl.textContent = dataValidar.mensaje || "Ese codigo no existe.";
 return;
 }
-const resPin = await fetch("/api/ruletavalidarpin", {
-method: "POST",
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ codigo, pin })
-});
-const dataPin = await resPin.json();
-if (dataPin.tienepin === false) {
-const resCrear = await fetch("/api/ruletacrearpin", {
-method: "POST",
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ codigo, pin })
-});
-const dataCrear = await resCrear.json();
-if (!resCrear.ok || !dataCrear.success) {
+const resTienePin = await fetch(`/api/ruletatienepin?codigo=${encodeURIComponent(codigo)}`);
+const dataTienePin = await resTienePin.json();
+this.errEl.hidden = true;
+this.codigoConfirmado = codigo;
+this.esPinNuevo = !dataTienePin.tienepin;
+this.input.hidden = true;
+this.inputPin.hidden = false;
+this.inputPin.value = "";
+this.inputPin.focus();
+this.inputPin.placeholder = this.esPinNuevo ? "Crea tu PIN (4 dígitos)" : "Escribe tu PIN";
+this.btnConfirmar.textContent = this.esPinNuevo ? "Crear mi PIN" : "Entrar";
+} catch (err) {
 this.errEl.hidden = false;
-this.errEl.textContent = dataCrear.mensaje || "No se pudo crear el PIN.";
+this.errEl.textContent = "No se pudo validar, intenta de nuevo.";
+console.error(err);
+}
+},
+async confirmarPin() {
+const codigo = this.codigoConfirmado;
+const pin = this.inputPin.value.trim();
+if (!pin || pin.length < 4) {
+this.errEl.hidden = false;
+this.errEl.textContent = "Escribe un PIN de al menos 4 digitos.";
 return;
 }
-} else if (!resPin.ok || !dataPin.success) {
+const endpoint = this.esPinNuevo ? "/api/ruletacrearpin" : "/api/ruletavalidarpin";
+try {
+const res = await fetch(endpoint, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ codigo, pin })
+});
+const data = await res.json();
+if (!res.ok || !data.success) {
 this.errEl.hidden = false;
-this.errEl.textContent = dataPin.mensaje || "PIN incorrecto.";
+this.errEl.textContent = data.mensaje || "PIN incorrecto.";
 return;
 }
 this.errEl.hidden = true;

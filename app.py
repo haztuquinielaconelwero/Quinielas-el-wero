@@ -153,6 +153,11 @@ def crear_tablas():
             """)
 
             cur.execute("""
+                ALTER TABLE invitaatuscompas
+                ADD COLUMN IF NOT EXISTS pin TEXT
+            """)
+
+            cur.execute("""
                 CREATE INDEX IF NOT EXISTS idxinvitaatuscompasvendedor
                 ON invitaatuscompas (vendedor);
             """)
@@ -1732,11 +1737,17 @@ def api_confirmar(qid):
 @app.route("/api/ruletatickets")
 def ruletatickets():
     codigoreferido = (request.args.get("codigoreferido") or "").strip()
-    if not codigoreferido:
-        return jsonify(success=False, mensaje="Falta el codigo de referido"), 400
+    pin = (request.args.get("pin") or "").strip()
+    if not codigoreferido or not pin:
+        return jsonify(success=False, mensaje="Falta el codigo de referido o el PIN"), 400
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
+                cur.execute("SELECT pin FROM invitaatuscompas WHERE codigo = %s", (codigoreferido,))
+                filapin = cur.fetchone()
+                if filapin is None or not filapin[0] or not check_password_hash(filapin[0], pin):
+                    return jsonify(success=False, mensaje="PIN incorrecto"), 401
+
                 cur.execute("""
                     SELECT ticketsdisponibles, saldoruleta, quinielasgratispendientes
                     FROM ticketsruleta
@@ -1928,6 +1939,72 @@ def validarcodigoreferido():
     except Exception as exc:
         logger.error("validarcodigoreferido error - %s", exc)
         return jsonify(valido=False, mensaje=str(exc)), 500
+    
+# ── Esto de abajo trabaja con validad y crear el pin de la burbuja de invita a tus compas ────────────────────────────────────────────────
+
+@app.route("/api/ruletatienepin")
+def ruletatienepin():
+    codigo = (request.args.get("codigo") or "").strip()
+    if not codigo:
+        return jsonify(tienepin=False), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT pin FROM invitaatuscompas WHERE codigo = %s", (codigo,))
+                fila = cur.fetchone()
+        return jsonify(tienepin=bool(fila and fila[0]))
+    except Exception as exc:
+        logger.error("ruletatienepin error - %s", exc)
+        return jsonify(tienepin=False), 500
+
+@app.route("/api/ruletacrearpin", methods=["POST"])
+def ruletacrearpin():
+    data = request.get_json(silent=True) or {}
+    codigo = (data.get("codigo") or "").strip()
+    pin = (data.get("pin") or "").strip()
+    if not codigo or not pin or len(pin) < 4:
+        return jsonify(success=False, mensaje="Falta el codigo o el PIN debe tener al menos 4 digitos"), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT pin FROM invitaatuscompas WHERE codigo = %s FOR UPDATE", (codigo,))
+                fila = cur.fetchone()
+                if fila is None:
+                    return jsonify(success=False, mensaje="Ese codigo no existe"), 404
+                if fila[0]:
+                    return jsonify(success=False, mensaje="Este codigo ya tiene un PIN asignado"), 409
+                pin_hash = generate_password_hash(pin)
+                cur.execute("UPDATE invitaatuscompas SET pin = %s WHERE codigo = %s", (pin_hash, codigo))
+                conn.commit()
+        return jsonify(success=True, mensaje="PIN creado correctamente")
+    except Exception as exc:
+        logger.error("ruletacrearpin error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
+@app.route("/api/ruletavalidarpin", methods=["POST"])
+def ruletavalidarpin():
+    data = request.get_json(silent=True) or {}
+    codigo = (data.get("codigo") or "").strip()
+    pin = (data.get("pin") or "").strip()
+    if not codigo or not pin:
+        return jsonify(success=False, mensaje="Falta el codigo o el PIN"), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT pin FROM invitaatuscompas WHERE codigo = %s", (codigo,))
+                fila = cur.fetchone()
+        if fila is None:
+            return jsonify(success=False, mensaje="Ese codigo no existe"), 404
+        pin_hash = fila[0]
+        if not pin_hash:
+            return jsonify(success=False, mensaje="Este codigo no tiene PIN todavia", tienepin=False), 409
+        if not check_password_hash(pin_hash, pin):
+            return jsonify(success=False, mensaje="PIN incorrecto"), 401
+        return jsonify(success=True, mensaje="PIN correcto")
+    except Exception as exc:
+        logger.error("ruletavalidarpin error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
     
 # ── Esto de abajo trabaja con la api de rechazar una quiniela pasa de no jugando a rechazada ────────────────────────────────────────────────────────────────
 @app.route("/api/quinielas/<int:qid>/rechazar", methods=["PATCH"])

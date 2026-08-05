@@ -360,13 +360,15 @@ return window.btoa(binario);
 };
 /* =============                Esto de abajo trabaja en la ruleta flotante de premios                                                    ============================ */
 const RuletaFlotante = {
-STORAGE_KEY_CODIGO: "quinielasElWero_codigoReferido",
+STORAGE_KEY_MI_CODIGO: "quinielasElWero_miCodigoRuleta",
+SESSION_KEY_VERIFICADO: "quinielasElWero_ruletaSesionVerificada",
 boton: document.getElementById("ruletaFlotante"),
 overlay: document.getElementById("ruletaOverlay"),
 btnCerrar: document.getElementById("btnCerrarRuleta"),
 cuartoNuevo: document.getElementById("ruletaCuartoNuevo"),
 cuartoDueno: document.getElementById("ruletaCuartoDueno"),
 input: document.getElementById("codigoReferidoInput"),
+inputPin: document.getElementById("codigoReferidoPin"),
 errEl: document.getElementById("codigoReferidoError"),
 btnConfirmar: document.getElementById("btnConfirmarCodigo"),
 nombreEl: document.getElementById("ruletaNombre"),
@@ -377,6 +379,7 @@ btnGirar: document.getElementById("btnGirarRuleta"),
 btnCanjear: document.getElementById("btnCanjearPremios"),
 codigoTextoEl: document.getElementById("ruletaCodigoTexto"),
 btnCopiar: document.getElementById("btnCopiarCodigo"),
+btnCerrarSesionRuleta: document.getElementById("btnCerrarSesionRuleta"),
 init() {
 if (!this.boton || !this.overlay) return;
 this.boton.addEventListener("click", () => this.abrir());
@@ -388,13 +391,27 @@ this.btnConfirmar?.addEventListener("click", () => this.confirmarCodigo());
 this.btnGirar?.addEventListener("click", () => this.girar());
 this.btnCopiar?.addEventListener("click", () => this.copiarCodigo());
 this.btnCanjear?.addEventListener("click", () => this.canjear());
+this.btnCerrarSesionRuleta?.addEventListener("click", () => this.cerrarSesion());
 document.getElementById("linkPedirCodigo")?.addEventListener("click", (e) => {
 e.preventDefault();
 this.irConVendedor();
 });
 },
-leerCodigo() {
-return localStorage.getItem(this.STORAGE_KEY_CODIGO) || "";
+leerSesionVerificada() {
+try {
+return JSON.parse(sessionStorage.getItem(this.SESSION_KEY_VERIFICADO));
+} catch {
+return null;
+}
+},
+guardarSesionVerificada(codigo, pin) {
+sessionStorage.setItem(this.SESSION_KEY_VERIFICADO, JSON.stringify({ codigo, pin }));
+localStorage.setItem(this.STORAGE_KEY_MI_CODIGO, codigo);
+},
+cerrarSesion() {
+sessionStorage.removeItem(this.SESSION_KEY_VERIFICADO);
+this.overlay.hidden = true;
+this.mostrarAvisoCopiado("Sesión cerrada 🔒");
 },
 async irConVendedor() {
 const vendedor = localStorage.getItem("quinielasElWero_vendedorActual");
@@ -451,56 +468,114 @@ setTimeout(() => cartel.remove(), 400);
 },
 abrir() {
 this.overlay.hidden = false;
-const codigo = this.leerCodigo();
-if (codigo) {
-this.mostrarCuartoDueno(codigo);
+const sesion = this.leerSesionVerificada();
+if (sesion?.codigo && sesion?.pin) {
+this.mostrarCuartoDueno(sesion.codigo, sesion.pin);
 } else {
 this.mostrarCuartoNuevo();
 }
 },
 cerrar() {
 this.overlay.hidden = true;
+this.limpiarSesionRuleta();
+},
+cerrarSesion() {
+this.limpiarSesionRuleta();
+this.overlay.hidden = true;
+this.mostrarAvisoCopiado("Sesión cerrada 🔒");
+},
+limpiarSesionRuleta() {
+sessionStorage.removeItem(this.SESSION_KEY_VERIFICADO);
+this.detenerTemporizadorInactividad();
+},
+INACTIVIDAD_LIMITE_MS: 5 * 60 * 1000,
+inactividadTimer: null,
+iniciarTemporizadorInactividad() {
+this.detenerTemporizadorInactividad();
+this.inactividadTimer = setTimeout(() => {
+this.cerrarSesion();
+}, this.INACTIVIDAD_LIMITE_MS);
+},
+detenerTemporizadorInactividad() {
+if (this.inactividadTimer) clearTimeout(this.inactividadTimer);
+this.inactividadTimer = null;
 },
 mostrarCuartoNuevo() {
 this.cuartoNuevo.hidden = false;
 this.cuartoDueno.hidden = true;
 },
-async mostrarCuartoDueno(codigo) {
+async mostrarCuartoDueno(codigo, pin) {
 this.cuartoNuevo.hidden = true;
 this.cuartoDueno.hidden = false;
 this.nombreEl.textContent = "Mucha suerte 🍀";
 const linkCompleto = `https://www.quinielaselwero.com?codigo=${codigo}`;
 this.codigoTextoEl.textContent = linkCompleto;
 try {
-const res = await fetch(`/api/ruletatickets?codigoreferido=${encodeURIComponent(codigo)}`);
+const res = await fetch(`/api/ruletatickets?codigoreferido=${encodeURIComponent(codigo)}&pin=${encodeURIComponent(pin)}`);
 const data = await res.json();
-if (!res.ok || !data.success) throw new Error(data.mensaje || "No se pudo cargar la ruleta");
+if (!res.ok || !data.success) {
+this.cerrarSesion();
+this.mostrarCuartoNuevo();
+this.errEl.hidden = false;
+this.errEl.textContent = data.mensaje || "Tu sesión expiró, vuelve a escribir tu PIN.";
+return;
+}
 this.saldoEl.textContent = data.saldo ?? 0;
 this.ticketsEl.textContent = data.tickets ?? 0;
 this.quinielasEl.textContent = data.quinielasgratis ?? 0;
 this.btnCanjear.hidden = !(data.quinielasgratis > 0);
+this.iniciarTemporizadorInactividad();
 } catch (err) {
 console.error("Error cargando datos de la ruleta:", err);
 }
 },
 async confirmarCodigo() {
 const codigo = this.input.value.trim();
+const pin = this.inputPin?.value.trim() || "";
 if (!codigo) {
 this.errEl.hidden = false;
 this.errEl.textContent = "Escribe tu codigo por favor.";
 return;
 }
-try {
-const res = await fetch(`/api/validarcodigoreferido?codigo=${encodeURIComponent(codigo)}`);
-const data = await res.json();
-if (!res.ok || !data.valido) {
+if (!pin || pin.length < 4) {
 this.errEl.hidden = false;
-this.errEl.textContent = data.mensaje || "Ese codigo no existe.";
+this.errEl.textContent = "Escribe tu PIN de al menos 4 digitos.";
+return;
+}
+try {
+const resValidar = await fetch(`/api/validarcodigoreferido?codigo=${encodeURIComponent(codigo)}`);
+const dataValidar = await resValidar.json();
+if (!resValidar.ok || !dataValidar.valido) {
+this.errEl.hidden = false;
+this.errEl.textContent = dataValidar.mensaje || "Ese codigo no existe.";
+return;
+}
+const resPin = await fetch("/api/ruletavalidarpin", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ codigo, pin })
+});
+const dataPin = await resPin.json();
+if (dataPin.tienepin === false) {
+const resCrear = await fetch("/api/ruletacrearpin", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ codigo, pin })
+});
+const dataCrear = await resCrear.json();
+if (!resCrear.ok || !dataCrear.success) {
+this.errEl.hidden = false;
+this.errEl.textContent = dataCrear.mensaje || "No se pudo crear el PIN.";
+return;
+}
+} else if (!resPin.ok || !dataPin.success) {
+this.errEl.hidden = false;
+this.errEl.textContent = dataPin.mensaje || "PIN incorrecto.";
 return;
 }
 this.errEl.hidden = true;
-localStorage.setItem(this.STORAGE_KEY_CODIGO, codigo);
-this.mostrarCuartoDueno(codigo);
+this.guardarSesionVerificada(codigo, pin);
+this.mostrarCuartoDueno(codigo, pin);
 } catch (err) {
 this.errEl.hidden = false;
 this.errEl.textContent = "No se pudo validar, intenta de nuevo.";
@@ -509,8 +584,9 @@ console.error(err);
 },
 rotacionAcumulada: 0,
 async girar() {
-const codigo = this.leerCodigo();
-if (!codigo) return;
+const sesion = this.leerSesionVerificada();
+if (!sesion?.codigo || !sesion?.pin) return;
+const { codigo, pin } = sesion;
 this.btnGirar.disabled = true;
 const rueda = document.getElementById("ruletaRueda");
 const flecha = document.querySelector("#ruletaCuartoDueno .ruleta-flecha-vitrina");
@@ -518,7 +594,7 @@ try {
 const res = await fetch("/api/ruletagirar", {
 method: "POST",
 headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ codigoreferido: codigo })
+body: JSON.stringify({ codigoreferido: codigo, pin })
 });
 const data = await res.json();
 if (!res.ok || !data.success) {
@@ -540,7 +616,7 @@ if (flecha) flecha.classList.add("rebota");
 this.btnGirar.disabled = false;
 this.btnGirar.textContent = "Girar";
 this.mostrarPremio(data.premio, data.valor);
-this.mostrarCuartoDueno(codigo);
+this.mostrarCuartoDueno(codigo, pin);
 setTimeout(() => {
 if (rueda) rueda.classList.remove("parando");
 if (flecha) flecha.classList.remove("rebota");
@@ -585,14 +661,15 @@ setTimeout(() => cartel.remove(), 400);
 }, 3000);
 },
 async canjear() {
-const codigo = this.leerCodigo();
-if (!codigo) return;
+const sesion = this.leerSesionVerificada();
+if (!sesion?.codigo || !sesion?.pin) return;
+const { codigo, pin } = sesion;
 this.btnCanjear.disabled = true;
 try {
 const res = await fetch("/api/ruletacanjear", {
 method: "POST",
 headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ codigoreferido: codigo })
+body: JSON.stringify({ codigoreferido: codigo, pin })
 });
 const data = await res.json();
 this.btnCanjear.disabled = false;
@@ -607,7 +684,7 @@ window.open(`https://wa.me/${data.numero}?text=${mensajeWsp}`, "_blank");
 } else {
 window.open(`https://wa.me/?text=${mensajeWsp}`, "_blank");
 }
-this.mostrarCuartoDueno(codigo);
+this.mostrarCuartoDueno(codigo, pin);
 } catch (err) {
 this.btnCanjear.disabled = false;
 console.error("Error canjeando premios:", err);

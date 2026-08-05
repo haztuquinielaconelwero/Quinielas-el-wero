@@ -11,6 +11,7 @@ import psycopg
 from psycopg import Connection
 from flask import Flask, jsonify, send_from_directory
 from flask import request
+from werkzeug.security import generate_password_hash, check_password_hash
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("app")
@@ -1793,11 +1794,17 @@ def elegir_premio_ruleta():
 def ruletagirar():
     data = request.get_json(silent=True) or {}
     codigoreferido = (data.get("codigoreferido") or "").strip()
-    if not codigoreferido:
-        return jsonify(success=False, mensaje="Falta el codigo de referido"), 400
+    pin = (data.get("pin") or "").strip()
+    if not codigoreferido or not pin:
+        return jsonify(success=False, mensaje="Falta el codigo de referido o el PIN"), 400
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
+                cur.execute("SELECT pin FROM invitaatuscompas WHERE codigo = %s", (codigoreferido,))
+                filapin = cur.fetchone()
+                if filapin is None or not filapin[0] or not check_password_hash(filapin[0], pin):
+                    return jsonify(success=False, mensaje="PIN incorrecto"), 401
+
                 cur.execute("""
                     SELECT ticketsdisponibles FROM ticketsruleta
                     WHERE codigoreferido = %s FOR UPDATE
@@ -1852,11 +1859,17 @@ def ruletagirar():
 def ruletacanjear():
     data = request.get_json(silent=True) or {}
     codigoreferido = (data.get("codigoreferido") or "").strip()
-    if not codigoreferido:
-        return jsonify(success=False, mensaje="Falta el codigo de referido"), 400
+    pin = (data.get("pin") or "").strip()
+    if not codigoreferido or not pin:
+        return jsonify(success=False, mensaje="Falta el codigo de referido o el PIN"), 400
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
+                cur.execute("SELECT pin FROM invitaatuscompas WHERE codigo = %s", (codigoreferido,))
+                filapin = cur.fetchone()
+                if filapin is None or not filapin[0] or not check_password_hash(filapin[0], pin):
+                    return jsonify(success=False, mensaje="PIN incorrecto"), 401
+
                 cur.execute("""
                     SELECT quinielasgratispendientes
                     FROM ticketsruleta

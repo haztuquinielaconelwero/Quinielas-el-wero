@@ -396,6 +396,59 @@ this.irConVendedor();
 leerCodigo() {
 return localStorage.getItem(this.STORAGE_KEY_CODIGO) || "";
 },
+async irConVendedor() {
+const vendedor = localStorage.getItem("quinielasElWero_vendedorActual");
+if (!vendedor) {
+this.errEl.hidden = false;
+this.errEl.textContent = "Entra desde el link de tu vendedor para poder contactarlo.";
+return;
+}
+try {
+const res = await fetch(`/api/whatsappdelvendedor?vendedor=${encodeURIComponent(vendedor)}`);
+const data = await res.json();
+if (!res.ok || !data.success) throw new Error(data.mensaje || "No se encontro el vendedor");
+const mensaje = encodeURIComponent("Hola, quiero mi codigo de referido para la ruleta de premios 🎁");
+window.open(`https://wa.me/${data.numero}?text=${mensaje}`, "_blank");
+} catch (err) {
+console.error("Error obteniendo el WhatsApp del vendedor:", err);
+this.errEl.hidden = false;
+this.errEl.textContent = "No se pudo contactar al vendedor, intenta de nuevo.";
+}
+},
+async copiarCodigo() {
+const texto = this.codigoTextoEl?.textContent?.trim();
+if (!texto) return;
+try {
+if (navigator.clipboard && window.isSecureContext) {
+await navigator.clipboard.writeText(texto);
+} else {
+const temporal = document.createElement("textarea");
+temporal.value = texto;
+temporal.style.position = "fixed";
+temporal.style.opacity = "0";
+document.body.appendChild(temporal);
+temporal.focus();
+temporal.select();
+document.execCommand("copy");
+temporal.remove();
+}
+this.mostrarAvisoCopiado();
+} catch (err) {
+console.error("Error copiando el codigo:", err);
+this.mostrarAvisoCopiado("No se pudo copiar, intenta manualmente.");
+}
+},
+mostrarAvisoCopiado(texto = "Copiado al portapapeles ✅") {
+const cartel = document.createElement("div");
+cartel.className = "ruleta-premio-popup";
+cartel.textContent = texto;
+document.body.appendChild(cartel);
+setTimeout(() => cartel.classList.add("mostrar"), 10);
+setTimeout(() => {
+cartel.classList.remove("mostrar");
+setTimeout(() => cartel.remove(), 400);
+}, 2000);
+},
 abrir() {
 this.overlay.hidden = false;
 const codigo = this.leerCodigo();

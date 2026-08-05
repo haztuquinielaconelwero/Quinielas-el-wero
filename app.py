@@ -1903,16 +1903,15 @@ def validarcodigoreferido():
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    SELECT dueno, activo FROM invitaatuscompas
-                    WHERE codigo = %s
+                    SELECT dueno, activo, vendedor FROM invitaatuscompas WHERE codigo = %s
                 """, (codigo,))
                 fila = cur.fetchone()
         if fila is None:
             return jsonify(valido=False, mensaje="Ese codigo no existe")
-        dueno, activo = fila
+        dueno, activo, vendedor = fila
         if not activo:
             return jsonify(valido=False, mensaje="Ese codigo ya no esta activo")
-        return jsonify(valido=True, dueno=dueno, codigo=codigo)
+        return jsonify(valido=True, dueno=dueno, codigo=codigo, vendedor=vendedor)
     except Exception as exc:
         logger.error("validarcodigoreferido error - %s", exc)
         return jsonify(valido=False, mensaje=str(exc)), 500

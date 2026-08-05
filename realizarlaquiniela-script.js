@@ -649,9 +649,29 @@ notificar("No se permiten comas en el nombre.", "aviso");
 }
 });
 }
+/* =====================================   Esto de abajo resuelve el vendedor preguntandole al servidor por el codigo referido   ======================= */
+async function resolverVendedorPorCodigoReferido(codigo) {
+try {
+const res = await fetch(`${APIBASE}/api/validarcodigoreferido?codigo=${encodeURIComponent(codigo)}`);
+const data = await res.json();
+if (res.ok && data.valido && data.vendedor) {
+localStorage.setItem("quinielasElWero_vendedorActual", data.vendedor);
+return data.vendedor;
+}
+} catch (err) {
+console.error("No se pudo resolver el vendedor del codigo referido:", err);
+}
+return null;
+}
 /* =====================================   Esto de abajo trabaja en inicianizacion de nuestra quiniela                                       ======================= */
 document.addEventListener("DOMContentLoaded", async () => {
-const vendedor = detectarVendedor();
+let vendedor = detectarVendedor();
+if (!vendedor) {
+const codigoReferido = detectarCodigoReferido();
+if (codigoReferido) {
+vendedor = await resolverVendedorPorCodigoReferido(codigoReferido);
+}
+}
 if (!vendedor) { tarjetaroja("Verifica tu link para poder añadir quinielas correctamente."); }
 cargarVendedores();
 await cargarJornadaActual();

@@ -266,12 +266,18 @@ this.errEl.textContent = "Escribe tu nombre por favor.";
 this.input.focus();
 return;
 }
+const telefono = document.getElementById("identidadTelefono")?.value.trim() || ""; 
+if (!/^\d{10}$/.test(telefono)) {
+this.errEl.hidden = false;
+this.errEl.textContent = "Escribe tu número de celular (10 dígitos).";
+return;
+}
 const dispositivoId = this.leerDispositivoId();
 try {
 const res = await fetch(this.API_REGISTRO, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ dispositivoid: dispositivoId, nombrecelular: valor })
+body: JSON.stringify({ dispositivoid: dispositivoId, nombrecelular: valor, telefono })
 });
 const data = await res.json();
 if (!res.ok || !data.success) throw new Error(data.mensaje || "Error al registrar");

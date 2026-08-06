@@ -116,6 +116,11 @@ def crear_tablas():
             """)
 
             cur.execute("""
+                ALTER TABLE clientes
+                ADD COLUMN IF NOT EXISTS telefono VARCHAR(20);
+            """)
+
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS suscripcionespush (
                     id SERIAL PRIMARY KEY,
                     dispositivoid VARCHAR(100) NOT NULL REFERENCES clientes(dispositivoid) ON DELETE CASCADE,
@@ -1265,19 +1270,23 @@ def registrodeclientes():
     data = request.get_json(silent=True) or {}
     dispositivoid = (data.get("dispositivoid") or "").strip()
     nombrecelular = (data.get("nombrecelular") or "").strip()
+    telefono = (data.get("telefono") or "").strip()  
+
     if not dispositivoid or not nombrecelular:
         return jsonify(success=False, mensaje="Faltan datos"), 400
+    if not telefono or len(normalizar_telefono(telefono)) != 10: 
+        return jsonify(success=False, mensaje="Número de celular válido (10 dígitos)"), 400
+
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "INSERT INTO clientes (dispositivoid, nombrecelular) VALUES (%s, %s) ON CONFLICT (dispositivoid) DO NOTHING RETURNING id",
-                    (dispositivoid, nombrecelular)
+                    "INSERT INTO clientes (dispositivoid, nombrecelular, telefono) VALUES (%s, %s, %s) "
+                    "ON CONFLICT (dispositivoid) DO UPDATE SET telefono = EXCLUDED.telefono "
+                    "RETURNING id",
+                    (dispositivoid, nombrecelular, telefono)
                 )
                 fila = cur.fetchone()
-                if fila is None:
-                    cur.execute("SELECT id FROM clientes WHERE dispositivoid=%s", (dispositivoid,))
-                    fila = cur.fetchone()
                 conn.commit()
         return jsonify(success=True, id=fila[0])
     except Exception as exc:

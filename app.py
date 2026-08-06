@@ -635,6 +635,20 @@ VENDEDOR_LINKS = {
     "Taliban":      "https://www.quinielaselwero.com/?vendedor=Taliban",
     "•":            "https://www.quinielaselwero.com/?vendedor=%E2%80%A2",
 }
+
+VENDEDOR_POR_SLUG = {
+    nombre.replace(" ", "").lower(): nombre
+    for nombre in VENDEDOR_WHATSAPP
+}
+def resolver_vendedor(valor):
+    if not valor:
+        return None
+    valor = valor.strip()
+    if valor in VENDEDOR_WHATSAPP:
+        return valor
+    normalizado = valor.replace(" ", "").replace("-", "").replace("_", "").lower()
+    return VENDEDOR_POR_SLUG.get(normalizado)
+
 # ── Esto de abajo trabaja en los limites de folio asignados por vendedor ────────────────────────────────────────────────────────────────────────────────
 LIMITES_VENDEDORES = {
     "Alexander":      (1,    90),
@@ -1299,13 +1313,18 @@ def enviarlaquinielaporwhatsapp():
     data = request.get_json(silent=True) or {}
     nombrecelular = (data.get("nombrecelular") or "").strip()
     nombrequiniela = (data.get("nombrequiniela") or "").strip()
-    vendedor = (data.get("vendedor") or "").strip()
+    vendedor_recibido = (data.get("vendedor") or "").strip()
     jornada = (data.get("jornada") or JORNADA_ACTUAL).strip()
     dispositivoid = (data.get("dispositivoid") or "").strip()
     codigoreferido = (data.get("codigoreferido") or "").strip() or None
     selecciones = data.get("selecciones") or {}
+
     if not nombrecelular or not nombrequiniela or not selecciones or not dispositivoid:
-        return jsonify({"success": False, "mensaje": "Faltan datos"}), 400
+        return jsonify(success=False, mensaje="Faltan datos"), 400
+
+    vendedor = resolver_vendedor(vendedor_recibido)
+    if not vendedor:
+        return jsonify(success=False, mensaje="Vendedor no reconocido"), 400
     if vendedor not in VENDEDOR_WHATSAPP:
         return jsonify({"success": False, "mensaje": "Vendedor no reconocido"}), 400
     picks = []
@@ -1958,33 +1977,45 @@ def ruletatienepin():
         logger.error("ruletatienepin error - %s", exc)
         return jsonify(tienepin=False), 500
 
+def normalizar_telefono(telefono):
+    solo_digitos = re.sub(r"\D", "", telefono or "")
+    return solo_digitos[-10:] if len(solo_digitos) >= 10 else solo_digitos
+
 @app.route("/api/ruletacrearpin", methods=["POST"])
 def ruletacrearpin():
     data = request.get_json(silent=True) or {}
     codigo = (data.get("codigo") or "").strip()
     pin = (data.get("pin") or "").strip()
-    telefono = (data.get("telefono") or "").strip()  
+    telefono = (data.get("telefono") or "").strip()
 
     if not codigo or not pin or len(pin) < 4:
         return jsonify(success=False, mensaje="Falta el código o el PIN debe tener al menos 4 dígitos"), 400
-
-    if not telefono or not re.fullmatch(r"\d{10}", telefono):  
+    if not telefono or len(normalizar_telefono(telefono)) != 10:
         return jsonify(success=False, mensaje="Escribe un número de celular válido (10 dígitos)"), 400
 
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT pin FROM invitaatuscompas WHERE codigo=%s FOR UPDATE", (codigo,))
+                cur.execute(
+                    "SELECT pin, telefono FROM invitaatuscompas WHERE codigo=%s FOR UPDATE",
+                    (codigo,)
+                )
                 fila = cur.fetchone()
                 if fila is None:
                     return jsonify(success=False, mensaje="Ese código no existe"), 404
-                if fila[0]:
+
+                pin_actual, telefono_registrado = fila
+                if pin_actual:
                     return jsonify(success=False, mensaje="Este código ya tiene un PIN asignado"), 409
+
+                if normalizar_telefono(telefono) != normalizar_telefono(telefono_registrado):
+                    return jsonify(
+                        success=False,
+                        mensaje="El número de celular no coincide con el registro de este código"
+                    ), 401
+
                 pinhash = generate_password_hash(pin)
-                cur.execute(
-                    "UPDATE invitaatuscompas SET pin=%s, telefono=%s WHERE codigo=%s",
-                    (pinhash, telefono, codigo) 
-                )
+                cur.execute("UPDATE invitaatuscompas SET pin=%s WHERE codigo=%s", (pinhash, codigo))
                 conn.commit()
         return jsonify(success=True, mensaje="PIN creado correctamente")
     except Exception as exc:

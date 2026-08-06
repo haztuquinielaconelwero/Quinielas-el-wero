@@ -469,20 +469,25 @@ setTimeout(() => cartel.remove(), 400);
 },
 abrir() {
 this.overlay.hidden = false;
+this.boton.style.pointerEvents = "none";
 const sesion = this.leerSesionVerificada();
 if (sesion?.codigo && sesion?.pin) {
 this.mostrarCuartoDueno(sesion.codigo, sesion.pin);
 } else {
+this.resetearFormularioCodigo();
 this.mostrarCuartoNuevo();
 }
 },
 cerrar() {
 this.overlay.hidden = true;
+this.boton.style.pointerEvents = "";
 this.limpiarSesionRuleta();
+this.resetearFormularioCodigo();
 },
 cerrarSesion() {
 this.limpiarSesionRuleta();
 this.overlay.hidden = true;
+this.boton.style.pointerEvents = "";
 this.mostrarAvisoCopiado("Sesión cerrada 🔒");
 },
 limpiarSesionRuleta() {
@@ -501,6 +506,20 @@ detenerTemporizadorInactividad() {
 if (this.inactividadTimer) clearTimeout(this.inactividadTimer);
 this.inactividadTimer = null;
 },
+resetearFormularioCodigo() {
+this.codigoConfirmado = null;
+this.esPinNuevo = false;
+this.input.hidden = false;
+this.input.value = "";
+this.input.classList.remove("error");
+this.inputPin.hidden = true;
+this.inputPin.value = "";
+this.inputPin.placeholder = "";
+this.inputTelefono.hidden = true;
+this.inputTelefono.value = "";
+this.errEl.hidden = true;
+this.btnConfirmar.textContent = "Continuar";
+},
 mostrarCuartoNuevo() {
 this.cuartoNuevo.hidden = false;
 this.cuartoDueno.hidden = true;
@@ -516,6 +535,7 @@ const res = await fetch(`/api/ruletatickets?codigoreferido=${encodeURIComponent(
 const data = await res.json();
 if (!res.ok || !data.success) {
 this.cerrarSesion();
+this.resetearFormularioCodigo();
 this.mostrarCuartoNuevo();
 this.errEl.hidden = false;
 this.errEl.textContent = data.mensaje || "Tu sesión expiró, vuelve a escribir tu PIN.";
@@ -536,7 +556,7 @@ async confirmarCodigo() {
 const codigo = this.input.value.trim();
 if (!codigo) {
 this.errEl.hidden = false;
-this.errEl.textContent = "Escribe tu codigo por favor.";
+this.errEl.textContent = "Escribe tu código por favor.";
 return;
 }
 try {
@@ -544,7 +564,7 @@ const resValidar = await fetch(`/api/validarcodigoreferido?codigo=${encodeURICom
 const dataValidar = await resValidar.json();
 if (!resValidar.ok || !dataValidar.valido) {
 this.errEl.hidden = false;
-this.errEl.textContent = dataValidar.mensaje || "Ese codigo no existe.";
+this.errEl.textContent = dataValidar.mensaje || "Ese código no existe.";
 return;
 }
 const resTienePin = await fetch(`/api/ruletatienepin?codigo=${encodeURIComponent(codigo)}`);
@@ -556,8 +576,16 @@ this.input.hidden = true;
 this.inputPin.hidden = false;
 this.inputPin.value = "";
 this.inputPin.focus();
-this.inputPin.placeholder = this.esPinNuevo ? "Crea tu PIN (4 dígitos)" : "Escribe tu PIN";
-this.btnConfirmar.textContent = this.esPinNuevo ? "Crear mi PIN" : "Entrar";
+if (this.esPinNuevo) {
+this.inputPin.placeholder = "Crea tu PIN (4 dígitos)";
+this.inputTelefono.hidden = false;
+this.inputTelefono.value = "";
+this.btnConfirmar.textContent = "Crear mi PIN";
+} else {
+this.inputPin.placeholder = "Escribe tu PIN";
+this.inputTelefono.hidden = true;
+this.btnConfirmar.textContent = "Entrar";
+}
 } catch (err) {
 this.errEl.hidden = false;
 this.errEl.textContent = "No se pudo validar, intenta de nuevo.";
@@ -569,15 +597,25 @@ const codigo = this.codigoConfirmado;
 const pin = this.inputPin.value.trim();
 if (!pin || pin.length < 4) {
 this.errEl.hidden = false;
-this.errEl.textContent = "Escribe un PIN de al menos 4 digitos.";
+this.errEl.textContent = "Escribe un PIN de al menos 4 dígitos.";
+ return;
+}
+let telefono = "";
+if (this.esPinNuevo) {
+telefono = this.inputTelefono.value.trim();
+if (!/^\d{10}$/.test(telefono)) {
+this.errEl.hidden = false;
+this.errEl.textContent = "Escribe tu número de celular (10 dígitos).";
 return;
 }
+}
 const endpoint = this.esPinNuevo ? "/api/ruletacrearpin" : "/api/ruletavalidarpin";
+const cuerpo = this.esPinNuevo ? { codigo, pin, telefono } : { codigo, pin };
 try {
 const res = await fetch(endpoint, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ codigo, pin })
+body: JSON.stringify(cuerpo)
 });
 const data = await res.json();
 if (!res.ok || !data.success) {

@@ -12,6 +12,7 @@ from psycopg import Connection
 from flask import Flask, jsonify, send_from_directory
 from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
+import re
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("app")
@@ -1962,19 +1963,28 @@ def ruletacrearpin():
     data = request.get_json(silent=True) or {}
     codigo = (data.get("codigo") or "").strip()
     pin = (data.get("pin") or "").strip()
+    telefono = (data.get("telefono") or "").strip()  
+
     if not codigo or not pin or len(pin) < 4:
-        return jsonify(success=False, mensaje="Falta el codigo o el PIN debe tener al menos 4 digitos"), 400
+        return jsonify(success=False, mensaje="Falta el código o el PIN debe tener al menos 4 dígitos"), 400
+
+    if not telefono or not re.fullmatch(r"\d{10}", telefono):  
+        return jsonify(success=False, mensaje="Escribe un número de celular válido (10 dígitos)"), 400
+
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT pin FROM invitaatuscompas WHERE codigo = %s FOR UPDATE", (codigo,))
+                cur.execute("SELECT pin FROM invitaatuscompas WHERE codigo=%s FOR UPDATE", (codigo,))
                 fila = cur.fetchone()
                 if fila is None:
-                    return jsonify(success=False, mensaje="Ese codigo no existe"), 404
+                    return jsonify(success=False, mensaje="Ese código no existe"), 404
                 if fila[0]:
-                    return jsonify(success=False, mensaje="Este codigo ya tiene un PIN asignado"), 409
-                pin_hash = generate_password_hash(pin)
-                cur.execute("UPDATE invitaatuscompas SET pin = %s WHERE codigo = %s", (pin_hash, codigo))
+                    return jsonify(success=False, mensaje="Este código ya tiene un PIN asignado"), 409
+                pinhash = generate_password_hash(pin)
+                cur.execute(
+                    "UPDATE invitaatuscompas SET pin=%s, telefono=%s WHERE codigo=%s",
+                    (pinhash, telefono, codigo) 
+                )
                 conn.commit()
         return jsonify(success=True, mensaje="PIN creado correctamente")
     except Exception as exc:

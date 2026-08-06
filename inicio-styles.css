@@ -867,6 +867,16 @@ animation: rebotarFlecha 0.5s ease;
 60%{ transform: translateX(-50%) translateY(-4px); }
 100%{ transform: translateX(-50%) translateY(0); }
 }
+.ruleta-overlay {
+position: fixed;
+inset: 0;
+z-index: 2000;
+}
+#btnCerrarRuleta {
+position: relative;
+z-index: 2001;
+pointer-events: auto;
+}
 /* ====================            Esto de abajo trabaja en los tamaños para diferentes pantallas para nuestra aplicacion                            ==================== */
 @media (max-width: 900px){
 body{ padding-top: 0px; }

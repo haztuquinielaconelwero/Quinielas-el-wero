@@ -201,7 +201,8 @@
 <h2 class="adm-pin-title" id="ruletaTitle">¡Invita a tus compas y gana! 🎉</h2>
 <p class="ruleta-texto-emocion">Cada amigo que juegue usando tu código te da 1 ticket 🎟️.</p>
 <input type="text" id="codigoReferidoInput" class="rq-bienvenida-input" placeholder="Escribe tu nombre del código" maxlength="30">
-<input type="password" id="codigoReferidoPin" class="rq-bienvenida-input" placeholder="Tu PIN (4 dígitos)" maxlength="6" style="margin-top:6px" inputmode="numeric" autocomplete="off">
+<input type="password" id="codigoReferidoPin" class="rq-bienvenida-input" placeholder="Tu PIN (4 dígitos)" maxlength="4" style="margin-top:6px" inputmode="numeric" autocomplete="off" hidden>
+<input type="tel" id="codigoReferidoTelefono" class="rq-bienvenida-input" placeholder="Tu número de celular (10 dígitos)" maxlength="10" style="margin-top:6px" inputmode="numeric" autocomplete="tel" hidden>
 <span id="codigoReferidoError" class="adm-pin-error" role="alert" aria-live="polite" hidden></span>
 <button class="btn-participa" id="btnConfirmarCodigo" type="button" style="width:100%;justify-content:center">Confirmar código</button>
 <p class="ruleta-pide-codigo">¿Aún no tienes tu código? <a href="#" id="linkPedirCodigo">Pídelo a tu vendedor</a></p>

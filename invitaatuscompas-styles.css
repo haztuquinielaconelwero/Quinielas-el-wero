@@ -83,6 +83,8 @@ white-space: nowrap;
 .btn-azul:hover { background: #1557b0; }
 .btn-verde { background: #16a34a; }
 .btn-verde:hover { background: #15803d; }
+.btn-rojo { background: var(--rojo); }
+.btn-rojo:hover { background: var(--rojo-hover); }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .tabs-estado {
 background: white;

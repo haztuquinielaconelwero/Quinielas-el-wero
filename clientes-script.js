@@ -28,11 +28,11 @@ const resp = await fetch('/api/clienteslista');
 if (!resp.ok) throw new Error(`Error clientes: ${resp.status}`);
 const data = await resp.json();
 if (data.success === false) throw new Error(data.mensaje || 'Error al obtener clientes');
-
 datosOriginales = (data.clientes || []).map(c => ({
 id: c.id,
 dispositivoid: c.dispositivoid || '',
 nombre: c.nombre || '',
+telefono: c.telefono || '',
 fechaRegistro: c.fechaRegistro || '',
 }));
 renderTabla();
@@ -53,6 +53,7 @@ return !termino || String(c.nombre || '').toLowerCase().includes(termino);
 function buildRowData(lista) {
 return lista.map(c => ({
 nombre: c.nombre,
+telefono: c.telefono,
 dispositivoid: c.dispositivoid,
 fechaRegistro: c.fechaRegistro,
 }));
@@ -60,8 +61,9 @@ fechaRegistro: c.fechaRegistro,
 /*                                    Esto de abajo trabaja en armar las columnas de la tabla                                              */
 function buildColumnDefs() {
 return [
-{ field: 'nombre', headerName: 'Nombre', width: 220, pinned: 'left', cellStyle: { justifyContent: 'flex-start', paddingLeft: '10px' } },
-{ field: 'dispositivoid', headerName: 'ID de dispositivo', width: 320 },
+{ field: 'nombre', headerName: 'Nombre', width: 200, pinned: 'left', cellStyle: { justifyContent: 'flex-start', paddingLeft: '10px' } },
+{ field: 'telefono', headerName: 'Teléfono', width: 140 },
+{ field: 'dispositivoid', headerName: 'ID de dispositivo', width: 300 },
 { field: 'fechaRegistro', headerName: 'Registrado en', width: 170 },
 {
 headerName: 'Acciones', width: 150, sortable: false,

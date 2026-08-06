@@ -1328,14 +1328,15 @@ def clienteslista():
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT id, dispositivoid, nombrecelular, fecharegistro FROM clientes ORDER BY fecharegistro DESC"
+                    "SELECT id, dispositivoid, nombrecelular, telefono, fecharegistro FROM clientes ORDER BY fecharegistro DESC"
                 )
                 filas = cur.fetchall()
         clientes = [{
             "id": f[0],
             "dispositivoid": f[1],
             "nombre": f[2],
-            "fechaRegistro": f[3].strftime("%Y-%m-%d %H:%M") if f[3] else "",
+            "telefono": f[3] or "",
+            "fechaRegistro": f[4].strftime("%Y-%m-%d %H:%M") if f[4] else "",
         } for f in filas]
         return jsonify(success=True, clientes=clientes)
     except Exception as exc:

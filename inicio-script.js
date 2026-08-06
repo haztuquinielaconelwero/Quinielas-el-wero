@@ -21,11 +21,24 @@ if (target) window.location.href = target;
 /* =============                           Esto de abajo trabaja en detectar al Vendedor                             ============================ */
 const DetectorVendedor = {
 STORAGE_KEY: "quinielasElWero_vendedorActual",
-init() {
+async init() {
 const params = new URLSearchParams(window.location.search);
 const vendedorURL = params.get("vendedor");
 if (vendedorURL) {
 localStorage.setItem(this.STORAGE_KEY, vendedorURL);
+return;
+}
+const codigoURL = params.get("codigo");
+if (codigoURL && !localStorage.getItem(this.STORAGE_KEY)) {
+try {
+const res = await fetch(`/api/validarcodigoreferido?codigo=${encodeURIComponent(codigoURL)}`);
+const data = await res.json();
+if (res.ok && data.valido && data.vendedor) {
+localStorage.setItem(this.STORAGE_KEY, data.vendedor);
+}
+} catch (err) {
+console.error("No se pudo resolver el vendedor del codigo referido:", err);
+}
 }
 }
 };

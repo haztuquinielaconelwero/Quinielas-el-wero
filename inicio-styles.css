@@ -822,6 +822,9 @@ animation: none;
 #ruletaRueda{
 animation: none;
 }
+#btnCerrarRuleta {
+z-index: 20;
+}
 /* ==================== Esto de abajo trabaja en el cartelito del premio ==================== */
 .ruleta-premio-popup{
 position: fixed;

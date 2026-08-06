@@ -2,10 +2,12 @@
 let datosOriginales = [];
 let vendedoresDisponibles = [];
 let gridApi = null;
+let bloqueadoActual = false;
 /*                                     Esto de abajo trabaja en el arranque de la pagina                           */
 document.addEventListener('DOMContentLoaded', async () => {
 initGrid();
 await cargarDatos();
+await cargarEstadoBloqueo();
 });
 /*                                     Esto de abajo trabaja en construir la tabla                           */
 function initGrid() {
@@ -281,6 +283,47 @@ const data = await resp.json();
 if (!data.success) throw new Error(data.mensaje || 'No se pudo regalar tickets');
 alert('✅ ' + data.mensaje);
 await cargarDatos();
+} catch (error) {
+alert('❌ ' + error.message);
+}
+}
+/*                              Esto de abajo trabaja en bloquear/desbloquear la dinámica completa de Invita a tus Compas                  */
+async function cargarEstadoBloqueo() {
+try {
+const resp = await fetch('/api/invitaatuscompasestado');
+const data = await resp.json();
+bloqueadoActual = !!data.bloqueado;
+actualizarBotonBloqueo();
+} catch (error) {
+console.error('No se pudo cargar el estado del bloqueo:', error);
+}
+}
+function actualizarBotonBloqueo() {
+const btn = document.getElementById('btnToggleBloqueo');
+if (!btn) return;
+if (bloqueadoActual) {
+btn.textContent = '🔓 Desbloquear dinámica';
+btn.classList.remove('btn-rojo');
+btn.classList.add('btn-verde');
+} else {
+btn.textContent = '🔒 Bloquear dinámica';
+btn.classList.remove('btn-verde');
+btn.classList.add('btn-rojo');
+}
+}
+async function toggleBloqueoDinamica() {
+const accion = bloqueadoActual ? 'desbloquear' : 'bloquear';
+if (!confirm(`¿Seguro que quieres ${accion} la dinámica de "Invita a tus Compas"? Esto afecta a todos los usuarios en este momento.`)) return;
+try {
+const resp = await fetch('/api/invitaatuscompastogglebloqueo', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ activar: !bloqueadoActual }),
+});
+const data = await resp.json();
+if (!data.success) throw new Error(data.mensaje || 'No se pudo cambiar el estado');
+bloqueadoActual = data.bloqueado;
+actualizarBotonBloqueo();
 } catch (error) {
 alert('❌ ' + error.message);
 }

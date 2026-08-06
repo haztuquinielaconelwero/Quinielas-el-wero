@@ -111,13 +111,9 @@ def crear_tablas():
                     id SERIAL PRIMARY KEY,
                     dispositivoid VARCHAR(100) UNIQUE NOT NULL,
                     nombrecelular VARCHAR(100) NOT NULL,
+                    telefono VARCHAR(20),
                     fecharegistro TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City')
                 );
-            """)
-
-            cur.execute("""
-                ALTER TABLE clientes
-                ADD COLUMN IF NOT EXISTS telefono VARCHAR(20);
             """)
 
             cur.execute("""
@@ -249,6 +245,7 @@ def crear_tablas():
             """)
 
         conn.commit()
+
 # ──                         Esta API revisa si a este dispositivo ya se le pregunto sobre notificaciones esta jornada                             ──
 @app.route("/api/debepreguntarpush")
 def debe_preguntar_push():
@@ -357,6 +354,20 @@ def archivarjugando():
     except Exception as exc:
         logger.error("archivarjugando: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
+
+# ── Esto de abajo trabaja con la dinamica de Invita a tus compas y gana───────────────────────────────────────────────────────────────────────────────────────────────
+INVITA_BLOQUEADO = False
+
+@app.route("/api/invitaatuscompasestado")
+def invitaatuscompas_estado():
+    return jsonify(success=True, bloqueado=INVITA_BLOQUEADO)
+
+@app.route("/api/invitaatuscompastogglebloqueo", methods=["POST"])
+def invitaatuscompas_toggle_bloqueo():
+    global INVITA_BLOQUEADO
+    data = request.get_json(silent=True) or {}
+    INVITA_BLOQUEADO = bool(data.get("activar"))
+    return jsonify(success=True, bloqueado=INVITA_BLOQUEADO)
 
 # ── Esto de abajo trabaja con  el modo bloqueado y modo en espera───────────────────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/estadoadmin")
@@ -1928,16 +1939,18 @@ def ruletacanjear():
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT pin FROM invitaatuscompas WHERE codigo = %s", (codigoreferido,))
-                filapin = cur.fetchone()
-                if filapin is None or not filapin[0] or not check_password_hash(filapin[0], pin):
+                cur.execute("SELECT pin FROM invitaatuscompas WHERE codigo=%s", (codigoreferido,))
+                fila_pin = cur.fetchone()
+                if fila_pin is None or not fila_pin[0] or not check_password_hash(fila_pin[0], pin):
                     return jsonify(success=False, mensaje="PIN incorrecto"), 401
 
-                cur.execute("""
-                    SELECT quinielasgratispendientes
-                    FROM ticketsruleta
-                    WHERE codigoreferido = %s FOR UPDATE
-                """, (codigoreferido,))
+                if INVITA_BLOQUEADO:
+                    return jsonify(
+                        success=False,
+                        mensaje="El canje de tickets está pausado hoy 📅"
+                    ), 423
+
+                cur.execute("SELECT quinielasgratispendientes FROM ticketsruleta WHERE codigoreferido=%s FOR UPDATE", (codigoreferido,))
                 fila = cur.fetchone()
                 if fila is None or fila[0] < 1:
                     return jsonify(success=False, mensaje="Necesitas al menos 1 quiniela gratis para canjear"), 400

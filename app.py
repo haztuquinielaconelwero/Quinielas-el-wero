@@ -1263,41 +1263,86 @@ iniciar_auto_sync()
 @app.route("/api/registrodeclientes", methods=["POST"])
 def registrodeclientes():
     data = request.get_json(silent=True) or {}
-
     dispositivoid = (data.get("dispositivoid") or "").strip()
     nombrecelular = (data.get("nombrecelular") or "").strip()
-
     if not dispositivoid or not nombrecelular:
-        return jsonify({"success": False, "mensaje": "Faltan datos"}), 400
-
+        return jsonify(success=False, mensaje="Faltan datos"), 400
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    """
-                    INSERT INTO clientes (dispositivoid, nombrecelular)
-                    VALUES (%s, %s)
-                    ON CONFLICT (dispositivoid) DO NOTHING
-                    RETURNING id
-                    """,
+                    "INSERT INTO clientes (dispositivoid, nombrecelular) VALUES (%s, %s) ON CONFLICT (dispositivoid) DO NOTHING RETURNING id",
                     (dispositivoid, nombrecelular)
                 )
                 fila = cur.fetchone()
-
                 if fila is None:
-                    cur.execute(
-                        "SELECT id FROM clientes WHERE dispositivoid = %s",
-                        (dispositivoid,),
-                    )
+                    cur.execute("SELECT id FROM clientes WHERE dispositivoid=%s", (dispositivoid,))
                     fila = cur.fetchone()
-
                 conn.commit()
-
-        return jsonify({"success": True, "id": fila[0]})
-
+        return jsonify(success=True, id=fila[0])
     except Exception as exc:
-        logger.error("registrodeclientes error: %s", exc)
-        return jsonify({"success": False, "mensaje": str(exc)}), 500
+        logger.error("registrodeclientes error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
+@app.route("/api/verificarregistro")
+def verificarregistro():
+    dispositivoid = request.args.get("dispositivoid") or ""
+    dispositivoid = dispositivoid.strip()
+    if not dispositivoid:
+        return jsonify(registrado=False), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT nombrecelular FROM clientes WHERE dispositivoid=%s", (dispositivoid,))
+                fila = cur.fetchone()
+        if fila is None:
+            return jsonify(registrado=False)
+        return jsonify(registrado=True, nombrecelular=fila[0])
+    except Exception as exc:
+        logger.error("verificarregistro error - %s", exc)
+        return jsonify(registrado=False, mensaje=str(exc)), 500
+
+@app.route("/api/clienteslista")
+def clienteslista():
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT id, dispositivoid, nombrecelular, fecharegistro FROM clientes ORDER BY fecharegistro DESC"
+                )
+                filas = cur.fetchall()
+        clientes = [{
+            "id": f[0],
+            "dispositivoid": f[1],
+            "nombre": f[2],
+            "fechaRegistro": f[3].strftime("%Y-%m-%d %H:%M") if f[3] else "",
+        } for f in filas]
+        return jsonify(success=True, clientes=clientes)
+    except Exception as exc:
+        logger.error("clienteslista error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+
+@app.route("/api/clienteseliminar", methods=["POST"])
+def clienteseliminar():
+    data = request.get_json(silent=True) or {}
+    dispositivoid = (data.get("dispositivoid") or "").strip()
+    if not dispositivoid:
+        return jsonify(success=False, mensaje="Falta el dispositivoid"), 400
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "DELETE FROM clientes WHERE dispositivoid=%s RETURNING id",
+                    (dispositivoid,)
+                )
+                fila = cur.fetchone()
+                conn.commit()
+        if fila is None:
+            return jsonify(success=False, mensaje="No se encontró ese cliente"), 404
+        return jsonify(success=True, mensaje="Cliente eliminado correctamente")
+    except Exception as exc:
+        logger.error("clienteseliminar error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
 
 # ── Esto de abajo trabaja con la api de vendedores  ──────────────────────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/vendedores")
@@ -1370,28 +1415,6 @@ def enviarlaquinielaporwhatsapp():
     except Exception as exc:
         logger.error("enviarlaquinielaporwhatsapp error: %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
-
-# ── Esto de abajo trabaja con la api de verificar registro de clientes  ──────────────────────────────────────────────────────────────────────────────
-
-@app.route("/api/verificarregistro")
-def verificarregistro():
-    dispositivoid = (request.args.get("dispositivoid") or "").strip()
-    if not dispositivoid:
-        return jsonify({"registrado": False}), 400
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    "SELECT nombrecelular FROM clientes WHERE dispositivoid = %s",
-                    (dispositivoid,),
-                )
-                fila = cur.fetchone()
-        if fila is None:
-            return jsonify({"registrado": False})
-        return jsonify({"registrado": True, "nombrecelular": fila[0]})
-    except Exception as exc:
-        logger.error("verificarregistro: error -> %s", exc)
-        return jsonify({"registrado": False, "mensaje": str(exc)}), 500
 
 # ── Esto de abajo trabaja con la api de la lista oficial              ───────────────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/laapidelalistaoficial")

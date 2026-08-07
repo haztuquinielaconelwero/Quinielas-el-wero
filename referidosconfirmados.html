@@ -25,6 +25,7 @@
 </div>
 <div class="header-actions">
 <button class="btn btn-azul" type="button" onclick="actualizarTodo()">Actualizar 🔄</button>
+<button class="btn btn-cafe" type="button" onclick="abrirRespaldos()">Respaldos 📁</button>
 </div>
 </header>
 <section class="toolbar" aria-label="Filtros de referidos">
@@ -37,14 +38,38 @@
 </section>
 <main class="container">
 <section class="stats-bar" aria-label="Resumen">
-<div class="stat"><span>Total confirmados:</span><span class="stat-value" id="totalStat">0</span></div>
-<div class="stat"><span>Códigos usados:</span><span class="stat-value" id="codigosStat">0</span></div>
-<div class="stat"><span>Vendedores:</span><span class="stat-value" id="vendedoresStat">0</span></div>
+<div class="stat">
+<span>Total confirmados:</span>
+<span class="stat-value" id="totalStat">0</span>
+</div>
+<div class="stat">
+<span>Códigos usados:</span>
+<span class="stat-value" id="codigosStat">0</span>
+</div>
+<div class="stat">
+<span>Vendedores:</span>
+<span class="stat-value" id="vendedoresStat">0</span>
+</div>
 </section>
 <div class="grid-wrapper">
 <div id="myGrid" class="ag-theme-alpine" aria-label="Tabla de referidos confirmados"></div>
 </div>
 </main>
+<!-- ── Esto de abajo trabaja con la ventana de respaldos de jornadas anteriores ── -->
+<div class="modal-respaldos" id="modalRespaldos" onclick="cerrarRespaldosAlFondo(event)">
+<div class="modal-contenido" role="dialog" aria-modal="true" aria-labelledby="tituloRespaldos">
+<div class="modal-header">
+<div>
+<div class="modal-titulo" id="tituloRespaldos">Respaldos de Referidos 📁</div>
+<div class="modal-subtitulo">Selecciona una jornada para descargar su información.</div>
+</div>
+<button class="btn-cerrar-modal" type="button" onclick="cerrarRespaldos()" aria-label="Cerrar respaldos">✕</button>
+</div>
+<div class="lista-respaldos" id="listaRespaldos">
+<div class="mensaje-respaldos">Cargando respaldos...</div>
+</div>
+</div>
+</div>
 <script src="referidosconfirmados-script.js"></script>
 </body>
 </html>

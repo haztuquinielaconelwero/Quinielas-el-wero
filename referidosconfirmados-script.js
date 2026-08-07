@@ -31,11 +31,18 @@ const gridDiv = document.getElementById('myGrid');
 gridApi = agGrid.createGrid(gridDiv, gridOptions);
 actualizarTodo();
 });
+document.addEventListener('keydown', event => {
+if (event.key === 'Escape') {
+cerrarRespaldos();
+}
+});
 // ================================ Esto de abajo trabaja con los datos de Python (referidos) ================================
 async function actualizarTodo() {
 mostrarCarga(true);
 try {
-const respuesta = await fetch('/api/referidosconfirmadoslista', { cache: 'no-store' });
+const respuesta = await fetch('/api/referidosconfirmadoslista', {
+cache: 'no-store'
+});
 if (!respuesta.ok) {
 throw new Error(`Error HTTP ${respuesta.status}`);
 }
@@ -153,4 +160,102 @@ document
 .getElementById('loadingOverlay')
 .classList
 .toggle('show', mostrar);
+}
+// ================================ Esto de abajo trabaja con abrir la ventana de respaldos ================================
+async function abrirRespaldos() {
+const modal = document.getElementById('modalRespaldos');
+const lista = document.getElementById('listaRespaldos');
+modal.classList.add('activo');
+lista.innerHTML = `
+<div class="mensaje-respaldos">
+Cargando respaldos...
+</div>
+`;
+try {
+const respuesta = await fetch('/api/referidosrespaldosjornadas', {
+cache: 'no-store'
+});
+if (!respuesta.ok) {
+throw new Error(`Error HTTP ${respuesta.status}`);
+}
+const datos = await respuesta.json();
+if (!datos.success) {
+throw new Error(datos.mensaje || 'No se pudieron cargar los respaldos.');
+}
+const jornadas = Array.isArray(datos.jornadas)
+? datos.jornadas
+: [];
+mostrarListaRespaldos(jornadas);
+} catch (error) {
+console.error(error);
+lista.innerHTML = `
+<div class="mensaje-respaldos">
+No fue posible cargar los respaldos.<br>
+${escaparHTML(error.message)}
+</div>
+`;
+}
+}
+// ================================ Esto de abajo trabaja con mostrar las jornadas respaldadas ================================
+function mostrarListaRespaldos(jornadas) {
+const lista = document.getElementById('listaRespaldos');
+lista.replaceChildren();
+if (jornadas.length === 0) {
+const mensaje = document.createElement('div');
+mensaje.className = 'mensaje-respaldos';
+mensaje.textContent = 'Todavía no existen respaldos de jornadas anteriores.';
+lista.appendChild(mensaje);
+return;
+}
+jornadas.forEach(respaldo => {
+const jornada = respaldo.jornada || 'Jornada sin nombre';
+const totalReferidos = Number(respaldo.totalReferidos || 0);
+const item = document.createElement('div');
+item.className = 'respaldo-item';
+const informacion = document.createElement('div');
+const titulo = document.createElement('div');
+titulo.className = 'respaldo-jornada';
+titulo.textContent = jornada;
+const detalle = document.createElement('div');
+detalle.className = 'respaldo-detalle';
+detalle.textContent = `${totalReferidos} ${totalReferidos === 1 ? 'referido confirmado' : 'referidos confirmados'}`;
+informacion.appendChild(titulo);
+informacion.appendChild(detalle);
+const boton = document.createElement('button');
+boton.type = 'button';
+boton.className = 'btn-descargar-respaldo';
+boton.textContent = 'Descargar 📥';
+boton.addEventListener('click', () => {
+descargarRespaldo(jornada);
+});
+item.appendChild(informacion);
+item.appendChild(boton);
+lista.appendChild(item);
+});
+}
+// ================================ Esto de abajo trabaja con descargar una jornada respaldada ================================
+function descargarRespaldo(jornada) {
+const jornadaCodificada = encodeURIComponent(jornada);
+window.location.href =
+`/api/referidosrespaldoexportar?jornada=${jornadaCodificada}`;
+}
+// ================================ Esto de abajo trabaja con cerrar la ventana de respaldos ================================
+function cerrarRespaldos() {
+const modal = document.getElementById('modalRespaldos');
+modal.classList.remove('activo');
+}
+// ================================ Esto de abajo trabaja con cerrar respaldos al tocar fuera de la ventana ================================
+function cerrarRespaldosAlFondo(event) {
+if (event.target.id === 'modalRespaldos') {
+cerrarRespaldos();
+}
+}
+// ================================ Esto de abajo protege los mensajes que se muestran en pantalla ================================
+function escaparHTML(texto) {
+return String(texto)
+.replaceAll('&', '&amp;')
+.replaceAll('<', '&lt;')
+.replaceAll('>', '&gt;')
+.replaceAll('"', '&quot;')
+.replaceAll("'", '&#039;');
 }

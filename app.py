@@ -434,6 +434,140 @@ def referidosconfirmadoslista():
         logger.error("referidosconfirmadoslista error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
 
+# ── Esto de abajo trabaja con las jornadas que tienen respaldo de referidos ───────────────────────────────────────────────────────
+@app.route('/api/referidosrespaldosjornadas')
+def referidosrespaldosjornadas():
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT
+                        jornada,
+                        COUNT(*) AS totalreferidos,
+                        MAX(fecharespaldo) AS ultimorespaldo
+                    FROM referidosconfirmadosrespaldo
+                    GROUP BY jornada
+                    ORDER BY MAX(fecharespaldo) DESC;
+                """)
+
+                filas = cur.fetchall()
+
+        jornadas = []
+
+        for jornada, totalreferidos, ultimorespaldo in filas:
+            jornadas.append({
+                "jornada": jornada,
+                "totalReferidos": totalreferidos,
+                "ultimoRespaldo": ultimorespaldo.strftime("%Y-%m-%d %H:%M") if ultimorespaldo else ""
+            })
+
+        return jsonify({
+            "success": True,
+            "jornadas": jornadas
+        })
+
+    except Exception as exc:
+        logger.error("referidosrespaldosjornadas: error -> %s", exc)
+
+        return jsonify({
+            "success": False,
+            "mensaje": str(exc)
+        }), 500
+
+# ── Esto de abajo trabaja con descargar el respaldo de una jornada de referidos ──────────────────────────────────────────────────
+@app.route('/api/referidosrespaldoexportar')
+def referidosrespaldoexportar():
+    jornada = (request.args.get('jornada') or '').strip()
+
+    if not jornada:
+        return jsonify({
+            "success": False,
+            "mensaje": "Falta seleccionar una jornada."
+        }), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT
+                        duenocodigo,
+                        codigoreferido,
+                        nombreparticipante,
+                        celular,
+                        dispositivoid,
+                        folio,
+                        vendedor,
+                        fechaconfirmado
+                    FROM referidosconfirmadosrespaldo
+                    WHERE jornada = %s
+                    ORDER BY fechaconfirmado ASC;
+                """, (jornada,))
+
+                filas = cur.fetchall()
+
+        if not filas:
+            return jsonify({
+                "success": False,
+                "mensaje": "No se encontró información para esa jornada."
+            }), 404
+
+        encabezados = [
+            "Dueño del código",
+            "Código referido",
+            "Nombre del participante",
+            "Celular",
+            "Dispositivo ID",
+            "Folio",
+            "Vendedor",
+            "Fecha confirmada"
+        ]
+
+        def escapar_csv(valor):
+            texto = "" if valor is None else str(valor)
+            return f'"{texto.replace(chr(34), chr(34) + chr(34))}"'
+
+        lineas = []
+
+        lineas.append(",".join(
+            escapar_csv(encabezado)
+            for encabezado in encabezados
+        ))
+
+        for fila in filas:
+            duenocodigo, codigoreferido, nombreparticipante, celular, dispositivoid, folio, vendedor, fechaconfirmado = fila
+
+            fechaformateada = (
+                fechaconfirmado.strftime("%Y-%m-%d %H:%M")
+                if fechaconfirmado
+                else ""
+            )
+
+            lineas.append(",".join([
+                escapar_csv(duenocodigo),
+                escapar_csv(codigoreferido),
+                escapar_csv(nombreparticipante),
+                escapar_csv(celular),
+                escapar_csv(dispositivoid),
+                escapar_csv(folio),
+                escapar_csv(vendedor),
+                escapar_csv(fechaformateada)
+            ]))
+
+        contenido_csv = "\ufeff" + "\n".join(lineas)
+
+        return contenido_csv, 200, {
+            "Content-Type": "text/csv; charset=utf-8",
+            "Content-Disposition": 'attachment; filename="referidos-respaldo.csv"'
+        }
+
+    except Exception as exc:
+        logger.error("referidosrespaldoexportar: error -> %s", exc)
+
+        return jsonify({
+            "success": False,
+            "mensaje": str(exc)
+        }), 500
+
 # ── Esto de abajo trabaja con  el modo bloqueado y modo en espera───────────────────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/estadoadmin")
 def estadoadmin():

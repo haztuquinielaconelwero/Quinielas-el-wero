@@ -25,8 +25,7 @@ Modo en espera activo — Las quinielas confirmadas por el vendedor no entrarán
 </div>
 <div class="header">
 <div class="logo">
-<input type="text" class="document-title" value="Lista Oficial" readonly>
-<span>🏆</span>
+<input type="text" class="document-title" value="Lista Oficial 🏆" readonly>
 </div>
 <div class="header-actions">
 <button class="btn btn-rojo"    onclick="confirmarNuevaJornada()">Reiniciar Jornada 🗑️</button>
@@ -39,11 +38,11 @@ Modo en espera activo — Las quinielas confirmadas por el vendedor no entrarán
 </div>
 </div>
 <div class="toolbar">
-<span class="toolbar-label">🔍</span>
 <input type="text" class="search-input" id="searchInput" placeholder="Buscar nombre o vendedor..." oninput="debouncedFiltros()">
 <select class="filter-select" id="filterVendedor" onchange="aplicarFiltros()">
 <option value="">Todos los vendedores</option>
 </select>
+<span class="toolbar-label">🔍</span>
 <span class="rows-counter" id="rowsCounter">0 registros</span>
 </div>
 <div class="container">

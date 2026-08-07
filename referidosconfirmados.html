@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Referidos Confirmados 🎯</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/styles/ag-grid.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/styles/ag-theme-alpine.css">
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32.2.0/dist/ag-grid-community.min.js"></script>
+<link rel="stylesheet" href="referidosconfirmados-styles.css">
+</head>
+<body>
+<div class="loading-overlay show" id="loadingOverlay">
+<div class="loading-content">
+<div class="spinner"></div>
+<div>Cargando referidos confirmados...</div>
+</div>
+</div>
+<header class="header">
+<div class="logo">
+<input type="text" class="document-title" value="Referidos Confirmados 🎯" readonly aria-label="Título de la página">
+</div>
+<div class="header-actions">
+<button class="btn btn-azul" type="button" onclick="actualizarTodo()">Actualizar 🔄</button>
+</div>
+</header>
+<section class="toolbar" aria-label="Filtros de referidos">
+<input type="search" class="search-input" id="searchInput" placeholder="Buscar dueño, código, participante, celular o vendedor..." oninput="aplicarFiltros()" autocomplete="off">
+<select class="filter-select" id="filterVendedor" onchange="aplicarFiltros()">
+<option value="">Todos los vendedores</option>
+</select>
+<span class="toolbar-label" aria-hidden="true">🔍</span>
+<span class="rows-counter" id="rowsCounter">0 referidos</span>
+</section>
+<main class="container">
+<section class="stats-bar" aria-label="Resumen">
+<div class="stat"><span>Total confirmados:</span><span class="stat-value" id="totalStat">0</span></div>
+<div class="stat"><span>Códigos usados:</span><span class="stat-value" id="codigosStat">0</span></div>
+<div class="stat"><span>Vendedores:</span><span class="stat-value" id="vendedoresStat">0</span></div>
+</section>
+<div class="grid-wrapper">
+<div id="myGrid" class="ag-theme-alpine" aria-label="Tabla de referidos confirmados"></div>
+</div>
+</main>
+<script src="referidosconfirmados-script.js"></script>
+</body>
+</html>

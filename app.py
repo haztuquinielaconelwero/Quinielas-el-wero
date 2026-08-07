@@ -29,7 +29,7 @@ if not DATABASE_URL:
 def get_connection() -> Connection:
     return psycopg.connect(DATABASE_URL)
 
-# ── Esto de abajo trabaja con la creacion de todas las tablas  ──────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con la creacion de todas las tablas ───────────────────────────────────────────────────────────────────────
 def crear_tablas():
     with get_connection() as conn:
         with conn.cursor() as cur:
@@ -179,6 +179,28 @@ def crear_tablas():
             cur.execute("""
                 CREATE INDEX IF NOT EXISTS idxreferidosconfirmadoscodigo
                 ON referidosconfirmados (codigoreferido);
+            """)
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS referidosconfirmadosrespaldo (
+                    id SERIAL PRIMARY KEY,
+                    jornada TEXT NOT NULL,
+                    duenocodigo TEXT NOT NULL,
+                    codigoreferido TEXT NOT NULL,
+                    nombreparticipante TEXT NOT NULL,
+                    celular TEXT NOT NULL,
+                    dispositivoid TEXT NOT NULL,
+                    folio TEXT NOT NULL,
+                    vendedor TEXT NOT NULL,
+                    fechaconfirmado TIMESTAMPTZ NOT NULL,
+                    fecharespaldo TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'America/Mexico_City'),
+                    UNIQUE (jornada, codigoreferido, dispositivoid)
+                );
+            """)
+
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idxreferidosconfirmadosrespaldojornada
+                ON referidosconfirmadosrespaldo (jornada);
             """)
 
             cur.execute("""
@@ -355,7 +377,7 @@ def archivarjugando():
         logger.error("archivarjugando: error -> %s", exc)
         return jsonify({"success": False, "mensaje": str(exc)}), 500
 
-# ── Esto de abajo trabaja con la dinamica de Invita a tus compas y gana───────────────────────────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con la dinamica de Invita a tus compas y gana(Bloqueo)────────────────────────────────────────────────────────────────────────────
 INVITA_BLOQUEADO = False
 
 @app.route("/api/invitaatuscompasestado")
@@ -368,6 +390,49 @@ def invitaatuscompas_toggle_bloqueo():
     data = request.get_json(silent=True) or {}
     INVITA_BLOQUEADO = bool(data.get("activar"))
     return jsonify(success=True, bloqueado=INVITA_BLOQUEADO)
+
+# ── Esto de abajo trabaja con la tabla de referidos confirmados lista ────────────────────────────────────────────────────────────────────────────
+@app.route('/api/referidosconfirmadoslista')
+def referidosconfirmadoslista():
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT
+                        iac.dueno,
+                        rc.codigoreferido,
+                        c.nombrecelular,
+                        c.telefono,
+                        rc.dispositivoid,
+                        tlq.folio,
+                        iac.vendedor,
+                        rc.fechaconfirmado
+                    FROM referidosconfirmados rc
+                    INNER JOIN invitaatuscompas iac ON iac.codigo = rc.codigoreferido
+                    INNER JOIN clientes c ON c.dispositivoid = rc.dispositivoid
+                    INNER JOIN todaslasquinielas tlq ON tlq.id = rc.quinielaid
+                    ORDER BY rc.fechaconfirmado DESC
+                """)
+                filas = cur.fetchall()
+
+        referidos = []
+        for f in filas:
+            dueno, codigo, nombre, telefono, dispositivoid, folio, vendedor, fecha = f
+            referidos.append({
+                "duenoCodigo": dueno,
+                "codigoReferido": codigo,
+                "nombreParticipante": nombre,
+                "celular": telefono,
+                "dispositivoId": dispositivoid,
+                "folio": folio or "",
+                "vendedor": vendedor,
+                "fechaConfirmado": fecha.strftime("%Y-%m-%d %H:%M") if fecha else ""
+            })
+
+        return jsonify(success=True, referidos=referidos)
+    except Exception as exc:
+        logger.error("referidosconfirmadoslista error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
 
 # ── Esto de abajo trabaja con  el modo bloqueado y modo en espera───────────────────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/estadoadmin")
@@ -2298,25 +2363,85 @@ def importararchivodeexcel():
         logger.error("importararchivodeexcel error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
 
-# ── Esto de abajo trabaja con el boton de Nueva jornada────────────────────────────────────────────────────────────────────────────────
+# ── Esto de abajo trabaja con el boton de Nueva jornada ─────────────────────────────────────────────────────────────────────────────
 @app.route("/api/nuevajornada", methods=["POST"])
 def nuevajornada():
     data = request.get_json(silent=True) or {}
     confirmacion = data.get("confirmacion")
+
     if confirmacion != "SI_BORRAR_TODO":
-        return jsonify({"success": False, "mensaje": "Falta confirmación"}), 400
+        return jsonify({
+            "success": False,
+            "mensaje": "Falta confirmación"
+        }), 400
+
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
+
+                cur.execute("""
+                    INSERT INTO referidosconfirmadosrespaldo (
+                        jornada,
+                        duenocodigo,
+                        codigoreferido,
+                        nombreparticipante,
+                        celular,
+                        dispositivoid,
+                        folio,
+                        vendedor,
+                        fechaconfirmado
+                    )
+                    SELECT
+                        q.jornada,
+                        codigo.dueno,
+                        referido.codigoreferido,
+                        cliente.nombrecelular,
+                        cliente.telefono,
+                        referido.dispositivoid,
+                        q.folio,
+                        codigo.vendedor,
+                        referido.fechaconfirmado
+                    FROM referidosconfirmados referido
+                    INNER JOIN invitaatuscompas codigo
+                        ON codigo.codigo = referido.codigoreferido
+                    INNER JOIN clientes cliente
+                        ON cliente.dispositivoid = referido.dispositivoid
+                    INNER JOIN todaslasquinielas q
+                        ON q.id = referido.quinielaid
+                    ON CONFLICT (jornada, codigoreferido, dispositivoid)
+                    DO NOTHING;
+                """)
+
+                referidosrespaldados = cur.rowcount
+
+                cur.execute("DELETE FROM referidosconfirmados")
+                referidosborrados = cur.rowcount
+
                 cur.execute("DELETE FROM todaslasquinielas")
+                quinielasborradas = cur.rowcount
+
                 cur.execute("DELETE FROM resultadosdelajornada")
+                resultadosborrados = cur.rowcount
+
             conn.commit()
-        return jsonify({"success": True, "mensaje": "Quinielas y resultados borrados. Clientes intactos."})
+
+        return jsonify({
+            "success": True,
+            "mensaje": "Nueva jornada preparada correctamente.",
+            "referidosRespaldados": referidosrespaldados,
+            "referidosBorrados": referidosborrados,
+            "quinielasBorradas": quinielasborradas,
+            "resultadosBorrados": resultadosborrados
+        })
+
     except Exception as exc:
         logger.error("nuevajornada: error -> %s", exc)
-        return jsonify({"success": False, "mensaje": str(exc)}), 500
-    
 
+        return jsonify({
+            "success": False,
+            "mensaje": str(exc)
+        }), 500
+    
 # ── Esto de abajo trabaja con actualizar los resultados────────────────────────────────────────────────────────────────────────────────
 @app.route("/api/apiparaactualizarlosresultados", methods=["POST"])
 def apiparaactualizarlosresultados():

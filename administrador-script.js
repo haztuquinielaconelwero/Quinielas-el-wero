@@ -526,7 +526,7 @@ _renderEstadoTabla(tbody, "cargando", "Cargando por confirmar ⏳...", numCols);
 const vendedor = getVendedorAdmin();
 if (!vendedor) {
 _renderEstadoTabla(tbody, "sin-vendedor", "Vendedor no identificado ⚠️", numCols);
-if (countElement) countElement.textContent = "0 En total";
+if (countElement) countElement.textContent = "0 en total";
 if (resumenElement) resumenElement.textContent = "0";
 return;
 }
@@ -542,11 +542,11 @@ const data = await response.json();
 const lista = data.pendientes ?? [];
 if (!lista.length) {
 _renderEstadoTabla(tbody, "vacio", "No hay quinielas por confirmar", numCols);
-if (countElement) countElement.textContent = "0 En total";
+if (countElement) countElement.textContent = "0 en total";
 if (resumenElement) resumenElement.textContent = "0";
 return;
 }
-if (countElement) countElement.textContent = `${lista.length} En total`;
+if (countElement) countElement.textContent = `${lista.length} en total`;
 if (resumenElement) resumenElement.textContent = String(lista.length);
 tbody.innerHTML = "";
 const fragment = document.createDocumentFragment();
@@ -556,7 +556,7 @@ tbody.appendChild(fragment);
 const esTimeout = err.name === "AbortError";
 if (ENV?.isDev) console.error("❌ cargarNoJugandoTabla:", err);
 _renderEstadoTabla(tbody, "error", esTimeout ? "Tiempo de espera agotado ⏱" : "Error al cargar datos ", numCols);
-if (countElement) countElement.textContent = "0 En total";
+if (countElement) countElement.textContent = "0 en total";
 if (resumenElement) resumenElement.textContent = "0";
 }}
 /* Esto de abajo trabaja en la tabla En espera*/                                                   /* Esto de abajo trabaja en la tabla En espera*/      
@@ -768,7 +768,7 @@ statusEl = document.getElementById("jornadaCierre");
 const closeDateAttr = card.getAttribute("data-close-date");
 const parsed = new Date(closeDateAttr).getTime();
 if (!closeDateAttr || Number.isNaN(parsed)) {
-if (statusEl) statusEl.textContent = "Cierre no disponible";
+if (statusEl) statusEl.textContent = "Aún no hay fecha de cierre";
 return;
 }
 closeDate = parsed;

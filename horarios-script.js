@@ -36,7 +36,7 @@ const container = document.getElementById('matchesHorarios');
 if (!container) return;
 const partidos = PARTIDOS_ACTUALES;
 if (partidos.length === 0) {
-container.innerHTML = '<p class="empty-state-msg">No hay partidos configurados para esta jornada.</p>';
+container.innerHTML = '<p class="empty-state-msg">Todavía no hay partidos cargados, vuelve pronto ⚽.</p>';
 return;
 }
 container.innerHTML = partidos.map(partido => {
@@ -54,11 +54,11 @@ const vsTexto = esEmpate ? 'Empate' : 'VS';
 const vsClase = esEmpate ? 'match-vs match-vs-empate' : 'match-vs';
 const tvHtml = logoTv
 ? `<img src="${logoTv}" alt="${escapeHtml(partido.televisora ?? 'Televisora')}" class="match-tv-logo" width="52" height="52" loading="lazy" onerror="this.style.visibility='hidden';this.onerror=null">`
-: '<span class="match-tv-unavailable">Sin señal</span>';
+: '<span class="match-tv-unavailable">Por confirmar 📺</span>';
 return (
 '<div class="match-card">' +
 '<div class="match-league match-league-header">' +
-`<span>${escapeHtml(partido.horario ?? 'Horario por confirmar')}</span>` +
+`<span>${escapeHtml(partido.horario ?? 'Por confirmar ⏳')}</span>` +
 `<div class="match-tv">${tvHtml}</div>` +
 '</div>' +
 '<div class="match-teams">' +

@@ -107,7 +107,7 @@ const data = await resp.json();
 if (!data.success) throw new Error(data.mensaje || 'No se pudo eliminar');
 await cargarDatos();
 } catch (error) {
-alert('❌ ' + error.message);
+alert('❌ No se pudo completar la acción: ' + error.message);
 }
 }
 /*                              Esto de abajo trabaja en el boton de "Actualizar": vuelve a pedir todo al servidor y re-renderiza                  */

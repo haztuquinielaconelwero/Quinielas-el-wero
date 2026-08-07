@@ -36,7 +36,7 @@ const container = document.getElementById('matchesHorarios');
 if (!container) return;
 const partidos = PARTIDOS_ACTUALES;
 if (partidos.length === 0) {
-container.innerHTML = '<p class="empty-state-msg">No hay partidos configurados para esta jornada.</p>';
+container.innerHTML = '<p class="empty-state-msg">Todavía no hay partidos cargados, vuelve pronto ⚽.</p>';
 return;
 }
 container.innerHTML = partidos.map(partido => {

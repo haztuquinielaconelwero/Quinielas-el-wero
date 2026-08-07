@@ -90,15 +90,15 @@ const FAQS = [
 { pregunta: "¿Dónde se ubican?", respuesta: "Cadereyta Jiménez." },
 { pregunta: "¿Cuánto es el premio?", respuesta: "El premio se publica poco antes del primer partido." },
 { pregunta: "¿Qué pasa si salen varios ganadores?", respuesta: "El premio se reparte entre las personas que obtuvieron la mayor cantidad de puntos." },
-{ pregunta: "¿A qué hora cierra la quiniela?", respuesta: "Semana a semana se postula diferente horario tras finalizar la quiniela anterior." },
-{ pregunta: "¿Cómo es el método de pago cuando resulto ganador?", respuesta: "Se te pide alguna tarjeta de tu pertenencia para depositarte." },
+{ pregunta: "¿A qué hora cierra la quiniela?", respuesta: "El horario cambia cada semana; se publica al terminar la quiniela anterior." },
+{ pregunta: "¿Cómo es el método de pago cuando resulto ganador?", respuesta: "Te pedimos los datos de tu tarjeta para hacer el depósito." },
 { pregunta: "¿Cuándo se publica la lista oficial de participantes?", respuesta: "Poco antes del primer partido." },
 { pregunta: "¿Cuánto vale la quiniela?", respuesta: "$30 pesos." }
 ];
 /* =====================================  Esto de abajo trabaja en generar el numero de whats app y acciones        ======================= */
 const WHATSAPP_CONFIG = {
 numero: "528281011650",
-mensajeGeneral: "Hola, tengo una duda ❓ ",
+mensajeGeneral: "Hola, tengo una duda ❓",
 };
 function construirLinkWhatsapp(mensaje) {
 const texto = encodeURIComponent(mensaje);

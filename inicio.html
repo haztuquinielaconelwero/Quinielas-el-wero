@@ -13,13 +13,13 @@
 <div class="adm-pin-overlay" id="modalBienvenida" hidden role="dialog" aria-modal="true" aria-labelledby="bienvenidaTitle">
 <div class="adm-pin-box rq-bienvenida-box">
 <div class="rq-bienvenida-emoji" aria-hidden="true">👋</div>
-<h2 class="adm-pin-title" id="bienvenidaTitle">¡Hola, qué tal!</h2>
-<p class="rq-bienvenida-texto">Para mejorar tu experiencia y darte un mejor servicio, escríbenos tu nombre completo.</p>
-<p class="rq-bienvenida-nota">Esto solamente lo hacemos con el fin de tener un mejor control de tus quinielas y funciones de la misma aplicación.</p>
+<h2 class="adm-pin-title" id="bienvenidaTitle">"¡Bienvenido a Quinielas "El Wero"! ⚽"</h2>
+<p class="rq-bienvenida-texto">Cuéntanos tu nombre para personalizar tu experiencia.</p>
+<p class="rq-bienvenida-nota">Usamos estos datos solo para gestionar tus quinielas.Nada más.</p>
 <input type="text" id="identidadInput" class="rq-bienvenida-input" placeholder="Tu nombre completo" maxlength="50" autocomplete="name">
 <input type="tel" id="identidadTelefono" class="rq-bienvenida-input" placeholder="Tu número de celular (10 dígitos)" maxlength="10" inputmode="numeric" autocomplete="tel" style="margin-top:6px">
 <span id="identidadError" class="adm-pin-error" role="alert" aria-live="polite" hidden></span>
-<button class="btn-participa" id="btnGuardarIdentidad" type="button" style="width:100%;justify-content:center">Continuar</button>
+<button class="btn-participa" id="btnGuardarIdentidad" type="button" style="width:100%;justify-content:center">Empezar a jugar</button>
 </div>
 </div>                                               
 <!-- Esto de abajo trabaja con el Header de nuestra pagina Inicio -->                            <!-- Esto de abajo trabaja con el Header de nuestra pagina Inicio -->
@@ -73,7 +73,7 @@
 <span class="adm-pin-dot"></span>
 <span class="adm-pin-dot"></span>
 </div>
-<p class="adm-pin-error" id="pinError" hidden>PIN incorrecto, intenta de nuevo.</p>
+<p class="adm-pin-error" id="pinError" hidden>PIN incorrecto 🔒 Intenta de nuevo 🔒 </p>
 <div class="adm-pin-keypad" id="pinKeypad" aria-hidden="true">
 <button class="adm-pin-key" data-key="1">1</button>
 <button class="adm-pin-key" data-key="2">2</button>
@@ -128,7 +128,7 @@
 <section class="explora" id="explora">
 <div class="explora-heading">
 <h3 class="explora-title">Explora</h3>
-<p class="explora-subtitle">Todo lo que necesitas para estar informado.</p>
+<p class="explora-subtitle">Todo lo que necesitas para jugar sin perderte nada.</p>
 </div>
 <div class="cards-grid">
 <article class="card" data-target="guiarapidayredes.html" tabindex="0">
@@ -200,17 +200,17 @@
 </div>
 </div>
 <h2 class="adm-pin-title" id="ruletaTitle">¡Invita a tus compas y gana! 🎉</h2>
-<p class="ruleta-texto-emocion">Cada amigo que juegue usando tu código te da 1 ticket 🎟️.</p>
+<p class="ruleta-texto-emocion">Por cada amigo que juegue con tu código, ganas 1 ticket 🎟️.</p>
 <input type="text" id="codigoReferidoInput" class="rq-bienvenida-input" placeholder="Escribe tu nombre del código" maxlength="30">
 <input type="password" id="codigoReferidoPin" class="rq-bienvenida-input" placeholder="Tu PIN (4 dígitos)" maxlength="4" style="margin-top:6px" inputmode="numeric" autocomplete="off" hidden>
 <input type="tel" id="codigoReferidoTelefono" class="rq-bienvenida-input" placeholder="Tu número de celular (10 dígitos)" maxlength="10" style="margin-top:6px" inputmode="numeric" autocomplete="tel" hidden>
 <span id="codigoReferidoError" class="adm-pin-error" role="alert" aria-live="polite" hidden></span>
 <button class="btn-participa" id="btnConfirmarCodigo" type="button" style="width:100%;justify-content:center">Confirmar código</button>
-<p class="ruleta-pide-codigo">¿Aún no tienes tu código? <a href="#" id="linkPedirCodigo">Pídelo a tu vendedor</a></p>
+<p class="ruleta-pide-codigo">¿No tienes código? <a href="#" id="linkPedirCodigo">Pídelo a tu vendedor aquí</a></p>
 </div>
 <!-- Cuarto 2: dueño del codigo, ya validado -->
 <div class="ruleta-cuarto" id="ruletaCuartoDueno" hidden>
-<h2 class="adm-pin-title">Cambia tus tickets 🎫</h2>
+<h2 class="adm-pin-title">Canjea tus tickets por premios 🎫</h2>
 <p class="ruleta-nombre" id="ruletaNombre">Mucha suerte 🍀</p>
 <div class="ruleta-rueda-vitrina">
 <span class="ruleta-flecha-vitrina">🔻</span>
@@ -227,7 +227,8 @@
 <div class="ruleta-stat"><span class="ruleta-stat-numero" id="ruletaQuinielasNum">0</span><span class="ruleta-stat-label">Quinielas</span></div>
 </div>
 <button class="btn-participa" id="btnGirarRuleta" type="button" style="width:100%;justify-content:center">Girar</button>
-<p class="ruleta-texto-emocion" style="font-size:0.72rem;opacity:0.75;">🗓️ Puedes canjear tus tickets los días lunes, martes y miércoles.</p>
+<p class="ruleta-texto-emocion" style="font-size:0.72rem;opacity:0.75;">Canjea tus quinielas cuando quieras. Si está pausado, vuelve a intentar otro dia. 🎟️ </p>
+<p class="ruleta-texto-emocion" style="font-size:0.72rem;opacity:0.75;">El saldo se convierte en quinielas gratis automáticamente; solo esas se canjean 🎟️ .</p>
 <button class="btn-participa" id="btnCanjearPremios" type="button" style="width:100%;justify-content:center" hidden>Canjear premios</button>
 <div class="ruleta-codigo-row">
 <span class="ruleta-codigo-texto" id="ruletaCodigoTexto">https://www.quinielaselwero.com?codigo=Sommer00001</span>

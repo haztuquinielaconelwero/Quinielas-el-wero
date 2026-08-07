@@ -117,7 +117,7 @@ const ESTADO_INFO = {
 jugando: { clase: "mq-estado-jugando", texto: "Jugando ✅" },
 "no-jugando": { clase: "mq-estado-no-jugando", texto: "No jugando ❌" },
 espera: { clase: "mq-estado-espera", texto: "En espera ⏳" },
-rechazada: { clase: "mq-estado-no-jugando", texto: "Rechazada ❌" },
+rechazada: { clase: "mq-estado-no-jugando", texto: "Rechazada 🚫" },
 archivada: { clase: "mq-estado-archivada", texto: "Archivada 📦" }
 };
 function renderMiniQuiniela(q) {
@@ -186,7 +186,7 @@ if (enviadas.length === 0) {
 contenedor.innerHTML = `
 <div class="mq-empty-msg">
 <span class="mq-empty-icon">📭</span>
-<span>Aún no has enviado ninguna quiniela.</span>
+<span>Aún no has enviado ninguna quiniela. ¡Ve a participar! ⚽.</span>
 </div>
 `;
 return;

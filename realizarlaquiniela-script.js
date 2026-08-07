@@ -659,7 +659,7 @@ localStorage.setItem("quinielasElWero_vendedorActual", data.vendedor);
 return data.vendedor;
 }
 } catch (err) {
-console.error("No se pudo resolver el vendedor del codigo referido:", err);
+console.error("No se pudo resolver el vendedor del código referido:", err);
 }
 return null;
 }

@@ -183,7 +183,7 @@ const dueno = document.getElementById('nuevoDueno').value.trim();
 const telefono = document.getElementById('nuevoTelefono').value.trim();
 const vendedor = document.getElementById('nuevoVendedor').value;
 if (!codigo || !dueno || !telefono || !vendedor) {
-alert('Completa código, dueño, teléfono y vendedor antes de crear.');
+alert('Faltan datos: revisa código, dueño, teléfono y vendedor.');
 return;
 }
 try {
@@ -199,7 +199,7 @@ document.getElementById('nuevoDueno').value = '';
 document.getElementById('nuevoTelefono').value = '';
 await cargarDatos();
 } catch (error) {
-alert('❌ ' + error.message);
+alert('❌ No se pudo completar la acción: ' + error.message);
 }
 }
 /*                              Esto de abajo trabaja en editar el vendedor o dueño de un codigo existente                  */
@@ -219,12 +219,12 @@ const data = await resp.json();
 if (!data.success) throw new Error(data.mensaje || 'No se pudo editar');
 await cargarDatos();
 } catch (error) {
-alert('❌ ' + error.message);
+alert('❌ No se pudo completar la acción: ' + error.message);
 }
 }
 /*                              Esto de abajo trabaja en eliminar un codigo permanentemente (queda bloqueado para siempre)                  */
 async function eliminarCodigo(codigo) {
-if (!confirm(`¿Seguro que quieres eliminar el código "${codigo}"? No podrá volver a usarse jamás.`)) return;
+if (!confirm(`¿Seguro que quieres eliminar el código "${codigo}"? No podrá volver a usarse nunca más.`)) return;
 try {
 const resp = await fetch('/api/invitaatuscompaseliminar', {
 method: 'POST',
@@ -235,7 +235,7 @@ const data = await resp.json();
 if (!data.success) throw new Error(data.mensaje || 'No se pudo eliminar');
 await cargarDatos();
 } catch (error) {
-alert('❌ ' + error.message);
+alert('❌ No se pudo completar la acción: ' + error.message);
 }
 }
 /*                              Esto de abajo trabaja en mostrar la ventanita bonita para pedir cuantos tickets regalar                  */
@@ -284,7 +284,7 @@ if (!data.success) throw new Error(data.mensaje || 'No se pudo regalar tickets')
 alert('✅ ' + data.mensaje);
 await cargarDatos();
 } catch (error) {
-alert('❌ ' + error.message);
+alert('❌ No se pudo completar la acción: ' + error.message);
 }
 }
 /*                              Esto de abajo trabaja en bloquear/desbloquear la dinámica completa de Invita a tus Compas                  */
@@ -325,7 +325,7 @@ if (!data.success) throw new Error(data.mensaje || 'No se pudo cambiar el estado
 bloqueadoActual = data.bloqueado;
 actualizarBotonBloqueo();
 } catch (error) {
-alert('❌ ' + error.message);
+alert('❌ No se pudo completar la acción: ' + error.message);
 }
 }
 /*                              Esto de abajo trabaja en el boton de "Actualizar": vuelve a pedir todo al servidor y re-renderiza                  */

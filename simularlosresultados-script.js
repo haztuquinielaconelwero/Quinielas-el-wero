@@ -223,7 +223,7 @@ wrap.hidden = PARTIDOS.length === 0;
 if (!PARTICIPANTES.length) {
 cuerpo.innerHTML = "";
 vacio.hidden = false;
-vacioTexto.textContent = "Aún no hay quinielas registradas.";
+vacioTexto.textContent = "Aún no hay quinielas en la Lista Oficial.";
 return;
 }
 const visibles = obtenerListaVisible();
@@ -259,15 +259,15 @@ const puntosPrimero = puntosUnicos[0];
 const puntosSegundo = puntosUnicos.length > 1 ? puntosUnicos[1] : undefined;
 const opciones = [{ valor: "todos", etiqueta: "Todos", contador: PARTICIPANTES.length }];
 if (puntosUnicos.length > 0) {
-opciones.push({ valor: "primero", etiqueta: "🥇 1 Lugar", contador: ordenados.filter((p) => p.puntos === puntosPrimero).length });
+opciones.push({ valor: "primero", etiqueta: "1er Lugar 🥇 ", contador: ordenados.filter((p) => p.puntos === puntosPrimero).length });
 }
 if (puntosSegundo !== undefined) {
-opciones.push({ valor: "segundo", etiqueta: "🥈 2 Lugar", contador: ordenados.filter((p) => p.puntos === puntosSegundo).length });
+opciones.push({ valor: "segundo", etiqueta: "2do Lugar 🥈", contador: ordenados.filter((p) => p.puntos === puntosSegundo).length });
 }
 puntosUnicos
 .filter((pts) => pts !== puntosPrimero && pts !== puntosSegundo && pts !== puntosMinimo)
 .forEach((pts) => {
-opciones.push({ valor: `puntos-${pts}`, etiqueta: `Puntos ${pts}`, contador: ordenados.filter((p) => p.puntos === pts).length });
+opciones.push({ valor: `puntos-${pts}`, etiqueta: `${pts} puntos ⚽`, contador: ordenados.filter((p) => p.puntos === pts).length });
 });
 if (puntosUnicos.length > 0 && puntosMinimo !== puntosPrimero && puntosMinimo !== puntosSegundo) {
 opciones.push({ valor: "ultimos", etiqueta: "Últimos Lugares", contador: ordenados.filter((p) => p.puntos === puntosMinimo).length });

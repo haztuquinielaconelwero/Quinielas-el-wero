@@ -37,7 +37,7 @@ if (res.ok && data.valido && data.vendedor) {
 localStorage.setItem(this.STORAGE_KEY, data.vendedor);
 }
 } catch (err) {
-console.error("No se pudo resolver el vendedor del codigo referido:", err);
+console.error("No se pudo resolver el vendedor del código referido:", err);
 }
 }
 }
@@ -94,13 +94,13 @@ try {
 const res = await fetch("/api/apijornadaactual");
 const data = await res.json();
 if (!res.ok || !data.cierre) {
-if (this.statusEl) this.statusEl.textContent = "Cierre no disponible";
+if (this.statusEl) this.statusEl.textContent = "Aún no hay fecha de cierre";
 return;
 }
 this.closeDate = new Date(data.cierre).getTime();
 } catch (err) {
 console.error("No se pudo obtener el cierre de la jornada", err);
-if (this.statusEl) this.statusEl.textContent = "Cierre no disponible";
+if (this.statusEl) this.statusEl.textContent = "Aún no hay fecha de cierre";
 return;
 }
 const DIAS_JORNADA = 7;
@@ -194,7 +194,6 @@ window.location.href = "misquinielas.html?estado=jugando";
 /* =============                                Esto de abajo trabaja en la identidad del cliente                                       ============================ */
 const IdentidadCliente = {
 API_REGISTRO: "/api/registrodeclientes",
-API_VERIFICAR: "/api/verificarcliente",
 STORAGE_KEY_IDENTIDAD: "quinielasElWero_identidad",
 STORAGE_KEY_DISPOSITIVO: "quinielasElWero_dispositivoid",
 modal: document.getElementById("modalBienvenida"),
@@ -236,26 +235,9 @@ localStorage.setItem(this.STORAGE_KEY_DISPOSITIVO, id);
 }
 return id;
 },
-async mostrarSiEsNecesario() {
-const dispositivoId = this.leerDispositivoId();
+mostrarSiEsNecesario() {
 const identidadLocal = this.leerIdentidad();
-if (!identidadLocal) {
-this.modal.hidden = false;
-return;
-}
-try {
-const res = await fetch(`/api/verificarregistro?dispositivoid=${encodeURIComponent(dispositivoId)}`);
-const data = await res.json();
-if (!res.ok || !data.registrado) {
-localStorage.removeItem(this.STORAGE_KEY_IDENTIDAD);
-this.modal.hidden = false;
-return;
-}
-this.modal.hidden = true;
-} catch (err) {
-console.error("No se pudo verificar cliente", err);
-this.modal.hidden = true;
-}
+this.modal.hidden = !!identidadLocal;
 },
 async confirmar() {
 const valor = this.input.value.trim();
@@ -286,7 +268,7 @@ this.modal.hidden = true;
 VentanitaPush.revisarSiDebePreguntar(dispositivoId);
 } catch (err) {
 this.errEl.hidden = false;
-this.errEl.textContent = "No se pudo guardar, intenta de nuevo.";
+this.errEl.textContent = "No se pudo guardar tu registro, intenta de nuevo.";
 console.error(err);
 }
 }
@@ -311,7 +293,7 @@ overlay.className = "ventanita-push-overlay";
 overlay.innerHTML = `
 <div class="ventanita-push-caja">
 <p class="push-titulo">Déjanos acompañarte en cada jornada. ⚽</p>
-<p class="push-cuerpo">Te avisaremos cuando un partido finalice, esté por cerrar una jornada o haya información importante.</p>
+<p class="push-cuerpo">"Te avisamos cuando un partido termine o esté por cerrar una jornada."
 <button id="btnPushSi">Sí, avísame</button>
 <button id="btnPushNo">Ahora no</button>
 </div>
@@ -438,14 +420,14 @@ async irConVendedor() {
 const vendedor = localStorage.getItem("quinielasElWero_vendedorActual");
 if (!vendedor) {
 this.errEl.hidden = false;
-this.errEl.textContent = "Entra desde el link de tu vendedor para poder contactarlo.";
+this.errEl.textContent = "Entra desde el link de tu vendedor para poder contactarlo. 👀";
 return;
 }
 try {
 const res = await fetch(`/api/whatsappdelvendedor?vendedor=${encodeURIComponent(vendedor)}`);
 const data = await res.json();
-if (!res.ok || !data.success) throw new Error(data.mensaje || "No se encontro el vendedor");
-const mensaje = encodeURIComponent("Hola, quiero mi codigo de referido para la ruleta de premios 🎁");
+if (!res.ok || !data.success) throw new Error(data.mensaje || "No se encontró el vendedor");
+const mensaje = encodeURIComponent("Hola, quiero mi código para la ruleta de premios 🎁");
 window.open(`https://wa.me/${data.numero}?text=${mensaje}`, "_blank");
 } catch (err) {
 console.error("Error obteniendo el WhatsApp del vendedor:", err);
@@ -501,7 +483,6 @@ this.mostrarCuartoNuevo();
 cerrar() {
 this.overlay.hidden = true;
 this.boton.style.pointerEvents = "";
-this.limpiarSesionRuleta();
 this.resetearFormularioCodigo();
 },
 cerrarSesion() {
@@ -512,19 +493,6 @@ this.mostrarAvisoCopiado("Sesión cerrada 🔒");
 },
 limpiarSesionRuleta() {
 sessionStorage.removeItem(this.SESSION_KEY_VERIFICADO);
-this.detenerTemporizadorInactividad();
-},
-INACTIVIDAD_LIMITE_MS: 5 * 60 * 1000,
-inactividadTimer: null,
-iniciarTemporizadorInactividad() {
-this.detenerTemporizadorInactividad();
-this.inactividadTimer = setTimeout(() => {
-this.cerrarSesion();
-}, this.INACTIVIDAD_LIMITE_MS);
-},
-detenerTemporizadorInactividad() {
-if (this.inactividadTimer) clearTimeout(this.inactividadTimer);
-this.inactividadTimer = null;
 },
 resetearFormularioCodigo() {
 this.codigoConfirmado = null;
@@ -565,7 +533,6 @@ this.saldoEl.textContent = data.saldo ?? 0;
 this.ticketsEl.textContent = data.tickets ?? 0;
 this.quinielasEl.textContent = data.quinielasgratis ?? 0;
 this.btnCanjear.hidden = !(data.quinielasgratis > 0);
-this.iniciarTemporizadorInactividad();
 } catch (err) {
 console.error("Error cargando datos de la ruleta:", err);
 }
@@ -576,7 +543,7 @@ async confirmarCodigo() {
 const codigo = this.input.value.trim();
 if (!codigo) {
 this.errEl.hidden = false;
-this.errEl.textContent = "Escribe tu código por favor.";
+this.errEl.textContent = "Escribe tu código, porfa 🙂";
 return;
 }
 try {
@@ -640,7 +607,7 @@ body: JSON.stringify(cuerpo)
 const data = await res.json();
 if (!res.ok || !data.success) {
 this.errEl.hidden = false;
-this.errEl.textContent = data.mensaje || "PIN incorrecto.";
+this.errEl.textContent = data.mensaje || "PIN incorrecto 🔒";
 return;
 }
 this.errEl.hidden = true;

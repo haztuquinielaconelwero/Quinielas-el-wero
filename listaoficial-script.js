@@ -30,7 +30,7 @@ visitanteLogo: normalizarSrcLogo(p.visitanteLogo),
 resultadoFinal: p.resultadoFinal ?? null
 }));
 } catch (err) {
-console.error("Jornada oficial Lista Oficial:", err);
+console.error("Error cargando la jornada actual:", err);
 JORNADA_ACTUAL = "";
 PARTIDOS = [];
 }
@@ -69,7 +69,7 @@ PARTICIPANTES.sort((a, b) => (b.puntos ?? 0) - (a.puntos ?? 0));
 renderFiltros();
 renderTabla();
 } catch (err) {
-console.error("Lista Oficial:", err);
+console.error("Error cargando participantes de la Lista Oficial:", err);
 PARTICIPANTES = [];
 renderFiltros();
 renderTabla();
@@ -205,14 +205,14 @@ contador: PARTICIPANTES.length
 if (puntosUnicos.length > 0) {
 opciones.push({
 valor: "primero",
-etiqueta: "🥇 1 Lugar",
+etiqueta: "1er Lugar 🥇",
 contador: ordenados.filter((p) => p.puntos === puntosPrimero).length
 });
 }
 if (puntosSegundo !== undefined) {
 opciones.push({
 valor: "segundo",
-etiqueta: "🥈 2 Lugar",
+etiqueta: "2do Lugar 🥈",
 contador: ordenados.filter((p) => p.puntos === puntosSegundo).length
 });
 }
@@ -221,7 +221,7 @@ puntosUnicos
 .forEach((pts) => {
 opciones.push({
 valor: `puntos-${pts}`,
-etiqueta: `Puntos ${pts}`,
+etiqueta: `${pts} puntos ⚽`,
 contador: ordenados.filter((p) => p.puntos === pts).length
 });
 });

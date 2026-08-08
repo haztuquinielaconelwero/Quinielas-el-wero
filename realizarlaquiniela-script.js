@@ -380,7 +380,6 @@ console.error("No se pudieron cargar los vendedores", err);
 }
 }
 /* =====================================             Esto de abajo trabaja con el envio de la quiniela                                         ======================= */
-/* =====================================             Esto de abajo trabaja con el envio de la quiniela                                         ======================= */
 function encontrarFirmasDuplicadas(guardadas) {
 const conteo = new Map();
 guardadas.forEach((q) => {
@@ -424,12 +423,33 @@ abrirModal("modalConfirmarEnvio");
 function cancelarEnvio() {
 cerrarModal("modalConfirmarEnvio");
 }
+async function verificarClienteRegistrado(dispositivoid) {
+try {
+const res = await fetch(`${APIBASE}/api/verificarregistro?dispositivoid=${encodeURIComponent(dispositivoid)}`);
+const data = await res.json();
+return !!(res.ok && data.registrado);
+} catch (err) {
+console.error("No se pudo verificar el registro del cliente:", err);
+return null;
+}
+}
 async function confirmarEnvioAlServidor() {
 const guardadas = leerStorage();
 if (guardadas.length === 0) return;
 const dispositivoid = localStorage.getItem("quinielasElWero_dispositivoid") || "";
 if (!dispositivoid) {
 tarjetaroja("No se encontró el dispositivo. Registra de nuevo el celular.");
+return;
+}
+const estaRegistrado = await verificarClienteRegistrado(dispositivoid);
+if (estaRegistrado === false) {
+localStorage.removeItem("quinielasElWero_identidad");
+tarjetaroja("Tu registro ya no existe en el sistema. Vamos a pedirte tus datos de nuevo.");
+window.location.href = "inicio.html";
+return;
+}
+if (estaRegistrado === null) {
+tarjetaroja("No se pudo verificar tu registro (revisa tu conexión). Intenta de nuevo.");
 return;
 }
 cerrarModal("modalConfirmarEnvio");

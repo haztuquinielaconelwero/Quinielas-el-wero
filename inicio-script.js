@@ -235,9 +235,23 @@ localStorage.setItem(this.STORAGE_KEY_DISPOSITIVO, id);
 }
 return id;
 },
-mostrarSiEsNecesario() {
+async mostrarSiEsNecesario() {
+const dispositivoId = this.leerDispositivoId();
 const identidadLocal = this.leerIdentidad();
-this.modal.hidden = !!identidadLocal;
+try {
+const res = await fetch(`/api/verificarregistro?dispositivoid=${encodeURIComponent(dispositivoId)}`);
+const data = await res.json();
+if (data.registrado) {
+localStorage.setItem(this.STORAGE_KEY_IDENTIDAD, data.nombrecelular);
+this.modal.hidden = true;
+} else {
+localStorage.removeItem(this.STORAGE_KEY_IDENTIDAD);
+this.modal.hidden = false;
+}
+} catch (err) {
+console.error("No se pudo verificar el registro (sin conexión):", err);
+this.modal.hidden = !!identidadLocal; 
+}
 },
 async confirmar() {
 const valor = this.input.value.trim();

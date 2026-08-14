@@ -2458,7 +2458,7 @@ def importararchivodeexcel():
                             nombrequiniela = EXCLUDED.nombrequiniela,
                             vendedor = EXCLUDED.vendedor,
                             estado = 'Jugando'
-                        RETURNING id, (xmax = 0) AS fue_insertada, codigoreferido, dispositivoid
+                        RETURNING id, (xmax = 0) AS fue_insertada
                         """,
                         ("Importado", f.get("nombre"), f.get("vendedor"), jornada, *picks, f.get("folio"), llave, dispositivoid)
                     )
@@ -2466,32 +2466,11 @@ def importararchivodeexcel():
                     if fila is None:
                         rechazadas.append(f.get("folio"))
                         continue
-                    qid, fue_insertada, codigo_referido_db, dispositivoid_db = fila
+                    qid, fue_insertada = fila
                     if fue_insertada:
                         insertadas += 1
                     else:
                         reactivadas += 1
-                    if codigo_referido_db and dispositivoid_db:
-                        cur.execute(
-                            """
-                            INSERT INTO referidosconfirmados (codigoreferido, dispositivoid, quinielaid)
-                            VALUES (%s, %s, %s)
-                            ON CONFLICT (codigoreferido, dispositivoid) DO NOTHING
-                            RETURNING id
-                            """,
-                            (codigo_referido_db, dispositivoid_db, qid)
-                        )
-                        ticket_ganado = cur.fetchone() is not None
-                        if ticket_ganado:
-                            cur.execute(
-                                """
-                                INSERT INTO ticketsruleta (codigoreferido, ticketsdisponibles)
-                                VALUES (%s, 1)
-                                ON CONFLICT (codigoreferido) DO UPDATE
-                                SET ticketsdisponibles = ticketsruleta.ticketsdisponibles + 1
-                                """,
-                                (codigo_referido_db,)
-                            )
                 conn.commit()
         return jsonify(success=True, insertadas=insertadas, reactivadas=reactivadas, rechazadas=len(rechazadas), foliosrechazados=rechazadas)
     except Exception as exc:

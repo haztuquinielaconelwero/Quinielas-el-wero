@@ -715,10 +715,9 @@ height: 170px;
 border-radius: 50%;
 border: 6px solid var(--dorado);
 background: conic-gradient(
-var(--verde-mx-claro) 0deg 90deg,
-var(--dorado) 90deg 180deg,
-#4f9eff 180deg 270deg,
-var(--rojo-mx) 270deg 360deg
+var(--verde-mx-claro) 0deg 118.8deg,
+var(--dorado) 118.8deg 237.6deg,
+#4f9eff 237.6deg 360deg
 );
 position: relative;
 box-shadow: 0 0 18px rgba(255,215,0,0.5), inset 0 0 0 3px rgba(0,0,0,0.35);
@@ -759,10 +758,9 @@ left: 50%;
 width: 0;
 height: 0;
 }
-.rv-rayo.rv1{ transform: rotate(45deg); }
-.rv-rayo.rv2{ transform: rotate(135deg); }
-.rv-rayo.rv3{ transform: rotate(225deg); }
-.rv-rayo.rv4{ transform: rotate(315deg); }
+.rv-rayo.rv1{ transform: rotate(59.4deg); }
+.rv-rayo.rv2{ transform: rotate(178.2deg); }
+.rv-rayo.rv3{ transform: rotate(298.8deg); }
 .rv-texto{
 position: absolute;
 top: -68px;
@@ -776,11 +774,6 @@ color: #fff;
 line-height: 1.15;
 text-shadow: 0 2px 4px rgba(0,0,0,0.7), 0 0 2px rgba(0,0,0,0.9);
 z-index: 3;
-}
-.rv-rayo.rv4 .rv-texto{
-font-size: 0.64rem;
-width: 54px;
-top: -62px;
 }
 @keyframes giroLento{
 from{ transform: rotate(0deg); }
@@ -807,11 +800,6 @@ height: 130px;
 font-size: 0.66rem;
 width: 50px;
 top: -52px;
-}
-.rv-rayo.rv4 .rv-texto{
-font-size: 0.54rem;
-width: 44px;
-top: -48px;
 }
 }
 /* ==================== Esto de abajo trabaja en apagar el giro decorativo cuando gira de verdad ==================== */

@@ -649,23 +649,50 @@ document.getElementById("btnEnviarWhatsApp")?.addEventListener("click", enviarAW
 document.querySelectorAll("[data-close]").forEach((btn) => {
 btn.addEventListener("click", () => cerrarModal(btn.dataset.close));
 });
+document.getElementById("nombreInput")?.addEventListener("keydown", (e) => {
+const teclasControl = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"];
+if (teclasControl.includes(e.key) || e.ctrlKey || e.metaKey || e.altKey) return;
+if (e.key === " " && e.target.value.endsWith(" ")) {
+e.preventDefault();
+return;
+}
+if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ]$/.test(e.key)) {
+e.preventDefault();
+notificar("No se permiten símbolos, comas, puntos ni comillas.", "aviso");
+}
+});
+document.getElementById("nombreInput")?.addEventListener("paste", (e) => {
+e.preventDefault();
+const input = e.target;
+const texto = (e.clipboardData || window.clipboardData).getData("text");
+const limpio = texto.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ]/g, "").replace(/\s{2,}/g, " ");
+const start = input.selectionStart, end = input.selectionEnd;
+input.value = input.value.slice(0, start) + limpio + input.value.slice(end);
+input.setSelectionRange(start + limpio.length, start + limpio.length);
+if (limpio !== texto) {
+notificar("Se quitaron símbolos, comas, puntos o comillas del texto pegado.", "aviso");
+}
+input.dispatchEvent(new Event("input"));
+});
 document.getElementById("nombreInput")?.addEventListener("input", (e) => {
 const input = e.target;
 const errEl = document.getElementById("nombreError");
-const cursor = input.selectionStart;
-const teniaComa = input.value.includes(",");
-let valor = input.value.replace(/,/g, "");
-valor = valor.toLowerCase();
-valor = valor.replace(/(^\s*\w|\s\w)/g, (letra) => letra.toUpperCase());
+const LIMITE_CARACTERES = 35;
+let cursor = input.selectionStart;
+let valor = input.value;
+if (valor.length > LIMITE_CARACTERES) {
+valor = valor.slice(0, LIMITE_CARACTERES);
+cursor = Math.min(cursor, LIMITE_CARACTERES);
+}
+valor = valor
+.split(" ")
+.map((palabra) => /^[0-9]+$/.test(palabra) ? palabra : (palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase()))
+.join(" ");
 input.value = valor;
-const nuevoOffset = teniaComa ? cursor - 1 : cursor;
-input.setSelectionRange(nuevoOffset, nuevoOffset);
+input.setSelectionRange(cursor, cursor);
 if (input.value.trim()) {
 input.classList.remove("error");
 if (errEl) errEl.textContent = "";
-}
-if (teniaComa) {
-notificar("No se permiten comas en el nombre.", "aviso");
 }
 });
 }
@@ -685,12 +712,14 @@ return null;
 }
 /* =====================================   Esto de abajo trabaja en inicianizacion de nuestra quiniela                                       ======================= */
 document.addEventListener("DOMContentLoaded", async () => {
-let vendedor = detectarVendedor();
-if (!vendedor) {
-const codigoReferido = detectarCodigoReferido();
-if (codigoReferido) {
-vendedor = await resolverVendedorPorCodigoReferido(codigoReferido);
+const params = new URLSearchParams(window.location.search);
+const codigoURLActual = params.get("codigo");
+let vendedor;
+if (codigoURLActual) {
+vendedor = await resolverVendedorPorCodigoReferido(codigoURLActual);
 }
+if (!vendedor) {
+vendedor = detectarVendedor();
 }
 if (!vendedor) { tarjetaroja("Verifica tu link para poder añadir quinielas correctamente."); }
 cargarVendedores();

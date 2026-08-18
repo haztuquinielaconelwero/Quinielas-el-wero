@@ -2051,19 +2051,16 @@ def ruletaregalartickets():
         return jsonify(success=False, mensaje=str(exc)), 500
     
 # ── Esto de abajo trabaja con decidir el premio al azar de la ruleta ────────────────────────────────────────────────
-
 PRECIO_QUINIELA = 30
 
 def elegir_premio_ruleta():
     dardo = random.random()
-    if dardo < 0.10:
+    if dardo < 0.33:
         return "quiniela_gratis", 0
-    elif dardo < 0.20:
+    elif dardo < 0.66:
         return "20_pesos", 20
-    elif dardo < 0.80:
-        return "10_pesos", 10
     else:
-        return "sigue_participando", 0
+        return "10_pesos", 10
 
 @app.route("/api/ruletagirar", methods=["POST"])
 def ruletagirar():

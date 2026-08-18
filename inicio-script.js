@@ -29,7 +29,7 @@ localStorage.setItem(this.STORAGE_KEY, vendedorURL);
 return;
 }
 const codigoURL = params.get("codigo");
-if (codigoURL && !localStorage.getItem(this.STORAGE_KEY)) {
+if (codigoURL) {
 try {
 const res = await fetch(`/api/validarcodigoreferido?codigo=${encodeURIComponent(codigoURL)}`);
 const data = await res.json();
@@ -200,29 +200,99 @@ modal: document.getElementById("modalBienvenida"),
 input: document.getElementById("identidadInput"),
 errEl: document.getElementById("identidadError"),
 btn: document.getElementById("btnGuardarIdentidad"),
+CARACTER_PERMITIDO: /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]$/,
 init() {
 if (!this.modal) return;
 this.btn?.addEventListener("click", () => this.confirmar());
 this.input?.addEventListener("keydown", (e) => {
 if (e.key === "Enter") { e.preventDefault(); this.confirmar(); }
+this.bloquearTeclaInvalida(e);
 });
-this.input?.addEventListener("input", () => this.capitalizarPrimeraLetra());
+this.input?.addEventListener("paste", (e) => this.limpiarPegado(e));
+this.input?.addEventListener("input", () => this.autoFormatearYValidar());
 this.mostrarSiEsNecesario();
 },
-capitalizarPrimeraLetra() {
+bloquearTeclaInvalida(e) {
+const teclasControl = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"];
+if (teclasControl.includes(e.key) || e.ctrlKey || e.metaKey || e.altKey) return;
+if (e.key === " " && this.input.value.endsWith(" ")) {
+e.preventDefault();
+return;
+}
+if (!this.CARACTER_PERMITIDO.test(e.key)) {
+e.preventDefault();
+this.mostrarError("No se permiten números, símbolos ni comillas. Solo letras.");
+}
+},
+limpiarPegado(e) {
+e.preventDefault();
+const texto = (e.clipboardData || window.clipboardData).getData("text");
+const teniaInvalido = /[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]/.test(texto);
+let limpio = texto.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]/g, "").replace(/\s{2,}/g, " ");
+const input = this.input;
+const start = input.selectionStart, end = input.selectionEnd;
+input.value = input.value.slice(0, start) + limpio + input.value.slice(end);
+input.setSelectionRange(start + limpio.length, start + limpio.length);
+if (teniaInvalido) {
+this.mostrarError("Se quitaron números, símbolos o comillas del texto pegado.");
+}
+this.autoFormatearYValidar();
+},
+autoFormatearYValidar() {
 const input = this.input;
 const LIMITE_CARACTERES = 35;
 let posCursor = input.selectionStart;
-let valorOriginal = input.value;
-if (valorOriginal.length > LIMITE_CARACTERES) {
-valorOriginal = valorOriginal.slice(0, LIMITE_CARACTERES);
+let valor = input.value;
+if (valor.length > LIMITE_CARACTERES) {
+valor = valor.slice(0, LIMITE_CARACTERES);
 posCursor = Math.min(posCursor, LIMITE_CARACTERES);
 }
-const valorCapitalizado = valorOriginal.replace(/(^\s*\p{L}|(?<=\s)\p{L})/gu, (letra) => letra.toUpperCase());
-if (valorCapitalizado !== input.value) {
-input.value = valorCapitalizado;
+const formateado = valor
+.split(" ")
+.map((palabra) => palabra ? palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase() : palabra)
+.join(" ");
+if (formateado !== input.value) {
+input.value = formateado;
 input.setSelectionRange(posCursor, posCursor);
 }
+this.validarEnVivo();
+},
+validarEnVivo() {
+if (this.input.value.length === 0) {
+this.input.classList.remove("error", "valido");
+this.errEl.hidden = true;
+return;
+}
+const resultado = this.validarNombre(this.input.value);
+if (resultado.valido) {
+this.input.classList.remove("error");
+this.input.classList.add("valido");
+this.errEl.hidden = true;
+} else {
+this.input.classList.remove("valido");
+this.mostrarError(resultado.motivo);
+}
+},
+mostrarError(texto) {
+this.input.classList.add("error");
+this.errEl.hidden = false;
+this.errEl.textContent = texto;
+},
+validarNombre(valorCrudo) {
+const valor = valorCrudo ?? "";
+if (valor.length === 0) return { valido: false, motivo: "Escribe tu nombre por favor." };
+if (/^\s/.test(valor)) return { valido: false, motivo: "No debe iniciar con espacios." };
+if (/\s$/.test(valor)) return { valido: false, motivo: "No debe terminar con espacios." };
+if (/\s{2,}/.test(valor)) return { valido: false, motivo: "No se permiten espacios dobles." };
+if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/.test(valor)) return { valido: false, motivo: "No se permiten números, símbolos ni comillas. Solo letras." };
+const palabras = valor.split(" ");
+for (const palabra of palabras) {
+if (!/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]*$/.test(palabra)) {
+return { valido: false, motivo: "El nombre solo puede tener letras." };
+}
+}
+if (valor.length < 3) return { valido: false, motivo: "Escribe tu nombre completo." };
+return { valido: true, motivo: "" };
 },
 leerIdentidad() {
 return localStorage.getItem(this.STORAGE_KEY_IDENTIDAD) || "";
@@ -250,19 +320,18 @@ this.modal.hidden = false;
 }
 } catch (err) {
 console.error("No se pudo verificar el registro (sin conexión):", err);
-this.modal.hidden = !!identidadLocal; 
+this.modal.hidden = !!identidadLocal;
 }
 },
 async confirmar() {
 const valor = this.input.value.trim();
-if (!valor || valor.length < 3) {
-this.input.classList.add("error");
-this.errEl.hidden = false;
-this.errEl.textContent = "Escribe tu nombre por favor.";
+const resultado = this.validarNombre(valor);
+if (!resultado.valido) {
+this.mostrarError(resultado.motivo);
 this.input.focus();
 return;
 }
-const telefono = document.getElementById("identidadTelefono")?.value.trim() || ""; 
+const telefono = document.getElementById("identidadTelefono")?.value.trim() || "";
 if (!/^\d{10}$/.test(telefono)) {
 this.errEl.hidden = false;
 this.errEl.textContent = "Escribe tu número de celular (10 dígitos).";
@@ -658,7 +727,7 @@ this.btnGirar.textContent = "Girando... 🎰";
 const grados = this.calcularGradosParaPremio(data.premio);
 if (rueda) {
 rueda.classList.add("girando-real");
-rueda.style.transition = "transform 10s cubic-bezier(0.08, 0.75, 0.08, 1)";
+rueda.style.transition = "transform 15s cubic-bezier(0.08, 0.75, 0.08, 1)";
 rueda.style.transform = `rotate(${grados}deg)`;
 }
 setTimeout(() => {
@@ -672,7 +741,7 @@ setTimeout(() => {
 if (rueda) rueda.classList.remove("parando");
 if (flecha) flecha.classList.remove("rebota");
 }, 600);
-}, rueda ? 10200 : 1400);
+}, rueda ? 15200 : 1400);
 } catch (err) {
 this.btnGirar.disabled = false;
 this.btnGirar.textContent = "Girar";
@@ -681,13 +750,12 @@ console.error("Error girando la ruleta:", err);
 },
 calcularGradosParaPremio(premio) {
 const sectores = {
-"quiniela_gratis": 315,
-"20_pesos": 225,
-"10_pesos": 135,
-"sigue_participando": 45,
+"quiniela_gratis": 300.6,
+"20_pesos": 181.8,
+"10_pesos": 61.2,
 };
-const anguloFinal = sectores[premio] ?? 45;
-const vueltasExtra = 5 * 360;
+const anguloFinal = sectores[premio] ?? sectores["10_pesos"];
+const vueltasExtra = 8 * 360;
 const rotacionMinima = this.rotacionAcumulada + vueltasExtra;
 const vueltaActualEnGrados = rotacionMinima % 360;
 const ajuste = (anguloFinal - vueltaActualEnGrados + 360) % 360;
@@ -696,14 +764,13 @@ return this.rotacionAcumulada;
 },
 mostrarPremio(premio, valor) {
 const mensajes = {
-"quiniela_gratis": "¡Ganaste una quiniela gratis! 🎁 " ,
+"quiniela_gratis": "¡Ganaste una quiniela gratis! 🎁",
 "20_pesos": "¡Ganaste $20 pesos! 💰",
 "10_pesos": "¡Ganaste $10 pesos! 💰",
-"sigue_participando": "Sigue participando 🍀",
 };
 const cartel = document.createElement("div");
 cartel.className = "ruleta-premio-popup";
-cartel.textContent = mensajes[premio] || "Sigue participando 🍀";
+cartel.textContent = mensajes[premio] || "¡Premio registrado! 🎉";
 document.body.appendChild(cartel);
 setTimeout(() => cartel.classList.add("mostrar"), 10);
 setTimeout(() => {

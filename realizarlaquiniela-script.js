@@ -156,8 +156,9 @@ const nombre = estado.nombre;
 if (!nombre) { marcarErrorNombre(); tarjetaroja("Escribe tu nombre antes de continuar."); return; }
 if (!estado.completo) { notificar(`Faltan ${PARTIDOS.length - estado.total} partidos por seleccionar.`, "aviso"); return; }
 const vendedor = detectarVendedor();
-if (!vendedor) {
-tarjetaroja("No se detectó tu vendedor. Verifica tu link para poder añadir quinielas correctamente.");
+const codigoReferidoActual = detectarCodigoReferido();
+if (!vendedor || !codigoReferidoActual) {
+tarjetaroja("No se detectó tu vendedor. Verifica tu pagina para poder añadir quinielas correctamente.");
 return;
 }
 const combos = generarCombinaciones(estado.selecciones);
@@ -457,8 +458,8 @@ let huboOtroError = false;
 for (let i = 0; i < guardadas.length; i++) {
 const q = guardadas[i];
 const vendedorFinal = q.vendedor || detectarVendedor();
-if (!vendedorFinal) {
-tarjetaroja("Verifica tu link para poder añadir quinielas correctamente.");
+if (!vendedorFinal || !q.codigoreferido) {
+tarjetaroja("Verifica tu pagina para poder añadir quinielas correctamente.");
 overlay.hidden = true;
 return;
 }

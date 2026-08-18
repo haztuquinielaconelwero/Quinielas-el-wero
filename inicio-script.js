@@ -516,7 +516,12 @@ this.errEl.textContent = "No se pudo contactar al vendedor, intenta de nuevo.";
 compartirCodigo() {
 const texto = this.codigoTextoEl?.textContent?.trim();
 if (!texto) return;
-const mensaje = encodeURIComponent(`Este es mi código para la ruleta de premios: ${texto}`);
+const mensaje = encodeURIComponent(
+`🎉 ¡Participa en *Quinielas El Wero*! 🎉\n\n` +
+`Te dejo la página para que pruebes tu suerte: \n\n` +
+`${texto}\n\n` +
+`¡Mucha suerte! 🍀`
+);
 window.open(`https://wa.me/?text=${mensaje}`, "_blank");
 this.mostrarAvisoCopiado("Abriendo WhatsApp...");
 },

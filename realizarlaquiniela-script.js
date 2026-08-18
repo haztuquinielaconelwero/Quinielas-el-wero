@@ -42,12 +42,6 @@ get totalTriples() {
 return Object.values(this.selecciones).filter((s) => s.length === 3).length;}
 };
 function detectarVendedor() {
-const params = new URLSearchParams(window.location.search);
-const vendedorURL = params.get("vendedor");
-if (vendedorURL) {
-localStorage.setItem("quinielasElWero_vendedorActual", vendedorURL);
-return vendedorURL;
-}
 const guardado = localStorage.getItem("quinielasElWero_vendedorActual");
 return guardado || null;
 }

@@ -729,7 +729,7 @@ position: absolute;
 inset: 0;
 border-radius: 50%;
 background:
-repeating-conic-gradient(rgba(0,0,0,0.35) 0deg 1.5deg, transparent 1.5deg 90deg),
+repeating-conic-gradient(rgba(0,0,0,0.35) 0deg 1.5deg, transparent 1.5deg 120deg),
 conic-gradient(from 0deg, rgba(255,255,255,0.35) 0deg 8deg, transparent 25deg);
 mix-blend-mode: overlay;
 }

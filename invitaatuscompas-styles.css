@@ -353,3 +353,25 @@ margin-right: 0;
 from { transform: scale(0.92); opacity: 0; }
 to { transform: scale(1); opacity: 1; }
 }
+/* -----------------------------------Esto de abajo trabaja en el boton de "Premio entregado" -------------------------------------------------------- */
+.btn-entregar-premio {
+background: linear-gradient(90deg, #16a34a, #15803d);
+color: white;
+font-weight: 700;
+padding: 6px 12px;
+border-radius: 5px;
+font-size: 11px;
+border: none;
+cursor: pointer;
+transition: all 0.2s;
+white-space: nowrap;
+}
+.btn-entregar-premio:hover {
+filter: brightness(1.08);
+transform: translateY(-1px);
+}
+.btn-entregar-premio:disabled {
+opacity: 0.55;
+cursor: not-allowed;
+transform: none;
+}

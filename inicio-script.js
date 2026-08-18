@@ -23,11 +23,6 @@ const DetectorVendedor = {
 STORAGE_KEY: "quinielasElWero_vendedorActual",
 async init() {
 const params = new URLSearchParams(window.location.search);
-const vendedorURL = params.get("vendedor");
-if (vendedorURL) {
-localStorage.setItem(this.STORAGE_KEY, vendedorURL);
-return;
-}
 const codigoURL = params.get("codigo");
 if (codigoURL) {
 try {

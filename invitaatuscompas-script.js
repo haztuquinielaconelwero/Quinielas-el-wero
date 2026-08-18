@@ -153,6 +153,15 @@ cellRenderer: params => `
 </div>
 `,
 },
+{
+field: 'entregaPremio', headerName: 'Premios entregados', width: 170, sortable: false,
+cellRenderer: params => {
+const row = params.data;
+const hayPendientes = (row.ticketsGirados || 0) > 0 || (row.quinielasCanjeadas || 0) > 0;
+if (!hayPendientes) return '';
+return `<button data-entrega-btn="${row.codigo}" onclick="entregarPremio('${row.codigo}')" class="btn-mini btn-entregar-premio">✓ Premios entregados</button>`;
+},
+},
 ];
 }
 /*                                    Esto de abajo trabaja en re-pintar la tabla cuando cambias el vendedor o escribes en el buscador                             */
@@ -285,6 +294,62 @@ alert('✅ ' + data.mensaje);
 await cargarDatos();
 } catch (error) {
 alert('❌ No se pudo completar la acción: ' + error.message);
+}
+}
+/*                              Esto de abajo trabaja en el boton de confirmar entrega                 */
+function pedirConfirmacionEntrega(codigo, tickets, quinielas) {
+return new Promise(resolve => {
+const overlay = document.createElement('div');
+overlay.className = 'regalo-tickets-overlay';
+overlay.innerHTML = `
+<div class="regalo-tickets-caja">
+<p class="regalo-tickets-titulo">Confirmar entrega de premios</p>
+<p class="regalo-tickets-cuerpo">
+¿Seguro que ya le diste sus tickets y quinielas a este vendedor?<br><br>
+🎟️ Tickets: <strong>${tickets}</strong><br>
+⚽ Quinielas: <strong>${quinielas}</strong>
+</p>
+<div class="regalo-tickets-botones">
+<button id="btnEntregaCancelar" class="btn-mini">Cancelar</button>
+<button id="btnEntregaConfirmar" class="btn-mini btn-mini-dorado">Confirmar entrega</button>
+</div>
+</div>`;
+document.body.appendChild(overlay);
+document.getElementById('btnEntregaCancelar').addEventListener('click', () => {
+overlay.remove();
+resolve(false);
+});
+document.getElementById('btnEntregaConfirmar').addEventListener('click', () => {
+overlay.remove();
+resolve(true);
+});
+});
+}
+async function entregarPremio(codigo) {
+const fila = datosOriginales.find(c => c.codigo === codigo);
+if (!fila) return;
+const tickets = fila.ticketsGirados || 0;
+const quinielas = fila.quinielasCanjeadas || 0;
+if (tickets <= 0 && quinielas <= 0) return;
+const confirmado = await pedirConfirmacionEntrega(codigo, tickets, quinielas);
+if (!confirmado) return;
+const btn = document.querySelector(`[data-entrega-btn="${codigo}"]`);
+if (btn) {
+btn.disabled = true;
+btn.textContent = 'Procesando...';
+}
+try {
+const resp = await fetch('/api/invitaatuscompas/entregarpremio', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ codigo }),
+});
+const data = await resp.json();
+if (!data.success) throw new Error(data.mensaje || 'No se pudo registrar la entrega');
+} catch (error) {
+alert('❌ No se pudo completar la entrega: ' + error.message);
+} finally {
+await cargarDatos();
 }
 }
 /*                              Esto de abajo trabaja en bloquear/desbloquear la dinámica completa de Invita a tus Compas                  */

@@ -2752,7 +2752,6 @@ def invitaatuscompaseditar():
         logger.error("invitaatuscompaseditar error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
 
-
 @app.route('/api/invitaatuscompasestado', methods=['POST'])
 def invitaatuscompasestado():
     data = request.get_json(silent=True) or {}
@@ -2780,7 +2779,6 @@ def invitaatuscompasestado():
         logger.error("invitaatuscompasestado error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
 
-
 @app.route('/api/invitaatuscompaseliminar', methods=['POST'])
 def invitaatuscompaseliminar():
     data = request.get_json(silent=True) or {}
@@ -2806,6 +2804,41 @@ def invitaatuscompaseliminar():
         logger.error("invitaatuscompaseliminar error - %s", exc)
         return jsonify(success=False, mensaje=str(exc)), 500
 
+@app.route('/api/invitaatuscompas/entregarpremio', methods=['POST'])
+def invitaatuscompas_entregarpremio():
+    data = request.get_json(silent=True) or {}
+    codigo = (data.get('codigo') or '').strip()
+    if not codigo:
+        return jsonify(success=False, mensaje="Falta el código"), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1 FROM invitaatuscompas WHERE codigo = %s FOR UPDATE", (codigo,))
+                if cur.fetchone() is None:
+                    conn.rollback()
+                    return jsonify(success=False, mensaje="Código no encontrado"), 404
+
+                cur.execute("SELECT COUNT(*) FROM premiosganados WHERE codigoreferido = %s", (codigo,))
+                tickets_pendientes = cur.fetchone()[0]
+
+                cur.execute("SELECT quinielascanjeadastotal FROM ticketsruleta WHERE codigoreferido = %s FOR UPDATE", (codigo,))
+                fila_quin = cur.fetchone()
+                quinielas_pendientes = fila_quin[0] if fila_quin else 0
+
+                if tickets_pendientes == 0 and quinielas_pendientes == 0:
+                    conn.rollback()
+                    return jsonify(success=False, mensaje="Este vendedor no tiene premios pendientes"), 409
+
+                cur.execute("DELETE FROM premiosganados WHERE codigoreferido = %s", (codigo,))
+                cur.execute("UPDATE ticketsruleta SET quinielascanjeadastotal = 0 WHERE codigoreferido = %s", (codigo,))
+
+                conn.commit()
+                return jsonify(success=True, mensaje="Premios reiniciados correctamente")
+    except Exception as exc:
+        logger.error("invitaatuscompas_entregarpremio error - %s", exc)
+        return jsonify(success=False, mensaje=str(exc)), 500
+    
 # ── Esto de abajo trabaja con el home e inicio.html ────────────────────────────────────────────────────────────────────────────────
 @app.route("/")
 def home():

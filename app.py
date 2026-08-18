@@ -1597,7 +1597,7 @@ def enviarlaquinielaporwhatsapp():
                 cur.execute("SELECT vendedor, activo FROM invitaatuscompas WHERE codigo = %s", (codigoreferido,))
                 fila_codigo = cur.fetchone()
                 if fila_codigo is None:
-                    return jsonify(success=False, mensaje="Tu código de referido ya no existe. Pide uno nuevo a tu vendedor."), 404
+                    return jsonify(success=False, mensaje="Existe un error en el nombre de la pagina , intenta corregirlo e intentar de nuevo."), 404
 
                 vendedor, codigo_activo = fila_codigo
                 if not codigo_activo:

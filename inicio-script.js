@@ -475,7 +475,7 @@ this.confirmarCodigo();
 }
 });
 this.btnGirar?.addEventListener("click", () => this.girar());
-this.btnCopiar?.addEventListener("click", () => this.copiarCodigo());
+this.btnCopiar?.addEventListener("click", () => this.compartirCodigo());
 this.btnCanjear?.addEventListener("click", () => this.canjear());
 this.btnCerrarSesionRuleta?.addEventListener("click", () => this.cerrarSesion());
 document.getElementById("linkPedirCodigo")?.addEventListener("click", (e) => {
@@ -513,28 +513,12 @@ this.errEl.hidden = false;
 this.errEl.textContent = "No se pudo contactar al vendedor, intenta de nuevo.";
 }
 },
-async copiarCodigo() {
+compartirCodigo() {
 const texto = this.codigoTextoEl?.textContent?.trim();
 if (!texto) return;
-try {
-if (navigator.clipboard && window.isSecureContext) {
-await navigator.clipboard.writeText(texto);
-} else {
-const temporal = document.createElement("textarea");
-temporal.value = texto;
-temporal.style.position = "fixed";
-temporal.style.opacity = "0";
-document.body.appendChild(temporal);
-temporal.focus();
-temporal.select();
-document.execCommand("copy");
-temporal.remove();
-}
-this.mostrarAvisoCopiado();
-} catch (err) {
-console.error("Error copiando el codigo:", err);
-this.mostrarAvisoCopiado("No se pudo copiar, intenta manualmente.");
-}
+const mensaje = encodeURIComponent(`Este es mi código para la ruleta de premios: ${texto}`);
+window.open(`https://wa.me/?text=${mensaje}`, "_blank");
+this.mostrarAvisoCopiado("Abriendo WhatsApp...");
 },
 mostrarAvisoCopiado(texto = "Copiado al portapapeles ✅") {
 const cartel = document.createElement("div");

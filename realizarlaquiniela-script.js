@@ -643,18 +643,6 @@ document.getElementById("btnEnviarWhatsApp")?.addEventListener("click", enviarAW
 document.querySelectorAll("[data-close]").forEach((btn) => {
 btn.addEventListener("click", () => cerrarModal(btn.dataset.close));
 });
-document.getElementById("nombreInput")?.addEventListener("keydown", (e) => {
-const teclasControl = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"];
-if (teclasControl.includes(e.key) || e.ctrlKey || e.metaKey || e.altKey) return;
-if (e.key === " " && e.target.value.endsWith(" ")) {
-e.preventDefault();
-return;
-}
-if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ]$/.test(e.key)) {
-e.preventDefault();
-notificar("No se permiten símbolos, comas, puntos ni comillas.", "aviso");
-}
-});
 document.getElementById("nombreInput")?.addEventListener("paste", (e) => {
 e.preventDefault();
 const input = e.target;
@@ -674,6 +662,12 @@ const errEl = document.getElementById("nombreError");
 const LIMITE_CARACTERES = 35;
 let cursor = input.selectionStart;
 let valor = input.value;
+const valorLimpio = valor.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ]/g, "");
+if (valorLimpio !== valor) {
+notificar("No se permiten símbolos, comas, puntos ni comillas.", "aviso");
+cursor = Math.max(0, cursor - (valor.length - valorLimpio.length));
+}
+valor = valorLimpio;
 if (valor.length > LIMITE_CARACTERES) {
 valor = valor.slice(0, LIMITE_CARACTERES);
 cursor = Math.min(cursor, LIMITE_CARACTERES);

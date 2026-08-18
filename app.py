@@ -1579,30 +1579,42 @@ def enviarlaquinielaporwhatsapp():
     data = request.get_json(silent=True) or {}
     nombrecelular = (data.get("nombrecelular") or "").strip()
     nombrequiniela = (data.get("nombrequiniela") or "").strip()
-    vendedor_recibido = (data.get("vendedor") or "").strip()
     jornada = (data.get("jornada") or JORNADA_ACTUAL).strip()
     dispositivoid = (data.get("dispositivoid") or "").strip()
-    codigoreferido = (data.get("codigoreferido") or "").strip() or None
+    codigoreferido = (data.get("codigoreferido") or "").strip()
     selecciones = data.get("selecciones") or {}
 
-    if not nombrecelular or not nombrequiniela or not selecciones or not dispositivoid:
-        return jsonify(success=False, mensaje="Faltan datos"), 400
+    if not nombrecelular or not nombrequiniela or not selecciones or not dispositivoid or not codigoreferido:
+        return jsonify(success=False, mensaje="Falta tu código de referido. Entra por el link de tu vendedor."), 400
 
-    vendedor = resolver_vendedor(vendedor_recibido)
-    if not vendedor:
-        return jsonify(success=False, mensaje="Vendedor no reconocido"), 400
-    if vendedor not in VENDEDOR_WHATSAPP:
-        return jsonify({"success": False, "mensaje": "Vendedor no reconocido"}), 400
-    picks = []
-    for p in PARTIDOS:
-        pick = selecciones.get(str(p["id"])) or selecciones.get(p["id"])
-        if not pick or pick not in ("L", "E", "V"):
-            return jsonify({"success": False, "mensaje": f"Falta selección en partido {p['id']}"}), 400
-        picks.append(pick)
-    llavemaestra = construir_llavemaestra(nombrecelular, jornada, nombrequiniela, picks)
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
+                cur.execute("SELECT 1 FROM clientes WHERE dispositivoid = %s", (dispositivoid,))
+                if cur.fetchone() is None:
+                    return jsonify(success=False, mensaje="Tu registro ya no existe en el sistema. Vuelve a registrarte."), 403
+
+                cur.execute("SELECT vendedor, activo FROM invitaatuscompas WHERE codigo = %s", (codigoreferido,))
+                fila_codigo = cur.fetchone()
+                if fila_codigo is None:
+                    return jsonify(success=False, mensaje="Tu código de referido ya no existe. Pide uno nuevo a tu vendedor."), 404
+
+                vendedor, codigo_activo = fila_codigo
+                if not codigo_activo:
+                    return jsonify(success=False, mensaje="Tu código de referido ya no está activo. Pide uno nuevo a tu vendedor."), 403
+
+                if vendedor not in VENDEDOR_WHATSAPP:
+                    return jsonify(success=False, mensaje="Vendedor no reconocido"), 400
+
+                picks = []
+                for p in PARTIDOS:
+                    pick = selecciones.get(str(p["id"])) or selecciones.get(p["id"])
+                    if not pick or pick not in ("L", "E", "V"):
+                        return jsonify({"success": False, "mensaje": f"Falta selección en partido {p['id']}"}), 400
+                    picks.append(pick)
+
+                llavemaestra = construir_llavemaestra(nombrecelular, jornada, nombrequiniela, picks)
+
                 cur.execute(
                     """
                     INSERT INTO todaslasquinielas (

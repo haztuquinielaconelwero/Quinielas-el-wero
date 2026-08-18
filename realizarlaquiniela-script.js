@@ -455,6 +455,7 @@ contador.textContent = `0 de ${guardadas.length}`;
 const enviadasOk = [];
 let huboRepetida = false;
 let huboOtroError = false;
+let mensajeErrorServidor = null;
 for (let i = 0; i < guardadas.length; i++) {
 const q = guardadas[i];
 const vendedorFinal = q.vendedor || detectarVendedor();
@@ -484,6 +485,7 @@ marcarComoDuplicada(q.firma);
 huboRepetida = true;
 } else {
 huboOtroError = true;
+mensajeErrorServidor = data.mensaje || mensajeErrorServidor;
 }
 contador.textContent = `${i + 1} de ${guardadas.length}`;
 continue;
@@ -515,7 +517,7 @@ window._alertaPendienteAlCerrar = huboRepetida
 } else if (huboRepetida) {
 tarjetaroja("Tienes una quiniela repetida, favor de poner otro nombre o resultado.");
 } else if (huboOtroError) {
-tarjetaroja("Hubo un error al enviar tus quinielas. Intenta de nuevo.");
+tarjetaroja(mensajeErrorServidor || "Existe un error en nombre de la pagina , intenta corregirlo e intentar de nuevo.");
 }
 }
 function precioTotal(arr) {

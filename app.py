@@ -1585,7 +1585,7 @@ def enviarlaquinielaporwhatsapp():
     selecciones = data.get("selecciones") or {}
 
     if not nombrecelular or not nombrequiniela or not selecciones or not dispositivoid or not codigoreferido:
-        return jsonify(success=False, mensaje="Falta tu código de referido. Entra por el link de tu vendedor."), 400
+         return jsonify(success=False, mensaje="PRUEBA-123-CANDADO-ACTIVO"), 400
 
     try:
         with get_connection() as conn:

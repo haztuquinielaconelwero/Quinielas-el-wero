@@ -734,9 +734,9 @@ console.error("Error girando la ruleta:", err);
 },
 calcularGradosParaPremio(premio) {
 const sectores = {
-"quiniela_gratis": 300.6,
-"20_pesos": 181.8,
-"10_pesos": 61.2,
+"10_pesos": 90,
+"20_pesos": 234,
+"quiniela_gratis": 324,
 };
 const anguloFinal = sectores[premio] ?? sectores["10_pesos"];
 const vueltasExtra = 8 * 360;

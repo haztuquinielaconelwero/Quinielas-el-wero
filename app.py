@@ -2067,12 +2067,12 @@ PRECIO_QUINIELA = 30
 
 def elegir_premio_ruleta():
     dardo = random.random()
-    if dardo < 0.33:
-        return "quiniela_gratis", 0
-    elif dardo < 0.66:
+    if dardo < 0.50:
+        return "10_pesos", 10
+    elif dardo < 0.80:
         return "20_pesos", 20
     else:
-        return "10_pesos", 10
+        return "quiniela_gratis", 0
 
 @app.route("/api/ruletagirar", methods=["POST"])
 def ruletagirar():

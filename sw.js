@@ -1,5 +1,5 @@
 // ══════════════════════════════════════      Service Worker — Quinielas El Wero                   ════════════════════════════════════            //
-const VERSION = "v1.5.6";
+const VERSION = "v1.5.7";
 const CACHE_ESTATICO = `estatico-${VERSION}`;
 const CACHE_IMAGENES = `imagenes-${VERSION}`;
 const ARCHIVOS_PRECARGA = [

@@ -217,6 +217,19 @@ localStorage.setItem(STORAGE_KEY_ENVIADAS, JSON.stringify([...actuales, ...nueva
 console.error("No se pudo guardar en Mis Quinielas", err);
 }
 }
+/* =====================================  Esto de abajo trabaja en borrar las quinielas guardadas                   ======================= */
+function limpiarGuardadasDeJornadaVieja() {
+const todas = leerStorage();
+const vigentes = todas.filter((q) => q.jornada === JORNADA_ACTUAL);
+const viejas = todas.length - vigentes.length;
+if (viejas > 0) {
+escribirStorage(vigentes);
+notificar(
+`Se eliminaron ${viejas} quiniela${viejas > 1 ? "s" : ""} guardada${viejas > 1 ? "s" : ""} de una jornada anterior.`,
+"aviso"
+);
+}
+}
 /* =====================================     Esto de abajo calcula el precio de las quinielas en tiempo real y tambien las quinielas guardadas      ======================= */
 function calcularCombinacionesEstado() {
 if (estado.total === 0) return 0;
@@ -472,7 +485,7 @@ body: JSON.stringify({
 nombrecelular: nombreCelularActual || q.nombre,
 nombrequiniela: q.nombre,
 vendedor: vendedorFinal,
-jornada: q.jornada || JORNADA_ACTUAL,
+jornada: JORNADA_ACTUAL,   
 dispositivoid: dispositivoid,
 codigoreferido: q.codigoreferido || null,
 selecciones: q.selecciones
@@ -715,6 +728,7 @@ vendedor = detectarVendedor();
 if (!vendedor) { tarjetaroja("Verifica tu link para poder añadir quinielas correctamente."); }
 cargarVendedores();
 await cargarJornadaActual();
+limpiarGuardadasDeJornadaVieja(); 
 renderPartidos();
 actualizarPrecio();
 actualizarBadgeGuardadas();

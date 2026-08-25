@@ -410,7 +410,7 @@ def referidosconfirmadoslista():
                     FROM referidosconfirmados rc
                     INNER JOIN invitaatuscompas iac ON iac.codigo = rc.codigoreferido
                     INNER JOIN clientes c ON c.dispositivoid = rc.dispositivoid
-                    INNER JOIN todaslasquinielas tlq ON tlq.id = rc.quinielaid
+                    LEFT JOIN todaslasquinielas tlq ON tlq.id = rc.quinielaid
                     ORDER BY rc.fechaconfirmado DESC
                 """)
                 filas = cur.fetchall()
@@ -602,7 +602,8 @@ def togglebloqueo():
 
 WHATSAPP_GRUPO_URL = "https://chat.whatsapp.com/BhmWILdKb9X36YcGABlSBz"
 JORNADA_ACTUAL = "Jornada 5"
-JORNADA_CIERRE = "2026-08-21T16:00:00-06:00" 
+JORNADA_CIERRE = "2026-08-21T16:00:00-06:00"
+
 
 PARTIDOS = [
     {
@@ -1579,7 +1580,7 @@ def enviarlaquinielaporwhatsapp():
     data = request.get_json(silent=True) or {}
     nombrecelular = (data.get("nombrecelular") or "").strip()
     nombrequiniela = (data.get("nombrequiniela") or "").strip()
-    jornada = (data.get("jornada") or JORNADA_ACTUAL).strip()
+    jornada = JORNADA_ACTUAL 
     dispositivoid = (data.get("dispositivoid") or "").strip()
     codigoreferido = (data.get("codigoreferido") or "").strip()
     selecciones = data.get("selecciones") or {}
@@ -1786,6 +1787,7 @@ def quinielasdelvendedor():
 @app.route("/api/nojugando")
 def api_nojugando():
     vendedor = (request.args.get("vendedor") or "").strip()
+    jornada = (request.args.get("jornada") or JORNADA_ACTUAL).strip()
     if vendedor not in VENDEDOR_WHATSAPP:
         return jsonify({"success": False, "mensaje": "Vendedor no valido"}), 400
     try:
@@ -1795,9 +1797,9 @@ def api_nojugando():
                     """SELECT id, nombrecelular, nombrequiniela,
                               p1, p2, p3, p4, p5, p6, p7, p8, p9
                        FROM todaslasquinielas
-                       WHERE vendedor = %s AND estado = 'No jugando'
+                       WHERE vendedor = %s AND estado = 'No jugando' AND jornada = %s
                        ORDER BY fechacreacion ASC;""",
-                    (vendedor,),
+                    (vendedor, jornada),
                 )
                 filas = cur.fetchall()
         pendientes = []
@@ -1818,6 +1820,7 @@ def api_nojugando():
 @app.route("/api/espera")
 def api_espera():
     vendedor = (request.args.get("vendedor") or "").strip()
+    jornada = (request.args.get("jornada") or JORNADA_ACTUAL).strip()
     if vendedor not in VENDEDOR_WHATSAPP:
         return jsonify({"success": False, "mensaje": "Vendedor no valido"}), 400
     try:
@@ -1827,9 +1830,9 @@ def api_espera():
                     """SELECT id, nombrecelular, nombrequiniela,
                               p1, p2, p3, p4, p5, p6, p7, p8, p9
                        FROM todaslasquinielas
-                       WHERE vendedor = %s AND estado = 'En espera'
+                       WHERE vendedor = %s AND estado = 'En espera' AND jornada = %s
                        ORDER BY fechacreacion ASC;""",
-                    (vendedor,),
+                    (vendedor, jornada),
                 )
                 filas = cur.fetchall()
         espera = []
@@ -1850,6 +1853,7 @@ def api_espera():
 @app.route("/api/jugando")
 def api_jugando():
     vendedor = (request.args.get("vendedor") or "").strip()
+    jornada = (request.args.get("jornada") or JORNADA_ACTUAL).strip()
     if vendedor not in VENDEDOR_WHATSAPP:
         return jsonify({"success": False, "mensaje": "Vendedor no valido"}), 400
     try:
@@ -1859,13 +1863,13 @@ def api_jugando():
                     """SELECT id, folio, nombrequiniela,
                               p1, p2, p3, p4, p5, p6, p7, p8, p9
                        FROM todaslasquinielas
-                       WHERE vendedor = %s AND estado = 'Jugando'
+                       WHERE vendedor = %s AND estado = 'Jugando' AND jornada = %s
                        ORDER BY folio::int ASC;""",
-                    (vendedor,),
+                    (vendedor, jornada),
                 )
                 filas = cur.fetchall()
 
-        resultados_oficiales = _obtener_resultados_oficiales(JORNADA_ACTUAL)
+        resultados_oficiales = _obtener_resultados_oficiales(jornada)
 
         jugando = []
         for row in filas:
@@ -2537,9 +2541,6 @@ def nuevajornada():
 
                 referidosrespaldados = cur.rowcount
 
-                cur.execute("DELETE FROM referidosconfirmados")
-                referidosborrados = cur.rowcount
-
                 cur.execute("DELETE FROM todaslasquinielas")
                 quinielasborradas = cur.rowcount
 
@@ -2552,7 +2553,6 @@ def nuevajornada():
             "success": True,
             "mensaje": "Nueva jornada preparada correctamente.",
             "referidosRespaldados": referidosrespaldados,
-            "referidosBorrados": referidosborrados,
             "quinielasBorradas": quinielasborradas,
             "resultadosBorrados": resultadosborrados
         })

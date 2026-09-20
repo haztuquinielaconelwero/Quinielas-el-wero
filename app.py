@@ -1351,7 +1351,7 @@ def _auto_sync_loop():
                 pid for pid, ko in kickoff_por_id.items()
                 if now >= ko + timedelta(minutes=105)
             }
-            
+
             if not ids_listos:
                 logger.info("auto_sync: ningun partido listo todavia, durmiendo 10 min")
                 time.sleep(600)
@@ -1381,12 +1381,7 @@ def _auto_sync_loop():
                     logger.warning("auto_sync: liga_key=%s sin slug configurado en LIGAS_ESPN", liga_key)
                     continue
 
-                fecha_dt = datetime.strptime(fecha, "%Y%m%d")
-                fecha_ini = (fecha_dt - timedelta(days=1)).strftime("%Y%m%d")
-                fecha_fin = (fecha_dt + timedelta(days=1)).strftime("%Y%m%d")
-                rango = f"{fecha_ini}-{fecha_fin}"
-
-                url = f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={rango}"
+                url = f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={fecha}"
 
                 try:
                     resp = requests.get(url, timeout=10)
@@ -1406,8 +1401,8 @@ def _auto_sync_loop():
                         )
                         continue
                     logger.info(
-                        "auto_sync: %s eventos recibidos para liga=%s rango=%s",
-                        len(data.get("events", [])), liga_key, rango
+                        "auto_sync: %s eventos recibidos para liga=%s fecha=%s",
+                        len(data.get("events", [])), liga_key, fecha
                     )
                 except requests.Timeout:
                     logger.warning("auto_sync: TIMEOUT consultando ESPN liga=%s fecha=%s", liga_key, fecha)
@@ -1419,8 +1414,8 @@ def _auto_sync_loop():
                 encontrados = _parsear_eventos_espn(data, local_lookup, ids_sin_resultado)
                 if not encontrados:
                     logger.info(
-                        "auto_sync: ningun partido terminado coincidio todavia para liga=%s rango=%s",
-                        liga_key, rango
+                        "auto_sync: ningun partido terminado coincidio todavia para liga=%s fecha=%s",
+                        liga_key, fecha
                     )
 
                 for pid, gh, ga, res in encontrados:

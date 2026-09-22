@@ -629,7 +629,7 @@ PARTIDOS = [
         "visitante": "Queretaro", "visitanteLogo": "/logos/queretaro.png",
         "horario": "Sabado 26 de septiembre 5:07 pm",
         "televisora": "Prime Video",
-        "televisionLogo": "/logos/prime-video.png",
+        "televisionLogo": "/logos/amazon-prime.png",
         "kickoff": "2026-09-26T17:07:00-06:00",
     },
     {

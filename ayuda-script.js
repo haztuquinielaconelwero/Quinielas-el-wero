@@ -118,11 +118,10 @@ const VENDEDOR_CUENTAS = {
 ],
 /* ======================================================================================================================================================== */
 "•": [
-{ banco: "Banorte", titular: "Irving Emilio Gonzalez Romero", numero: "4189 1430 7518 4476" },
-{ banco: "Bancomer", titular: "Irving Emilio Gonzalez Romero", numero: "4152 3137 2949 5908" },
-{ banco: "Bancomer", titular: "Irving Emilio Gonzalez Romero", numero: "4152 3137 2949 5916" },
+{ banco: "Banorte", titular: "Irving Emilio Gonzalez Romero", numero: "4189 1401 5716 3840" },
+{ banco: "Bancomer", titular: "Irving Emilio Gonzalez Romero", numero: "4152 3147 1322 3280" },
+{ banco: "Bancomer", titular: "Irving Emilio Gonzalez Romero", numero: "4152 3147 1322 3371" },
 { banco: "Spin by Oxxo", titular: "Irving Emilio Gonzalez Romero", numero: "4217 4700 8441 1996" },
-{ banco: "Spin by Oxxo", titular: "Irving Emilio Gonzalez Romero", numero: "4217 4700 0587 8323" },
 { banco: "Spin by Oxxo", titular: "Irving Emilio Gonzalez Romero", numero: "4217 4700 8443 4659" }
 ],
 /* ======================================================================================================================================================== */
